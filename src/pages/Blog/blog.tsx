@@ -9,8 +9,8 @@ export default function BlogPage() {
         <div className="inline-block max-w-lg text-center justify-center">
           <h1 className={title()}>Blog</h1>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto">
-          {[1, 2, 3, 4, 5, 6].map((post) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto mt-8">
+          {[1, 2, 3].map((post) => (
             <Card key={post} className="max-w-md">
               <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
                 <h4 className="font-bold text-large">Bài viết {post}</h4>

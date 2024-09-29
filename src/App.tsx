@@ -1,10 +1,10 @@
 import { Route, Routes } from "react-router-dom";
 
 import IndexPage from "@/pages/index";
-import DocsPage from "@/pages/docs";
+import DocsPage from "@/pages/Docs/docs";
 import PricingPage from "@/pages/pricing";
-import BlogPage from "@/pages/blog";
-import AboutPage from "@/pages/about";
+import BlogPage from "@/pages/Blog/blog";
+import AboutPage from "@/pages/About/about";
 import LoginPage from "@/pages/login";
 import SignUpPage from "@/pages/signup";
 

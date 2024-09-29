@@ -6,6 +6,7 @@ import { button as buttonStyles } from "@nextui-org/theme";
 import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
+import TeamSection from "@/components/TeamSection/TeamSection";
 
 export default function IndexPage() {
   return (
@@ -56,6 +57,10 @@ export default function IndexPage() {
           </div>
         </div>
       </section>
+
+      {/* Thêm TeamSection vào đây */}
+      <TeamSection />
     </DefaultLayout>
+    
   );
 }
