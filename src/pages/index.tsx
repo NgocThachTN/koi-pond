@@ -1,14 +1,14 @@
 import { Link } from "@nextui-org/link";
 import { Card, CardBody, CardFooter } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";
-import { button as buttonStyles } from "@nextui-org/theme";
-import Slider from "react-slick";
+import { button as buttonStyles } from "@nextui-org/theme"; // trước khi dùng nhớ npm install --save-dev @iconify/react và npm install clsx tailwind-merge
+import Slider from "react-slick"; //npm install --save-dev @types/react-slick
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
-import TeamSection from "@/components/TeamSection/TeamSection";
+import TeamSection from "@/components/TeamSection/TeamSection"; 
 
 export default function IndexPage() {
   const settings = {

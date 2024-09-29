@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Button, Input, Link, Divider, User, Checkbox } from "@nextui-org/react";
+import { Button, Input, Link, Divider, User, Checkbox } from "@nextui-org/react"; //npm install react-slick slick-carousel
 import { Icon } from "@iconify/react";
 import { AcmeIcon } from "@/components/AcmeIcon"; // Make sure this import is correct
 

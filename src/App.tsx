@@ -5,8 +5,8 @@ import DocsPage from "@/pages/Docs/docs";
 import PricingPage from "@/pages/pricing";
 import BlogPage from "@/pages/Blog/blog";
 import AboutPage from "@/pages/About/about";
-import LoginPage from "@/pages/login";
-import SignUpPage from "@/pages/signup";
+import LoginPage from "@/pages/Login/login";
+import SignUpPage from "@/pages/Singup/signup";
 
 function App() {
   return (
