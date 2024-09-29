@@ -1,98 +1,125 @@
 "use client";
 
 import React from "react";
-import { title } from "@/components/primitives";
-import DefaultLayout from "@/layouts/default";
-import { Input, Button, Link } from "@nextui-org/react";
+import { Button, Input, Link, Divider, User, Checkbox } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
+import { AcmeIcon } from "@/components/AcmeIcon"; // Make sure this import is correct
 
 export default function SignUpPage() {
   const [isVisible, setIsVisible] = React.useState(false);
-  const [isConfirmVisible, setIsConfirmVisible] = React.useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
-  const toggleConfirmVisibility = () => setIsConfirmVisible(!isConfirmVisible);
 
   return (
-    <DefaultLayout>
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="flex w-full max-w-sm flex-col gap-4 rounded-large">
-          <div className="flex flex-col items-center pb-6">
-            <h1 className={title()}>Sign Up Page</h1>
-            <p className="text-small text-default-500">Create an account to get started</p>
+    <div className="relative flex h-screen w-screen">
+      {/* Brand Logo */}
+      <div className="absolute left-2 top-5 lg:left-5">
+        <div className="flex items-center">
+          <AcmeIcon size={40} />
+          <p className="font-medium">KoiPond</p>
+        </div>
+      </div>
+
+      {/* Sign Up Form */}
+      <div className="flex w-full items-center justify-center bg-background lg:w-1/2">
+        <div className="flex w-full max-w-sm flex-col items-center gap-4 p-4">
+          <div className="w-full text-left">
+            <p className="pb-2 text-xl font-medium">Create Account</p>
+            <p className="text-small text-default-500">Sign up for a new account to get started</p>
           </div>
-          <form className="flex flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
-            <div className="flex flex-col">
-              <Input
-                isRequired
-                label="Email"
-                type="email"
-                placeholder="Enter your email"
-                variant="bordered"
-              />
-              <Input
-                isRequired
-                label="Password"
-                type={isVisible ? "text" : "password"}
-                placeholder="Enter your password"
-                variant="bordered"
-                endContent={
-                  <button type="button" onClick={toggleVisibility}>
-                    {isVisible ? (
-                      <Icon
-                        className="pointer-events-none text-2xl text-default-400"
-                        icon="solar:eye-closed-linear"
-                      />
-                    ) : (
-                      <Icon
-                        className="pointer-events-none text-2xl text-default-400"
-                        icon="solar:eye-bold"
-                      />
-                    )}
-                  </button>
-                }
-              />
-              <Input
-                isRequired
-                label="Confirm Password"
-                type={isConfirmVisible ? "text" : "password"}
-                placeholder="Confirm your password"
-                variant="bordered"
-                endContent={
-                  <button type="button" onClick={toggleConfirmVisibility}>
-                    {isConfirmVisible ? (
-                      <Icon
-                        className="pointer-events-none text-2xl text-default-400"
-                        icon="solar:eye-closed-linear"
-                      />
-                    ) : (
-                      <Icon
-                        className="pointer-events-none text-2xl text-default-400"
-                        icon="solar:eye-bold"
-                      />
-                    )}
-                  </button>
-                }
-              />
-              <Input
-                isRequired
-                label="Address"
-                type="text"
-                placeholder="Enter your address"
-                variant="bordered"
-              />
-              <Input
-                isRequired
-                label="Phone Number"
-                type="tel"
-                placeholder="Enter your phone number"
-                variant="bordered"
-              />
-            </div>
-            <Button type="submit" color="primary">
+
+          <div className="flex w-full flex-col gap-2">
+            <Button
+              startContent={<Icon icon="flat-color-icons:google" width={24} />}
+              variant="bordered"
+            >
+              Sign Up with Google
+            </Button>
+            <Button
+              startContent={<Icon className="text-default-500" icon="fe:github" width={24} />}
+              variant="bordered"
+            >
+              Sign Up with Github
+            </Button>
+          </div>
+
+          <div className="flex w-full items-center gap-4 py-2">
+            <Divider className="flex-1" />
+            <p className="shrink-0 text-tiny text-default-500">OR</p>
+            <Divider className="flex-1" />
+          </div>
+
+          <form className="flex w-full flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
+            <Input
+              isRequired
+              label="Email Address"
+              name="email"
+              placeholder="Enter your email"
+              type="email"
+              variant="underlined"
+            />
+            <Input
+              isRequired
+              endContent={
+                <button type="button" onClick={toggleVisibility}>
+                  {isVisible ? (
+                    <Icon
+                      className="pointer-events-none text-2xl text-default-400"
+                      icon="solar:eye-closed-linear"
+                    />
+                  ) : (
+                    <Icon
+                      className="pointer-events-none text-2xl text-default-400"
+                      icon="solar:eye-bold"
+                    />
+                  )}
+                </button>
+              }
+              label="Password"
+              name="password"
+              placeholder="Create a password"
+              type={isVisible ? "text" : "password"}
+              variant="underlined"
+            />
+            <Input
+              isRequired
+              label="Confirm Password"
+              name="confirmPassword"
+              placeholder="Confirm your password"
+              type={isVisible ? "text" : "password"}
+              variant="underlined"
+            />
+            <Input
+              isRequired
+              label="Address"
+              name="address"
+              placeholder="Enter your address"
+              type="text"
+              variant="underlined"
+            />
+            <Input
+              isRequired
+              label="Phone Number"
+              name="phoneNumber"
+              placeholder="Enter your phone number"
+              type="tel"
+              variant="underlined"
+            />
+            <Checkbox isRequired className="py-4" size="sm">
+              I agree with the&nbsp;
+              <Link href="#" size="sm">
+                Terms
+              </Link>
+              &nbsp; and&nbsp;
+              <Link href="#" size="sm">
+                Privacy Policy
+              </Link>
+            </Checkbox>
+            <Button color="primary" type="submit">
               Sign Up
             </Button>
           </form>
+
           <p className="text-center text-small">
             Already have an account?&nbsp;
             <Link href="/login" size="sm">
@@ -101,6 +128,19 @@ export default function SignUpPage() {
           </p>
         </div>
       </div>
-    </DefaultLayout>
+
+      {/* Right side */}
+      <div
+        className="relative hidden w-1/2 flex-col-reverse rounded-medium p-10 shadow-small lg:flex"
+        style={{
+          backgroundImage:
+            "url(https://i.pinimg.com/originals/f0/68/d9/f068d9524c85ed69a3cbfd5eed1c8d02.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+       
+      </div>
+    </div>
   );
 }

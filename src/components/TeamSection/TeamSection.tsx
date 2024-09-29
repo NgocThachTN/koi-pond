@@ -3,22 +3,22 @@ import { Card, CardBody, CardFooter, Image } from "@nextui-org/react";
 
 const teamMembers = [
   {
-    name: "Nguyễn Văn A",
+    name: "Dương Gay",
     role: "Project Manager",
     image: "https://i.pravatar.cc/300?u=a042581f4e29026024d",
   },
   {
-    name: "Trần Thị B",
+    name: "Ngọc Thạch",
     role: "Developer",
     image: "https://i.pravatar.cc/300?u=a042581f4e29026704d",
   },
   {
-    name: "Lê Văn C",
+    name: "Anh Tuấn",
     role: "Designer",
     image: "https://i.pravatar.cc/300?u=a04258114e29026702d",
   },
   {
-    name: "Phạm Thị D",
+    name: "Anh Nguyên",
     role: "Marketing",
     image: "https://i.pravatar.cc/300?u=a048581f4e29026701d",
   },
