@@ -1,11 +1,10 @@
 import { Link } from "@nextui-org/link";
-import { Snippet } from "@nextui-org/snippet";
-import { Code } from "@nextui-org/code";
+import { Card, CardBody, CardFooter } from "@nextui-org/card";
+import { Image } from "@nextui-org/image";
 import { button as buttonStyles } from "@nextui-org/theme";
 
 import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";
-import { GithubIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
 
 export default function IndexPage() {
@@ -13,46 +12,73 @@ export default function IndexPage() {
     <DefaultLayout>
       <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
         <div className="inline-block max-w-lg text-center justify-center">
-          <span className={title()}>Make&nbsp;</span>
-          <span className={title({ color: "violet" })}>beautiful&nbsp;</span>
+          <span className={title()}>Thiết kế và Thi công&nbsp;</span>
+          <span className={title({ color: "primary" })}>Hồ cá Koi&nbsp;</span>
           <br />
           <span className={title()}>
-            websites regardless of your design experience.
+            chuyên nghiệp, đẳng cấp
           </span>
           <div className={subtitle({ class: "mt-4" })}>
-            Beautiful, fast and modern React UI library.
+            Mang vẻ đẹp của thiên nhiên vào không gian sống của bạn
           </div>
         </div>
 
         <div className="flex gap-3">
           <Link
-            isExternal
             className={buttonStyles({
               color: "primary",
               radius: "full",
               variant: "shadow",
             })}
-            href={siteConfig.links.docs}
+            href="#services"
           >
-            Documentation
+            Dịch vụ của chúng tôi
           </Link>
           <Link
-            isExternal
             className={buttonStyles({ variant: "bordered", radius: "full" })}
-            href={siteConfig.links.github}
+            href="#contact"
           >
-            <GithubIcon size={20} />
-            GitHub
+            Liên hệ
           </Link>
         </div>
 
-        <div className="mt-8">
-          <Snippet hideCopyButton hideSymbol variant="bordered">
-            <span>
-              Get started by editing{" "}
-              <Code color="primary">pages/index.tsx</Code>
-            </span>
-          </Snippet>
+        <div className="max-w-[900px] gap-2 grid grid-cols-12 grid-rows-2 px-8">
+          <Card className="col-span-12 sm:col-span-4 h-[300px]">
+            <CardBody className="overflow-visible p-0">
+              <Image
+                shadow="sm"
+                radius="lg"
+                width="100%"
+                alt="Hồ cá Koi"
+                className="w-full object-cover h-[300px]"
+                src="https://example.com/koi-pond-1.jpg"
+              />
+            </CardBody>
+          </Card>
+          <Card className="col-span-12 sm:col-span-4 h-[300px]">
+            <CardBody className="overflow-visible p-0">
+              <Image
+                shadow="sm"
+                radius="lg"
+                width="100%"
+                alt="Thiết kế hồ cá"
+                className="w-full object-cover h-[300px]"
+                src="https://example.com/koi-pond-2.jpg"
+              />
+            </CardBody>
+          </Card>
+          <Card className="col-span-12 sm:col-span-4 h-[300px]">
+            <CardBody className="overflow-visible p-0">
+              <Image
+                shadow="sm"
+                radius="lg"
+                width="100%"
+                alt="Thi công hồ cá"
+                className="w-full object-cover h-[300px]"
+                src="https://example.com/koi-pond-3.jpg"
+              />
+            </CardBody>
+          </Card>
         </div>
       </section>
     </DefaultLayout>
