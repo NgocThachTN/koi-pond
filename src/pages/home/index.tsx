@@ -11,6 +11,7 @@ import DefaultLayout from "@/layouts/default";
 import TeamSection from "@/components/TeamSection/TeamSection";
 import Features3 from "@/components/features3/index";
 import Process from "@/components/Process/process";
+import Project from "@/components/project/project";
 export default function IndexPage() {
   const settings = {
     dots: true,
@@ -94,6 +95,7 @@ export default function IndexPage() {
       {/* Thêm TeamSection vào đây */}
       <Features3/>
       <Process/>
+      <Project/>
       <TeamSection />
     </DefaultLayout>
   );
