@@ -7,6 +7,7 @@ import BlogPage from "@/pages/Blog/blog";
 import AboutPage from "@/pages/About/about";
 import LoginPage from "@/pages/Login/login";
 import SignUpPage from "@/pages/Singup/signup";
+import ServicesPage from "@/pages/Services/services";
 
 function App() {
   return (
@@ -18,6 +19,8 @@ function App() {
       <Route element={<AboutPage />} path="/about" />
       <Route element={<LoginPage />} path="/login" />
       <Route element={<SignUpPage />} path="/signup" />
+      <Route element={<ServicesPage />} path="/services" />
+
     </Routes>
   );
 }

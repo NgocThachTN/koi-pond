@@ -15,9 +15,9 @@ import {
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { cn } from "@nextui-org/react";
-
 import { Logo } from "@/components/icons";
 import { ThemeSwitch } from "@/components/theme-switch";
+import { SiteConfig } from "@/config/site";
 
 // Define the pages array
 const pages = [

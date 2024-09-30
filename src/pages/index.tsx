@@ -8,7 +8,7 @@ import "slick-carousel/slick/slick-theme.css";
 import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
-import TeamSection from "@/components/TeamSection/TeamSection"; 
+import TeamSection from "@/components/TeamSection/TeamSection";
 
 export default function IndexPage() {
   const settings = {
@@ -51,14 +51,17 @@ export default function IndexPage() {
           </div>
           <div className="w-full md:w-1/3 p-4 md:p-8">
             <div className="text-center md:text-left">
-              <span className={title()}>Thiết kế và Thi công&nbsp;</span>
-              <span className={title({ color: "violet" })}>Hồ cá Koi&nbsp;</span>
-              <br />
               <span className={title()}>
-                chuyên nghiệp, đẳng cấp
+                Professional and high-class&nbsp;
               </span>
+              <span className={title({ color: "violet" })}>
+                
+                Koi pond&nbsp;
+              </span>
+              <br />
+              <span className={title()}>design and construction.</span>
               <div className={subtitle({ class: "mt-4" })}>
-                Mang vẻ đẹp của thiên nhiên vào không gian sống của bạn
+                Bring the beauty of nature into your living space.
               </div>
             </div>
 
@@ -69,24 +72,25 @@ export default function IndexPage() {
                   radius: "full",
                   variant: "shadow",
                 })}
-                href="#services"
+                href="/services"
               >
-                Dịch vụ của chúng tôi
+                Our Services
               </Link>
               <Link
-                className={buttonStyles({ variant: "bordered", radius: "full" })}
+                className={buttonStyles({
+                  variant: "bordered",
+                  radius: "full",
+                })}
                 href="#contact"
               >
-                Liên hệ
+                Contact Us
               </Link>
             </div>
           </div>
         </div>
       </section>
-
       {/* Thêm TeamSection vào đây */}
-      <TeamSection />  {/* Em để TeamSection trên cái components á. */}
+      <TeamSection /> {/* Em để TeamSection trên cái components á. */}
     </DefaultLayout>
-    
   );
 }

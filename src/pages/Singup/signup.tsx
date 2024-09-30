@@ -36,10 +36,10 @@ export default function SignUpPage() {
               Sign Up with Google
             </Button>
             <Button
-              startContent={<Icon className="text-default-500" icon="fe:github" width={24} />}
+              startContent={<Icon className="text-default-500" icon="fe:facebook" width={24} />}
               variant="bordered"
             >
-              Sign Up with Github
+              Sign Up with Facebook
             </Button>
           </div>
 

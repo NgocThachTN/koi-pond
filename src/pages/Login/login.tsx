@@ -36,10 +36,10 @@ export default function Login() {
               Continue with Google
             </Button>
             <Button
-              startContent={<Icon className="text-default-500" icon="fe:github" width={24} />}
+              startContent={<Icon className="text-default-500" icon="fe:facebook" width={24} />}
               variant="bordered"
             >
-              Continue with Github
+              Continue with Facebook
             </Button>
           </div>
 
