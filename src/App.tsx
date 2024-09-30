@@ -9,6 +9,9 @@ import LoginPage from "@/pages/Login/login";
 import SignUpPage from "@/pages/Singup/signup";
 import ServicesPage from "@/pages/Services/services";
 import UserPage from "./pages/home/homeuser";
+import Blog1Page from "./pages/Blog/blog1";
+import Blog2Page from "./pages/Blog/blog2";
+import Blog3Page from "./pages/Blog/blog3"; 
 
 function App() {
   return (
@@ -22,6 +25,9 @@ function App() {
       <Route element={<SignUpPage />} path="/signup" />
       <Route element={<ServicesPage />} path="/services" />
       <Route element={<UserPage/>} path="/homeuser" />
+      <Route element={<Blog1Page/>} path="/blog/blog1" />
+      <Route element={<Blog2Page/>} path="/blog/blog2" />
+      <Route element={<Blog3Page/>} path="/blog/blog3" />
 
     </Routes>
   );
