@@ -6,7 +6,7 @@ const teamMembers = [
   {
     name: "Phan Khánh Dương",
     role: "Project Manager-BE Developer",
-    image: "/path/to/alex-smith-image.jpg",
+    image: "https://cdna.artstation.com/p/assets/images/images/038/652/346/large/joe-parente-joji-pink-guy-comp-01.jpg?1623691200",
     email: "https://twitter.com/alexsmith",
     facebook: "https://linkedin.com/in/alexsmith",
     github: "https://github.com/alexsmith",
