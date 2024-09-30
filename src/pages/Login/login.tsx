@@ -1,15 +1,22 @@
 "use client";
 
 import React from "react";
-import { Button, Input, Link, Divider, User, Checkbox } from "@nextui-org/react";
+import {
+  Button,
+  Input,
+  Link,
+  Divider,
+  User,
+  Checkbox,
+} from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { AcmeIcon } from "@/components/AcmeIcon";
 export default function Login() {
   const [isVisible, setIsVisible] = React.useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
-  const[email, setEmail] = React.useState("");
-  const[password, setPassword] = React.useState("");
-  
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
   return (
     <div className="relative flex h-screen w-screen">
       {/* Brand Logo */}
@@ -25,7 +32,9 @@ export default function Login() {
         <div className="flex w-full max-w-sm flex-col items-start gap-4 p-4">
           <div className="w-full text-left">
             <p className="pb-2 text-2xl font-semibold">Welcome Back</p>
-            <p className="text-sm text-default-500">Log in to your account to continue</p>
+            <p className="text-sm text-default-500">
+              Log in to your account to continue
+            </p>
           </div>
 
           <div className="flex w-full flex-col gap-2">
@@ -36,7 +45,13 @@ export default function Login() {
               Continue with Google
             </Button>
             <Button
-              startContent={<Icon className="text-default-500" icon="fe:facebook" width={24} />}
+              startContent={
+                <Icon
+                  className="text-default-500"
+                  icon="fe:facebook"
+                  width={24}
+                />
+              }
               variant="bordered"
             >
               Continue with Facebook
@@ -49,7 +64,10 @@ export default function Login() {
             <Divider className="flex-1" />
           </div>
 
-          <form className="flex w-full flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
+          <form
+            className="flex w-full flex-col gap-3"
+            onSubmit={(e) => e.preventDefault()}
+          >
             <Input
               label="Email Address"
               name="email"
@@ -87,14 +105,18 @@ export default function Login() {
                 Forgot password?
               </Link>
             </div>
-            <Button color="primary" type="submit" href="/homeuser">
+            <Button
+              color="primary"
+              type="submit"
+              onClick={() => (window.location.href = "/homeuser")}
+            >
               Log In
             </Button>
           </form>
 
           <p className="text-center text-small">
             Need to create an account?&nbsp;
-            <Link href="/homeuser" size="sm">
+            <Link href="/signup" size="sm">
               Sign Up
             </Link>
           </p>
