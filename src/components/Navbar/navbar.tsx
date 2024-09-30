@@ -22,7 +22,7 @@ import { SiteConfig } from "@/config/site";
 // Define the pages array
 const pages = [
   { name: "Home", href: "/" },
-  { name: "Features", href: "/docs" },
+  { name: "Features", href: "/login" },
   { name: "Blog", href: "/blog" },
   { name: "About Us", href: "/about" },
   { name: "Pricing", href: "/pricing" },
