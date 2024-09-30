@@ -106,7 +106,7 @@ export const NavbarUser = () => {
                   as="button"
                   color="secondary"
                   size="md"
-                  src="https://i.pinimg.com/564x/be/28/b7/be28b725c5e7d746f9e5448bac55f853.jpg"
+                  src="https://i.pinimg.com/564x/14/8d/0e/148d0e0f3a55b0c93bf04d85b6f9e3e9.jpg"
                 />
               </DropdownTrigger>
             </NavbarItem>
