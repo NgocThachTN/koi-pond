@@ -23,7 +23,6 @@ export default function Blog1Page() {
             <CardHeader>
               <h3 className="text-2xl font-bold">About Mini Koi Ponds</h3>
             </CardHeader>
-            <Divider />
             <CardBody>
               <p>
                 Mini koi ponds are a compact version of traditional koi ponds, designed to fit in smaller spaces. 
@@ -40,6 +39,39 @@ export default function Blog1Page() {
                 the need for a large outdoor space. They can be installed in various locations such as patios, 
                 balconies, or even indoors, adding a unique and calming element to your living space.
               </p>
+            </CardBody>
+            <CardBody>
+              <div className="grid grid-cols-2 gap-4 h-[600px]">
+                <div className="col-span-1 relative h-1/2">
+                  <Image
+                    src="https://cakoihoangphi.com/wp-content/uploads/2022/12/051220224.jpg"
+                    alt="Koi pond image 1"
+                    className="object-cover"
+                    height={230}
+                    width={398.5}
+                                      />
+                </div>
+                <div className="col-span-1 relative h-1/2">
+                  <Image
+                    src="https://sanvuonadong.vn/wp-content/uploads/2020/10/ho-ca-koi-mini-bang-kinh-02-san-vuon-a-dong.jpg"
+                    alt="Koi pond image 2"
+                    className="object-cover"
+                    height={230}
+                    width={398.5}
+                  
+                  />
+                </div>
+                <div className="col-span-2 relative h-1/2">
+                  <Image
+                    src="https://shopheo.com/wp-content/uploads/2022/12/be-ca-koi-mini-dat-chuan.jpg"
+                    alt="Koi pond image 3"
+                    className="object-cover"
+                    height={600}
+                    width={828}
+
+                  />
+                </div>
+              </div>
             </CardBody>
           </Card>
         </div>
