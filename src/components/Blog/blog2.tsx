@@ -4,7 +4,24 @@ import DefaultLayout from "@/layouts/default";
 
 import React from "react";
 import { Card, CardBody, CardHeader, CardFooter, Image, Button, Spacer } from "@nextui-org/react";
-
+const images = [
+  {
+    src: "https://sanvuonadong.vn/wp-content/uploads/2020/07/ho-ca-koi-san-vuon-dep-02-san-vuon-a-dong.jpg",
+    alt: "Koi pond image 1"
+  },
+  {
+    src: "https://sanvuonadong.vn/wp-content/uploads/2020/10/mau-ho-ca-koi-goc-san-vuon-01-san-vuon-a-dong.jpg",
+    alt: "Koi pond image 2"
+  },
+  {
+    src: "https://congtrinhthicong.com/wp-content/uploads/2021/02/Mau-ho-ca-koi-san-vuon-dep-3.jpg",
+    alt: "Koi pond image 3"
+  },
+  {
+    src: "https://gspace.vn/web/media/images/2022/07/02/g2-rs650.jpg",
+    alt: "Koi pond image 4"
+  }
+];
 
 export default function Blog2Page() {
   return (
@@ -19,6 +36,7 @@ export default function Blog2Page() {
             src="https://hocakoimiennam.vn/img_data/images/059131098791_HINH-10.png"
             alt="Hồ cá koi ngoài trời đẹp"
             className="w-full h-auto object-cover"
+            width={1145}
           />
           <Spacer y={4} />
           <p>
@@ -40,37 +58,42 @@ export default function Blog2Page() {
           </p>
         </CardBody>
         <CardBody>
-          <div className="grid grid-cols-2 gap-4 h-[600px]">
-            <div className="col-span-1 relative h-1/2">
-              <Image
-                src="https://cakoihoangphi.com/wp-content/uploads/2022/12/051220224.jpg"
-                alt="Koi pond image 1"
-                className="object-cover"
-                height={230}
-                width={398.5}
-              />
-            </div>
-            <div className="col-span-1 relative h-1/2">
-              <Image
-                src="https://sanvuonadong.vn/wp-content/uploads/2020/10/ho-ca-koi-mini-bang-kinh-02-san-vuon-a-dong.jpg"
-                alt="Koi pond image 2"
-                className="object-cover"
-                height={230}
-                width={398.5}
-
-              />
-            </div>
-            <div className="col-span-1 relative h-1/2">
-              <Image
-                src="https://shopheo.com/wp-content/uploads/2022/12/be-ca-koi-mini-dat-chuan.jpg"
-                alt="Koi pond image 3"
-                className="object-cover"
-                height={600}
-                width={828}
-
-              />
-            </div>
-          </div>
+        <div className="grid grid-cols-2 grid-rows-2 gap-2 aspect-[4/3]">
+  <div className="row-span-2 col-span-1">
+    <Image
+      src={images[0].src}
+      alt={images[0].alt}
+      className="object-cover w-full h-full"
+      width={600}
+      height={800}
+    />
+  </div>
+  <div className="col-span-1">
+    <Image
+      src={images[1].src}
+      alt={images[1].alt}
+      className="object-cover w-full h-full"
+      width={600}
+      height={400}
+    />
+  </div>
+  <div className="col-span-1 grid grid-cols-2 gap-2">
+    <Image
+      src={images[2].src}
+      alt={images[2].alt}
+      className="object-cover w-full h-full"
+      width={300}
+      height={340}
+    />
+    <Image
+      src={images[3].src}
+      alt={images[3].alt}
+      className="object-cover w-full h-full"
+      width={300}
+      height={340}
+    />
+  </div>
+</div>
         </CardBody>
 
       </Card>
