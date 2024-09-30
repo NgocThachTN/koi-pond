@@ -2,7 +2,7 @@ import React from "react";
 import { NextUIProvider, Card, CardBody, CardHeader, Image, Divider, Button } from "@nextui-org/react";
 import DefaultLayout from "@/layouts/default";
 
-export default function Blog3Page() {
+export default function Blog3PageUser() {
   return (
     <NextUIProvider>
       <DefaultLayout>

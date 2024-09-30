@@ -2,7 +2,7 @@ import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import { Card, CardBody, CardHeader, Image, Divider } from "@nextui-org/react";
 
-export default function Blog1Page() {
+export default function Blog1PageUser() {
   return (
     <DefaultLayout>
       <div className="max-w-[900px] mx-auto px-6">

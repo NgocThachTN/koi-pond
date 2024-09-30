@@ -9,6 +9,7 @@ import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import TeamSection from "@/components/TeamSection/TeamSection";
+import Features3 from "@/components/features3/index";
 
 export default function IndexPage() {
   const settings = {
@@ -89,8 +90,10 @@ export default function IndexPage() {
           </div>
         </div>
       </section>
+      
       {/* Thêm TeamSection vào đây */}
-      <TeamSection /> {/* Em để TeamSection trên cái components á. */}
+      <Features3/>
+      <TeamSection />
     </DefaultLayout>
   );
 }

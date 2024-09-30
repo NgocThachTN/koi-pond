@@ -10,6 +10,7 @@ import { title, subtitle } from "@/components/primitives";
 import DefaultLayout from "@/layouts/defaultuser";
 import TeamSection from "@/components/TeamSection/TeamSection";
 import { NavbarUser } from "@/components/Navbar/navbaruser";
+import Features3 from "@/components/features3/index";
 export default function UserPage() {
   const settings = {
     dots: true,
@@ -89,7 +90,8 @@ export default function UserPage() {
           </div>
         </div>
       </section>
-      {/* Thêm TeamSection vào đây */}
+      {/* Thêm Teamsection vào đây */}
+      <Features3/>
       <TeamSection /> {/* Em để TeamSection trên cái components á. */}
     </DefaultLayout>
   );

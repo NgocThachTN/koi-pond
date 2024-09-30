@@ -16,9 +16,11 @@ import BlogPageUser from "./pages/Blog/bloguser";
 import PricingPageUser from "@/pages/Pricing/pricinguser";
 import AboutPageUser from "./pages/About/aboutuser";
 import DocsPageUser from "@/pages/Docs/docsuser";
+
 function App() {
   return (
     <Routes>
+      {/* Guest */}
       <Route element={<IndexPage />} path="/" />
       <Route element={<DocsPage />} path="/docs" />
       <Route element={<PricingPage />} path="/pricing"/>
@@ -27,15 +29,17 @@ function App() {
       <Route element={<LoginPage />} path="/login" />
       <Route element={<SignUpPage />} path="/signup" />
       <Route element={<ServicesPage />} path="/services" />
-      <Route element={<UserPage/>} path="/homeuser" />
+      {/* Guest Blog */}
       <Route element={<Blog1Page/>} path="/blog/blog1" />
       <Route element={<Blog2Page/>} path="/blog/blog2" />
       <Route element={<Blog3Page/>} path="/blog/blog3" />
+      {/* User */}
+      <Route element={<UserPage/>} path="/homeuser" />
       <Route element={<BlogPageUser/>} path="/bloguser" />
       <Route element={<PricingPageUser/>} path="/pricinguser" />
       <Route element={<AboutPageUser/>} path="/aboutuser" />
       <Route element={<DocsPageUser/>} path="/docsuser" />
-
+       {/* blog user */}
     </Routes>
   );
 }
