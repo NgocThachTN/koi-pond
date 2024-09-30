@@ -30,7 +30,7 @@ const teamMembers = [
   {
     name: "Đỗ Vũ Khôi Nguyên",
     role: "FE Developer",
-    image: "/path/to/alex-smith-image.jpg",
+    image: "https://drive.google.com/file/d/1iANeZtlti0-AL3m4vWYmn1Eus5-ALQvO/view?usp=drive_link",
     email: "nguyendvkse170168@fpt.edu.vn",
     facebook: "https://www.facebook.com/dvkn.a9",
     github: "https://github.com/nguyen2103",
