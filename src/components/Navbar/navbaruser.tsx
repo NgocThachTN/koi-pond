@@ -48,7 +48,7 @@ export const NavbarUser = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const handleLogout = () => {
-    
+
     console.log("Logout clicked");
   };
 
