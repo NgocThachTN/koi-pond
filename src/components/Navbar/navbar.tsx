@@ -66,7 +66,7 @@ export const Navbar = () => {
       </NavbarBrand>
 
       {/* Center Content */}
-      <NavbarContent justify="center">
+      <NavbarContent justify="center" className="gap-20"> {/* Thay đổi từ gap-4 thành gap-8 */}
         {pages.map((page) => (
           <NavbarItem key={page.name}>
             <Link
@@ -84,7 +84,7 @@ export const Navbar = () => {
       </NavbarContent>
 
       {/* Right Content */}
-      <NavbarContent className="hidden md:flex" justify="end">
+      <NavbarContent className="hidden md:flex ml-20" justify="end">
         <NavbarItem>
           <ThemeSwitch />
         </NavbarItem>

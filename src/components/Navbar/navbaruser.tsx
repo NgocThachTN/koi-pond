@@ -76,7 +76,7 @@ export const NavbarUser = () => {
       </NavbarBrand>
 
       {/* Center Content */}
-      <NavbarContent justify="center">
+      <NavbarContent justify="center" className="gap-20">
         {pages.map((page) => (
           <NavbarItem key={page.name}>
             <Link
