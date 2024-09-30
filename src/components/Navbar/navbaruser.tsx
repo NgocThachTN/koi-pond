@@ -21,7 +21,7 @@ import { SiteConfig } from "@/config/site";
 
 // Define the pages array
 const pages = [
-  { name: "Home", href: "/" },
+  { name: "Home", href: "/homeuser" },
   { name: "Features", href: "/docs" },
   { name: "Blog", href: "/blog" },
   { name: "About Us", href: "/about" },
