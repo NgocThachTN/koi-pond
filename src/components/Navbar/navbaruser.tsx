@@ -12,6 +12,11 @@ import {
   Link,
   Button,
   Divider,
+  Avatar,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { cn } from "@nextui-org/react";
@@ -41,6 +46,11 @@ const menuItems = [
 
 export const NavbarUser = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+  const handleLogout = () => {
+    // Implement logout functionality here
+    console.log("Logout clicked");
+  };
 
   return (
     <NextUINavbar
@@ -89,8 +99,42 @@ export const NavbarUser = () => {
           <ThemeSwitch />
         </NavbarItem>
         <NavbarItem className="ml-2 !flex gap-2">
-          
-        {/* Import UserAvatar */}
+          <Dropdown>
+            <NavbarItem>
+              <DropdownTrigger>
+                <Avatar
+                  as="button"
+                  color="secondary"
+                  size="md"
+                  src="https://i.pinimg.com/564x/be/28/b7/be28b725c5e7d746f9e5448bac55f853.jpg"
+                />
+              </DropdownTrigger>
+            </NavbarItem>
+            <DropdownMenu
+              aria-label="User menu actions"
+              onAction={(actionKey) => console.log({ actionKey })}
+            >
+              <DropdownItem
+                key="profile"
+                className="flex flex-col justify-start w-full items-start"
+              >
+                <p>Signed in as</p>
+                <p>Customer</p>
+              </DropdownItem>
+              <DropdownItem key="settings">View Profile</DropdownItem>
+              <DropdownItem key="team_settings">My Orders</DropdownItem>
+              <DropdownItem key="analytics">Analytics</DropdownItem>
+              <DropdownItem key="help_and_feedback">Feedback</DropdownItem>
+              <DropdownItem
+                key="logout"
+                color="danger"
+                className="text-danger"
+                onPress={handleLogout}
+              >
+                Log Out
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
         </NavbarItem>
       </NavbarContent>
        
