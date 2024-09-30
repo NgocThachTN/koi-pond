@@ -11,6 +11,7 @@ import DefaultLayout from "@/layouts/defaultuser";
 import TeamSection from "@/components/TeamSection/TeamSection";
 import { NavbarUser } from "@/components/Navbar/navbaruser";
 import Features3 from "@/components/features3/index";
+import Process from "@/components/Process/process";
 export default function UserPage() {
   const settings = {
     dots: true,
@@ -92,6 +93,7 @@ export default function UserPage() {
       </section>
       {/* Thêm Teamsection vào đây */}
       <Features3/>
+      <Process/>
       <TeamSection /> {/* Em để TeamSection trên cái components á. */}
     </DefaultLayout>
   );
