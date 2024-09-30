@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
-import IndexPage from "@/pages/index";
+import IndexPage from "@/pages/home/index";
 import DocsPage from "@/pages/Docs/docs";
 import PricingPage from "@/pages/pricing";
 import BlogPage from "@/pages/Blog/blog";
@@ -8,6 +8,7 @@ import AboutPage from "@/pages/About/about";
 import LoginPage from "@/pages/Login/login";
 import SignUpPage from "@/pages/Singup/signup";
 import ServicesPage from "@/pages/Services/services";
+import UserPage from "./pages/home/homeuser";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <Route element={<LoginPage />} path="/login" />
       <Route element={<SignUpPage />} path="/signup" />
       <Route element={<ServicesPage />} path="/services" />
+      <Route element={<UserPage/>} path="/homeuser" />
 
     </Routes>
   );

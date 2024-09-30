@@ -4,12 +4,12 @@ import React from "react";
 import { Button, Input, Link, Divider, User, Checkbox } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { AcmeIcon } from "@/components/AcmeIcon";
-
 export default function Login() {
   const [isVisible, setIsVisible] = React.useState(false);
-
   const toggleVisibility = () => setIsVisible(!isVisible);
-
+  const[email, setEmail] = React.useState("");
+  const[password, setPassword] = React.useState("");
+  
   return (
     <div className="relative flex h-screen w-screen">
       {/* Brand Logo */}
@@ -87,14 +87,14 @@ export default function Login() {
                 Forgot password?
               </Link>
             </div>
-            <Button color="primary" type="submit">
+            <Button color="primary" type="submit" href="/homeuser">
               Log In
             </Button>
           </form>
 
           <p className="text-center text-small">
             Need to create an account?&nbsp;
-            <Link href="/signup" size="sm">
+            <Link href="/homeuser" size="sm">
               Sign Up
             </Link>
           </p>
