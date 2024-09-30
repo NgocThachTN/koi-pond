@@ -27,10 +27,10 @@ import { SiteConfig } from "@/config/site";
 // Define the pages array
 const pages = [
   { name: "Home", href: "/homeuser" },
-  { name: "Features", href: "/docs" },
-  { name: "Blog", href: "/blog" },
-  { name: "About Us", href: "/about" },
-  { name: "Pricing", href: "/pricing" },
+  { name: "Features", href: "/docsuser" },
+  { name: "Blog", href: "/bloguser" },
+  { name: "About Us", href: "/aboutuser" },
+  { name: "Pricing", href: "/pricinguser" },
 ];
 
 const menuItems = [
@@ -48,7 +48,7 @@ export const NavbarUser = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const handleLogout = () => {
-    // Implement logout functionality here
+    
     console.log("Logout clicked");
   };
 
@@ -118,12 +118,11 @@ export const NavbarUser = () => {
                 key="profile"
                 className="flex flex-col justify-start w-full items-start"
               >
-                <p>Signed in as</p>
-                <p>Customer</p>
+                <p>Welcome, </p>
+                <p>Saito Asuka</p>
               </DropdownItem>
               <DropdownItem key="settings">View Profile</DropdownItem>
               <DropdownItem key="team_settings">My Orders</DropdownItem>
-              <DropdownItem key="analytics">Analytics</DropdownItem>
               <DropdownItem key="help_and_feedback">Feedback</DropdownItem>
               <DropdownItem
                 key="logout"

@@ -7,7 +7,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";
-import DefaultLayout from "@/layouts/dafaultuser";
+import DefaultLayout from "@/layouts/defaultuser";
 import TeamSection from "@/components/TeamSection/TeamSection";
 import { NavbarUser } from "@/components/Navbar/navbaruser";
 export default function UserPage() {
