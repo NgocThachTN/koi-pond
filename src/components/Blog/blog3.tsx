@@ -32,7 +32,28 @@ export default function Blog3PageUser() {
               trong nhà thường nằm tại các vị trí có ánh sáng mặt trời rọi vào nhằm gần cửa sổ, phòng khách, dưới cầu
               thang để giúp cá sinh trưởng tốt và không bị nhiễm bệnh.
             </p>
-            
+            <div className="grid grid-cols-2 gap-4 mt-6">
+              <Image
+                alt="Hồ cá Koi 1"
+                className="object-cover w-full h-full"
+                src="https://agsevent.vn/wp-content/uploads/2023/02/ho-ca-koi-mini-trong-nha-2.jpg"
+              />
+              <Image
+                alt="Hồ cá Koi 2"
+                className="object-cover w-full h-full"
+                src="https://sanvuonphutaidat.vn/upload/images/ho-ca-koi-trong-nha-quan-8-3.jpg"
+              />
+              <Image
+                alt="Hồ cá Koi 3"
+                className="object-cover w-full h-full"
+                src="https://vuonhoa.vn/uploads/data/1098/files/news/Ho-ca-koi/1-ho-ca-koi-nhat-ban-dep-7.jpg"
+              />
+              <Image
+                alt="Hồ cá Koi 4"
+                className="object-cover w-full h-full"
+                src="https://kientaocanhquan.com/upload/Thiet-ke-ho-ca-koi-trong-nha.jpg"
+              />
+            </div>
           </CardBody>
         </Card>
       </DefaultLayout>
