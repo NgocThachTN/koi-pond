@@ -74,7 +74,8 @@ export default function Login() {
               placeholder="Enter your email"
               type="email"
               variant="underlined"
-            />
+            /> 
+            
             <Input
               endContent={
                 <button type="button" onClick={toggleVisibility}>

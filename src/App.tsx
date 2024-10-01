@@ -15,8 +15,8 @@ import Blog3Page from "./components/Blog/blog3";
 import BlogPageUser from "./pages/Blog/bloguser";
 import PricingPageUser from "@/pages/Pricing/pricinguser";
 import AboutPageUser from "./pages/About/aboutuser";
-import DocsPageUser from "@/pages/Docs/docsuser";
-
+import DocsPageUser from "@/pages/Docs/docsuser"; 
+import AdminPage from "./pages/Admin/admin";
 function App() {
   return (
     <Routes>
@@ -40,6 +40,10 @@ function App() {
       <Route element={<AboutPageUser/>} path="/aboutuser" />
       <Route element={<DocsPageUser/>} path="/docsuser" />
        {/* blog user */}
+
+       {/* Admin Pages */}
+       <Route element={<AdminPage/>} path="/admin" />
+
     </Routes>
   );
 }

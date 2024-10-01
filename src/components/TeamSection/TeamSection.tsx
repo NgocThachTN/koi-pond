@@ -12,7 +12,7 @@ const teamMembers = [
     github: "https://github.com/alexsmith",
   },
   {
-    name: "Nguyễn Bảo Tuấn",
+    name: "Nguyễn Mạnh Bảo Tuấn",
     role: "BE Developer",
     image: "/path/to/alex-smith-image.jpg",
     email: "https://twitter.com/alexsmith",
