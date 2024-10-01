@@ -17,6 +17,7 @@ import PricingPageUser from "@/pages/Pricing/pricinguser";
 import AboutPageUser from "./pages/About/aboutuser";
 import DocsPageUser from "@/pages/Docs/docsuser"; 
 import AdminPage from "./pages/Admin/admin";
+import StaffPage from "./pages/Staff/staff";
 function App() {
   return (
     <Routes>
@@ -43,7 +44,7 @@ function App() {
 
        {/* Admin Pages */}
        <Route element={<AdminPage/>} path="/admin" />
-
+       <Route element={<StaffPage/>} path="/staff"/>
     </Routes>
   );
 }

@@ -58,7 +58,6 @@ export default function UserPage() {
                   Professional and high-class&nbsp;
                 </span>
                 <span className={title({ color: "violet" })}>
-                  
                   Koi pond&nbsp;
                 </span>
                 <br />
@@ -93,11 +92,9 @@ export default function UserPage() {
           </div>
         </section>
         {/* Thêm Teamsection vào đây */}
-        <Features3/>
-        <Process/>
-
-        
-        <Project/>
+        <Features3 />
+        <Process />
+        <Project />
         <TeamSection /> {/* Em để TeamSection trên cái components á. */}
       </DefaultLayout>
     </>
