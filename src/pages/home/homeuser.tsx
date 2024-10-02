@@ -74,7 +74,7 @@ export default function UserPage() {
                     radius: "full",
                     variant: "shadow",
                   })}
-                  href="/services"
+                  href="/pricinguser"
                 >
                   Our Services
                 </Link>

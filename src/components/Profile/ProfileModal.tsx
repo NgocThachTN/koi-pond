@@ -70,8 +70,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
                           <h4 className="text-large font-semibold leading-none text-default-600">Saito Asuka</h4>
                           <h5 className="text-small tracking-tight text-default-400">@saitoasuka</h5>
                           <div className="flex gap-1 mt-2">
-                            <Chip size="sm" variant="flat" color="primary">Pro Member</Chip>
-                            <Chip size="sm" variant="flat" color="secondary">Verified</Chip>
+                            <Chip size="sm" variant="flat" color="primary">Customer</Chip>
+                            <Chip size="sm" variant="flat" color="secondary">Nogizaka46's Member</Chip>
                           </div>
                         </div>
                       </div>

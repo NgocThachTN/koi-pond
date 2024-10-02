@@ -16,6 +16,7 @@ import BlogPageUser from "./pages/Blog/bloguser";
 import PricingPageUser from "@/pages/Pricing/pricinguser";
 import AboutPageUser from "./pages/About/aboutuser";
 import DocsPageUser from "@/pages/Docs/docsuser"; 
+import OrdersPage from "./pages/Orders/Orders";
 import AdminPage from "./pages/Admin/admin";
 import StaffPage from "./pages/Staff/staff";
 function App() {
@@ -40,6 +41,7 @@ function App() {
       <Route element={<PricingPageUser/>} path="/pricinguser" />
       <Route element={<AboutPageUser/>} path="/aboutuser" />
       <Route element={<DocsPageUser/>} path="/docsuser" />
+      <Route element={<OrdersPage/>} path="/orders"/>
        {/* blog user */}
 
        {/* Admin Pages */}

@@ -35,6 +35,7 @@ import { Logo } from "@/components/icons";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SiteConfig } from "@/config/site";
 import { ProfileModal } from "@/components/Profile/ProfileModal";
+import { SettingsModal } from "@/components/Settings/SettingsModal";
 
 // Define the pages array
 const pages = [
@@ -58,14 +59,19 @@ const menuItems = [
 
 export const NavbarUser = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isProfileOpen, onOpen: onProfileOpen, onClose: onProfileClose } = useDisclosure();
+  const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
 
   const handleLogout = () => {
     console.log("Logout clicked");
   };
 
   const handleViewProfile = () => {
-    onOpen();
+    onProfileOpen();
+  };
+
+  const handleOpenSettings = () => {
+    onSettingsOpen();
   };
 
   return (
@@ -135,10 +141,12 @@ export const NavbarUser = () => {
                   <p>Welcome, </p>
                   <p>Saito Asuka</p>
                 </DropdownItem>
-                <DropdownItem key="settings" onPress={handleViewProfile}>
+                <DropdownItem key="view_profile" onPress={handleViewProfile}>
                   View Profile
                 </DropdownItem>
-                <DropdownItem key="settings">Settings</DropdownItem>
+                <DropdownItem key="settings" onPress={handleOpenSettings}>
+                  Settings
+                </DropdownItem>
                 <DropdownItem key="team_settings">My Orders</DropdownItem>
                 <DropdownItem key="help_and_feedback">Feedback</DropdownItem>
                  
@@ -191,7 +199,8 @@ export const NavbarUser = () => {
         </NavbarMenu>
       </NextUINavbar>
 
-      <ProfileModal isOpen={isOpen} onClose={onClose} />
+      <ProfileModal isOpen={isProfileOpen} onClose={onProfileClose} />
+      <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
     </>
   );
 };
