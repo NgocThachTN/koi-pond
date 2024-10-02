@@ -138,8 +138,10 @@ export const NavbarUser = () => {
                 <DropdownItem key="settings" onPress={handleViewProfile}>
                   View Profile
                 </DropdownItem>
+                <DropdownItem key="settings">Settings</DropdownItem>
                 <DropdownItem key="team_settings">My Orders</DropdownItem>
                 <DropdownItem key="help_and_feedback">Feedback</DropdownItem>
+                 
                 <DropdownItem
                   key="logout"
                   color="danger"
