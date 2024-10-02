@@ -21,10 +21,10 @@ const FeatureCard = ({ icon: Icon, title, description }: { icon: React.ElementTy
 
 function index() {
   const features = [
-    { icon: FaKiwiBird, title: "Cá Koi Đa Dạng", description: "Hồ cá của chúng tôi có nhiều loại cá Koi với màu sắc và hoa văn đa dạng." },
-    { icon: FaWater, title: "Hệ Thống Lọc Tiên Tiến", description: "Sử dụng công nghệ lọc nước hiện đại để duy trì môi trường sống tốt nhất cho cá." },
-    { icon: FaTools, title: "Bảo Trì Chuyên Nghiệp", description: "Đội ngũ chuyên gia thường xuyên kiểm tra và bảo dưỡng hồ cá." },
-    { icon: FaLeaf, title: "Cảnh Quan Tự Nhiên", description: "Thiết kế hồ cá với cảnh quan tự nhiên, tạo môi trường sống lý tưởng cho cá Koi." },
+    { icon: FaKiwiBird, title: "Diverse Koi Fish", description: "Our ponds feature a wide variety of Koi fish with diverse colors and patterns." },
+    { icon: FaWater, title: "Advanced Filtration System", description: "We use modern water filtration technology to maintain the best living environment for the fish." },
+    { icon: FaTools, title: "Professional Maintenance", description: "Our team of experts regularly inspects and maintains the fish ponds." },
+    { icon: FaLeaf, title: "Natural Landscape", description: "We design fish ponds with natural landscapes, creating an ideal living environment for Koi fish." },
   ];
 
   return (

@@ -50,6 +50,14 @@ export default function SignUpPage() {
           </div>
 
           <form className="flex w-full flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
+          <Input
+              isRequired
+              label="Full Name"
+              name="name"
+              placeholder="Enter your Full Name"
+              type="name"
+              variant="underlined"
+            />
             <Input
               isRequired
               label="Email Address"

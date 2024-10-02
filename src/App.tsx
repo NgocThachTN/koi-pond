@@ -15,8 +15,10 @@ import Blog3Page from "./components/Blog/blog3";
 import BlogPageUser from "./pages/Blog/bloguser";
 import PricingPageUser from "@/pages/Pricing/pricinguser";
 import AboutPageUser from "./pages/About/aboutuser";
-import DocsPageUser from "@/pages/Docs/docsuser";
-
+import DocsPageUser from "@/pages/Docs/docsuser"; 
+import OrdersPage from "./pages/Orders/Orders";
+import AdminPage from "./pages/Admin/admin";
+import StaffPage from "./pages/Staff/staff";
 function App() {
   return (
     <Routes>
@@ -39,7 +41,12 @@ function App() {
       <Route element={<PricingPageUser/>} path="/pricinguser" />
       <Route element={<AboutPageUser/>} path="/aboutuser" />
       <Route element={<DocsPageUser/>} path="/docsuser" />
+      <Route element={<OrdersPage/>} path="/orders"/>
        {/* blog user */}
+
+       {/* Admin Pages */}
+       <Route element={<AdminPage/>} path="/admin" />
+       <Route element={<StaffPage/>} path="/staff"/>
     </Routes>
   );
 }

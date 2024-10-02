@@ -12,7 +12,7 @@ const teamMembers = [
     github: "https://github.com/alexsmith",
   },
   {
-    name: "Nguyễn Bảo Tuấn",
+    name: "Nguyễn Mạnh Bảo Tuấn",
     role: "BE Developer",
     image: "/path/to/alex-smith-image.jpg",
     email: "https://twitter.com/alexsmith",
@@ -41,7 +41,7 @@ const teamMembers = [
 function TeamSection() {
   return (
     <div className="max-w-full px-4 sm:px-6 lg:px-8 py-16">
-      <h2 className="text-4xl font-bold text-center mb-12 text-orange-500">Meet Our Team</h2>
+      <h2 className="text-4xl font-bold text-center mb-12 text-violet-600">Meet Our Team</h2>
       <div className="flex justify-center">
         <div className="flex space-x-4">
           {teamMembers.map((member, index) => (
@@ -57,13 +57,13 @@ function TeamSection() {
                 <h3 className="text-lg font-semibold mb-1">{member.name}</h3>
                 <p className="text-sm text-gray-600 mb-2">{member.role}</p>
                 <div className="flex space-x-2">
-                <Link href={member.email} target="_blank" className="text-gray-400 hover:text-red-500">
-                <FaEnvelope size={16} />
+                  <Link href={member.email} target="_blank" className="text-gray-400 hover:text-violet-500">
+                    <FaEnvelope size={16} />
                   </Link>
-                  <Link href={member.facebook} target="_blank" className="text-gray-400 hover:text-blue-600">
+                  <Link href={member.facebook} target="_blank" className="text-gray-400 hover:text-violet-600">
                     <FaFacebookF size={16} />
                   </Link>
-                  <Link href={member.github} target="_blank" className="text-gray-400 hover:text-gray-700">
+                  <Link href={member.github} target="_blank" className="text-gray-400 hover:text-violet-700">
                     <FaGithub size={16} />
                   </Link>
                 </div>

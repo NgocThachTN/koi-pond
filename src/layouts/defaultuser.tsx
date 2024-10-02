@@ -2,7 +2,7 @@ import { Link } from "@nextui-org/link";
 import Head from "next/head";
 import { SiteConfig } from "@/config/site";
 import { NavbarUser } from "@/components/Navbar/navbaruser";
-
+import Footer from "@/components/Footer/footer";
 export default function DefaultLayout({
   children,
 }: {
@@ -32,6 +32,7 @@ export default function DefaultLayout({
           </Link>
 
         </footer>
+        <Footer/>
       </div>
     </>
   );
