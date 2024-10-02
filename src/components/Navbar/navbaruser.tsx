@@ -80,6 +80,11 @@ export const NavbarUser = () => {
     onFeedOpen();
   };
 
+  const handleMyOrders = () => {
+    // Use Next.js router to navigate to the orders page
+    window.location.href = '/orders';
+  };
+
   return (
     <>
       <NextUINavbar
@@ -153,7 +158,9 @@ export const NavbarUser = () => {
                 <DropdownItem key="settings" onPress={handleOpenSettings}>
                   Settings
                 </DropdownItem>
-                <DropdownItem key="team_settings">My Orders</DropdownItem>
+                <DropdownItem key="team_settings" onPress={handleMyOrders}>
+                  My Orders
+                </DropdownItem>
                 <DropdownItem key="help_and_feedback" onPress={handleOpenFeedback}>
                   Feedback
                 </DropdownItem>
