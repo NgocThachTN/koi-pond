@@ -11,6 +11,8 @@ import {
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { AcmeIcon } from "@/components/AcmeIcon";
+
+
 export default function Login() {
   const [isVisible, setIsVisible] = React.useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
@@ -74,8 +76,8 @@ export default function Login() {
               placeholder="Enter your email"
               type="email"
               variant="underlined"
-            /> 
-            
+            />
+
             <Input
               endContent={
                 <button type="button" onClick={toggleVisibility}>

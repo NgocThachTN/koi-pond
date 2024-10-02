@@ -36,6 +36,7 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { SiteConfig } from "@/config/site";
 import { ProfileModal } from "@/components/Profile/ProfileModal";
 import { SettingsModal } from "@/components/Settings/SettingsModal";
+import { FeedbackModal } from '@/components/Feedback/FeedbackModal';
 
 // Define the pages array
 const pages = [
@@ -61,6 +62,7 @@ export const NavbarUser = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const { isOpen: isProfileOpen, onOpen: onProfileOpen, onClose: onProfileClose } = useDisclosure();
   const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
+  const { isOpen: isFeedOpen, onOpen: onFeedOpen, onClose: onFeedClose } = useDisclosure();
 
   const handleLogout = () => {
     console.log("Logout clicked");
@@ -72,6 +74,10 @@ export const NavbarUser = () => {
 
   const handleOpenSettings = () => {
     onSettingsOpen();
+  };
+
+  const handleOpenFeedback = () => {
+    onFeedOpen();
   };
 
   return (
@@ -148,8 +154,9 @@ export const NavbarUser = () => {
                   Settings
                 </DropdownItem>
                 <DropdownItem key="team_settings">My Orders</DropdownItem>
-                <DropdownItem key="help_and_feedback">Feedback</DropdownItem>
-                 
+                <DropdownItem key="help_and_feedback" onPress={handleOpenFeedback}>
+                  Feedback
+                </DropdownItem>
                 <DropdownItem
                   key="logout"
                   color="danger"
@@ -201,6 +208,7 @@ export const NavbarUser = () => {
 
       <ProfileModal isOpen={isProfileOpen} onClose={onProfileClose} />
       <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
+      <FeedbackModal isOpen={isFeedOpen} onClose={onFeedClose} />
     </>
   );
 };

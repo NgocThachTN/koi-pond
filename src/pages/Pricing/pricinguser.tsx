@@ -1,6 +1,6 @@
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/defaultuser";
-import { Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
+import { Button, Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
 import { CheckIcon } from "@heroicons/react/24/solid";
 
 export default function DocsPage() {
@@ -21,44 +21,40 @@ export default function DocsPage() {
         ></div>
 
         {/* Content with increased z-index */}
-        <div className="relative z-10 flex flex-col items-center justify-center gap-4 bg-background/60 p-8 rounded-lg">
+        <div className="relative z-10 flex flex-col items-center justify-center gap-4 bg-background/60 p-8 rounded-lg w-full max-w-7xl">
           <div className="inline-block max-w-lg text-center justify-center">
             <h1 className={title()}>Pricing</h1>
           </div>
-          <div className="flex flex-wrap justify-center gap-8 mt-8">
-            <PricingCard
-              title="STARTER"
-              features={[
-                "Hồ từ 8-10m3: Giá 10.000.000 VNĐ/m3",
-                "Hồ từ 10-20m3: Giá 9.500.000 VNĐ/m3",
-                "Hồ từ 20-50m3: Giá 8.500.000 VNĐ/m3",
-                "Hồ từ 50-100m3: Giá 7.800.000 VNĐ/m3",
-                "Hồ từ 100m3: Giá 7.100.000 VNĐ/m3"
-              ]}
-            />
-
-            <PricingCard
-              title="PREMIUM"
-              features={[
-                "Hồ từ 8-10m3: Giá 12.000.000 VNĐ/m3",
-                "Hồ từ 10-20m3: Giá 11.000.000 VNĐ/m3",
-                "Hồ từ 20-50m3: Giá 10.000.000 VNĐ/m3",
-                "Hồ từ 50-100m3: Giá 9.000.000 VNĐ/m3",
-                "Hồ từ 100m3: Giá 8.000.000 VNĐ/m3"
-              ]}
-            />
-
-            <PricingCard
-              title="UNLIMITED"
-              features={[
-                "Hồ từ 8-10m3: Giá 15.500.000 VNĐ/m3",
-                "Hồ từ 10-20m3: Giá 14.000.000 VNĐ/m3",
-                "Hồ từ 20-50m3: Giá 12.500.000 VNĐ/m3",
-                "Hồ từ 50-100m3: Giá 11.000.000 VNĐ/m3",
-                "Hồ từ 100m3: Giá 9.500.000 VNĐ/m3",
-              ]}
-            />
+          <div className="mt-8 w-full overflow-x-auto">
+            <table className="w-full bg-white rounded-lg overflow-hidden shadow-lg">
+              <thead className="bg-primary text-white">
+                <tr>
+                  <th className="px-6 py-4 text-left text-lg font-semibold">Kích thước hồ</th>
+                  <th className="px-6 py-4 text-center text-lg font-semibold">STARTER</th>
+                  <th className="px-6 py-4 text-center text-lg font-semibold">PREMIUM</th>
+                  <th className="px-6 py-4 text-center text-lg font-semibold">UNLIMITED</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[{ size: "8-10m3", starter: "10.000.000", premium: "12.000.000", unlimited: "15.500.000" },
+                { size: "10-20m3", starter: "9.500.000", premium: "11.000.000", unlimited: "14.000.000" },
+                { size: "20-50m3", starter: "8.500.000", premium: "10.000.000", unlimited: "12.500.000" },
+                { size: "50-100m3", starter: "7.800.000", premium: "9.000.000", unlimited: "11.000.000" },
+                { size: "100m3 trở lên", starter: "7.100.000", premium: "8.000.000", unlimited: "9.500.000" },
+                ].map((row, index) => (
+                  <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                    <td className="px-6 py-4 border-t text-lg">{row.size}</td>
+                    <td className="px-6 py-4 border-t text-center text-lg font-medium">{row.starter} VNĐ/m3</td>
+                    <td className="px-6 py-4 border-t text-center text-lg font-medium">{row.premium} VNĐ/m3</td>
+                    <td className="px-6 py-4 border-t text-center text-lg font-medium">{row.unlimited} VNĐ/m3</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+          <Button color="primary" onClick={() => (window.location.href = "/docsuser")}>
+            Apply now !
+          </Button>
         </div>
       </section>
     </DefaultLayout>
