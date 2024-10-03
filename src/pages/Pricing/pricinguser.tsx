@@ -26,7 +26,7 @@ export default function DocsPage() {
             <h1 className={title()}>Pricing</h1>
           </div>
           <div className="mt-8 w-full overflow-x-auto">
-            <table className="w-full bg-white rounded-lg overflow-hidden shadow-lg">
+            <table className="w-full bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg">
               <thead className="bg-primary text-white">
                 <tr>
                   <th className="px-6 py-4 text-left text-lg font-semibold">Kích thước hồ</th>
@@ -42,11 +42,11 @@ export default function DocsPage() {
                 { size: "50-100m3", starter: "7.800.000", premium: "9.000.000", unlimited: "11.000.000" },
                 { size: "100m3 trở lên", starter: "7.100.000", premium: "8.000.000", unlimited: "9.500.000" },
                 ].map((row, index) => (
-                  <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                    <td className="px-6 py-4 border-t text-lg">{row.size}</td>
-                    <td className="px-6 py-4 border-t text-center text-lg font-medium">{row.starter} VNĐ/m3</td>
-                    <td className="px-6 py-4 border-t text-center text-lg font-medium">{row.premium} VNĐ/m3</td>
-                    <td className="px-6 py-4 border-t text-center text-lg font-medium">{row.unlimited} VNĐ/m3</td>
+                  <tr key={index} className={index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-700' : 'bg-white dark:bg-gray-800'}>
+                    <td className="px-6 py-4 border-t text-lg text-gray-900 dark:text-gray-100">{row.size}</td>
+                    <td className="px-6 py-4 border-t text-center text-lg font-medium text-gray-900 dark:text-gray-100">{row.starter} VNĐ/m3</td>
+                    <td className="px-6 py-4 border-t text-center text-lg font-medium text-gray-900 dark:text-gray-100">{row.premium} VNĐ/m3</td>
+                    <td className="px-6 py-4 border-t text-center text-lg font-medium text-gray-900 dark:text-gray-100">{row.unlimited} VNĐ/m3</td>
                   </tr>
                 ))}
               </tbody>
