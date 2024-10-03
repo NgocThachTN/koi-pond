@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { FormEvent } from "react";
 import {
   Button,
   Input,
@@ -11,13 +11,25 @@ import {
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { AcmeIcon } from "@/components/AcmeIcon";
+import { loginApi } from './../../apis/user.api';
+import { useRouter } from 'next/router'; // Add this import at the top of your file
 
 
-export default function Login() {
+
+export default function Login() {  
   const [isVisible, setIsVisible] = React.useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  
+  const handleLogin = async (e:FormEvent) => {
+    e.preventDefault();
+    console.log(email,password)
+    const result = await loginApi(email, password).then((response) =>console.log(response)).catch((error) => console.log(error))
+    console.log(result); 
+    
+    
+  }
 
   return (
     <div className="relative flex h-screen w-screen">
@@ -68,10 +80,11 @@ export default function Login() {
 
           <form
             className="flex w-full flex-col gap-3"
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={(e) => handleLogin(e)}
           >
             <Input
               label="Email Address"
+              onChange={(e) => setEmail(e.target.value)}
               name="email"
               placeholder="Enter your email"
               type="email"
@@ -95,6 +108,7 @@ export default function Login() {
                 </button>
               }
               label="Password"
+              onChange={(e) => setPassword(e.target.value)}
               name="password"
               placeholder="Enter your password"
               type={isVisible ? "text" : "password"}
@@ -111,7 +125,6 @@ export default function Login() {
             <Button
               color="primary"
               type="submit"
-              onClick={() => (window.location.href = "/homeuser")}
             >
               Log In
             </Button>

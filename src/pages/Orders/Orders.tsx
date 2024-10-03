@@ -20,7 +20,7 @@ const statusColorMap: Record<string, "warning" | "primary" | "success"> = {
 
 // Giả lập dữ liệu
 const mockOrders: Order[] = [
-  { id: "KOI-001", projectName: "Hồ Cá Koi Sân Vườn", date: "2023-03-15", status: "processing" },
+  { id: "KOI-001", projectName: "Hồ Cá Koi Sân Vườn", date: "2023-03-15", status: "completed" },
   { id: "KOI-002", projectName: "Hồ Cá Koi Mini", date: "2023-03-20", status: "pending" },
   { id: "KOI-003", projectName: "Hồ Cá Koi Biệt Thự", date: "2023-03-10", status: "completed", maintenanceDate: "2023-09-10" },
   // Thêm nhiều đơn hàng khác ở đây...
