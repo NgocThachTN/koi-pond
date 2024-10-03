@@ -37,9 +37,7 @@ import { SiteConfig } from "@/config/site";
 import { ProfileModal } from "@/components/Profile/ProfileModal";
 import { SettingsModal } from "@/components/Settings/SettingsModal";
 import { FeedbackModal } from '@/components/Feedback/FeedbackModal';
-import { useState, FormEvent } from "react";
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@apis/authen';
+
 // Define the pages array
 const pages = [
   { name: "Home", href: "/homeuser" },
@@ -61,22 +59,13 @@ const menuItems = [
 ];
 
 export const NavbarUser = () => {
-  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const { isOpen: isProfileOpen, onOpen: onProfileOpen, onClose: onProfileClose } = useDisclosure();
   const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
   const { isOpen: isFeedOpen, onOpen: onFeedOpen, onClose: onFeedClose } = useDisclosure();
-  const [errorMessage, setErrorMessage] = useState("");
-  const { logout } = useAuth();
-  const handleLogout = async () => {
-    setErrorMessage("");
-    try {
-      await logout();
-      navigate('/');
-    } catch (error) {
-      console.error('Logout failed:', error);
-      // Handle logout error (e.g., show error message to user)
-    }
+
+  const handleLogout = () => {
+    console.log("Logout clicked");
   };
 
   const handleViewProfile = () => {
@@ -178,7 +167,8 @@ export const NavbarUser = () => {
                 <DropdownItem
                   key="logout"
                   color="danger"
-                  onPress={() => handleLogout()}
+                  className="text-danger"
+                  onPress={handleLogout}
                 >
                   Log Out
                 </DropdownItem>
