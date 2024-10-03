@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
+import { Route, Routes, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from '@apis/authen'; // Đảm bảo đường dẫn này chính xác
 
 import IndexPage from "@/pages/home/index";
@@ -22,62 +22,53 @@ import OrdersPage from "./pages/Orders/Orders";
 import AdminPage from "./pages/Admin/admin";
 import StaffPage from "./pages/Staff/staff";
 
-const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
+const GuestRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  if (isAuthenticated) {
+    return <Navigate to="/homeuser" state={{ from: location }} replace />;
   }
 
   return element;
-};
-
-const RootRedirect: React.FC = () => {
-  const { isAuthenticated } = useAuth();
-  
-  if (isAuthenticated) {
-    return <Navigate to="/homeuser" replace />;
-  }
-  
-  return <IndexPage />;
 };
 
 function App() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/homeuser');
-    }
-  }, [isAuthenticated, navigate]);
-
   return (
     <Routes>
-      <Route path="/" element={isAuthenticated ? <Navigate to="/homeuser" /> : <IndexPage />} />
+      <Route 
+        path="/" 
+        element={
+          <GuestRoute 
+            element={isAuthenticated ? <Navigate to="/homeuser" /> : <IndexPage />} 
+          />
+        } 
+      />
       
       {/* Guest routes */}
-      <Route element={<DocsPage />} path="/docs" />
-      <Route element={<PricingPage />} path="/pricing"/>
-      <Route element={<BlogPage />} path="/blog" />
-      <Route element={<AboutPage />} path="/about" />
-      <Route element={<LoginPage />} path="/login" />
-      <Route element={<SignUpPage />} path="/signup" />
-      <Route element={<ServicesPage />} path="/services" />
+      <Route element={<GuestRoute element={<DocsPage />} />} path="/docs" />
+      <Route element={<GuestRoute element={<PricingPage />} />} path="/pricing"/>
+      <Route element={<GuestRoute element={<BlogPage />} />} path="/blog" />
+      <Route element={<GuestRoute element={<AboutPage />} />} path="/about" />
+      <Route element={<GuestRoute element={<LoginPage />} />} path="/login" />
+      <Route element={<GuestRoute element={<SignUpPage />} />} path="/signup" />
+      <Route element={<GuestRoute element={<ServicesPage />} />} path="/services" />
 
       {/* Guest Blog */}
-      <Route element={<Blog1Page/>} path="/blog/blog1" />
-      <Route element={<Blog2Page/>} path="/blog/blog2" />
-      <Route element={<Blog3Page/>} path="/blog/blog3" />
+      <Route element={<GuestRoute element={<Blog1Page/>} />} path="/blog/blog1" />
+      <Route element={<GuestRoute element={<Blog2Page/>} />} path="/blog/blog2" />
+      <Route element={<GuestRoute element={<Blog3Page/>} />} path="/blog/blog3" />
 
       {/* Protected User routes */}
-      <Route element={isAuthenticated ? <UserPage /> : <Navigate to="/login" />} path="/homeuser" />
-      <Route element={isAuthenticated ? <BlogPageUser /> : <Navigate to="/login" />} path="/bloguser" />
-      <Route element={isAuthenticated ? <PricingPageUser /> : <Navigate to="/login" />} path="/pricinguser" />
-      <Route element={isAuthenticated ? <AboutPageUser /> : <Navigate to="/login" />} path="/aboutuser" />
-      <Route element={isAuthenticated ? <DocsPageUser /> : <Navigate to="/login" />} path="/docsuser" />
-      <Route element={isAuthenticated ? <OrdersPage /> : <Navigate to="/login" />} path="/orders"/>
+      <Route element={isAuthenticated ? <UserPage /> : <Navigate to="/homeuser" />} path="/homeuser" />
+      <Route element={isAuthenticated ? <BlogPageUser /> : <Navigate to="/bloguser" />} path="/bloguser" />
+      <Route element={isAuthenticated ? <PricingPageUser /> : <Navigate to="/pricinguser" />} path="/pricinguser" />
+      <Route element={isAuthenticated ? <AboutPageUser /> : <Navigate to="/aboutuser" />} path="/aboutuser" />
+      <Route element={isAuthenticated ? <DocsPageUser /> : <Navigate to="/docsuser" />} path="/docsuser" />
+      <Route element={isAuthenticated ? <OrdersPage /> : <Navigate to="/orders" />} path="/orders"/>
 
       {/* Admin Pages */}
       <Route element={isAuthenticated ? <AdminPage /> : <Navigate to="/login" />} path="/admin" />
