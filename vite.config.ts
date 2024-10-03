@@ -8,6 +8,14 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@apis': path.resolve(__dirname, './src/apis')
     },
   },
+  optimizeDeps: {
+    include: ['react-icons/fa']
+  },
+  define: {
+    'process.env': {},
+    global: {}
+  }
 })

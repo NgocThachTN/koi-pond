@@ -1,4 +1,6 @@
-import { Route, Routes } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
+import { useAuth } from '@apis/authen'; // Đảm bảo đường dẫn này chính xác
 
 import IndexPage from "@/pages/home/index";
 import DocsPage from "@/pages/Docs/docs";
@@ -19,11 +21,43 @@ import DocsPageUser from "@/pages/Docs/docsuser";
 import OrdersPage from "./pages/Orders/Orders";
 import AdminPage from "./pages/Admin/admin";
 import StaffPage from "./pages/Staff/staff";
+
+const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return element;
+};
+
+const RootRedirect: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+  
+  if (isAuthenticated) {
+    return <Navigate to="/homeuser" replace />;
+  }
+  
+  return <IndexPage />;
+};
+
 function App() {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/homeuser');
+    }
+  }, [isAuthenticated, navigate]);
+
   return (
     <Routes>
-      {/* Guest */}
-      <Route element={<IndexPage />} path="/" />
+      <Route path="/" element={isAuthenticated ? <Navigate to="/homeuser" /> : <IndexPage />} />
+      
+      {/* Guest routes */}
       <Route element={<DocsPage />} path="/docs" />
       <Route element={<PricingPage />} path="/pricing"/>
       <Route element={<BlogPage />} path="/blog" />
@@ -31,22 +65,23 @@ function App() {
       <Route element={<LoginPage />} path="/login" />
       <Route element={<SignUpPage />} path="/signup" />
       <Route element={<ServicesPage />} path="/services" />
+
       {/* Guest Blog */}
       <Route element={<Blog1Page/>} path="/blog/blog1" />
       <Route element={<Blog2Page/>} path="/blog/blog2" />
       <Route element={<Blog3Page/>} path="/blog/blog3" />
-      {/* User */}
-      <Route element={<UserPage/>} path="/homeuser" />
-      <Route element={<BlogPageUser/>} path="/bloguser" />
-      <Route element={<PricingPageUser/>} path="/pricinguser" />
-      <Route element={<AboutPageUser/>} path="/aboutuser" />
-      <Route element={<DocsPageUser/>} path="/docsuser" />
-      <Route element={<OrdersPage/>} path="/orders"/>
-       {/* blog user */}
 
-       {/* Admin Pages */}
-       <Route element={<AdminPage/>} path="/admin" />
-       <Route element={<StaffPage/>} path="/staff"/>
+      {/* Protected User routes */}
+      <Route element={isAuthenticated ? <UserPage /> : <Navigate to="/login" />} path="/homeuser" />
+      <Route element={isAuthenticated ? <BlogPageUser /> : <Navigate to="/login" />} path="/bloguser" />
+      <Route element={isAuthenticated ? <PricingPageUser /> : <Navigate to="/login" />} path="/pricinguser" />
+      <Route element={isAuthenticated ? <AboutPageUser /> : <Navigate to="/login" />} path="/aboutuser" />
+      <Route element={isAuthenticated ? <DocsPageUser /> : <Navigate to="/login" />} path="/docsuser" />
+      <Route element={isAuthenticated ? <OrdersPage /> : <Navigate to="/login" />} path="/orders"/>
+
+      {/* Admin Pages */}
+      <Route element={isAuthenticated ? <AdminPage /> : <Navigate to="/login" />} path="/admin" />
+      <Route element={isAuthenticated ? <StaffPage /> : <Navigate to="/login" />} path="/staff"/>
     </Routes>
   );
 }

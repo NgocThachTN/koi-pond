@@ -13,8 +13,7 @@ import { Icon } from "@iconify/react";
 import { AcmeIcon } from "@/components/AcmeIcon";
 import { loginApi } from './../../apis/user.api';
 import { useNavigate } from 'react-router-dom'; // Add this import at the top of your file
-
-
+import { useAuth } from '@apis/authen';
 
 export default function Login() {  
 
@@ -24,6 +23,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const { login } = useAuth();
 
   const validateEmail = (email: string) => {
     const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
@@ -40,24 +40,11 @@ export default function Login() {
     }
 
     try {
-      const result = await loginApi(email, password);
-      console.log(result);
-      
-      if (result.status === 200 && result.data.token) {
-        // Login successful, navigate to /homeuser
-        navigate('/homeuser');
-      } else {
-        // Handle login failure (you might want to show an error message)
-        setErrorMessage("Login failed. Please check your credentials and try again.");
-      }
-    } catch (error: any) {
-      // Handle any errors that occur during the API call
-      console.error('Error during login:', error);
-      if (error.response && error.response.status === 401) {
-        setErrorMessage("Incorrect email or password. Please try again.");
-      } else {
-        setErrorMessage("An error occurred during login. Please try again later.");
-      }
+      await login(email, password);
+      navigate('/homeuser');
+    } catch (error) {
+      console.error('Login failed:', error);
+      // Handle login error (e.g., show error message to user)
     }
   }
 

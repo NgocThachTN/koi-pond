@@ -12,6 +12,7 @@ import TeamSection from "@/components/TeamSection/TeamSection";
 import Features3 from "@/components/features3/index";
 import Process from "@/components/Process/process";
 import Project from "@/components/project/project";
+import { AuthProvider } from '@apis/authen';
 export default function IndexPage() {
   const settings = {
     dots: true,

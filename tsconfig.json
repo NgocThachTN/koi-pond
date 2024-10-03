@@ -6,7 +6,8 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@apis/*": ["./src/apis/*"]
     },
 
     /* Bundler mode */
