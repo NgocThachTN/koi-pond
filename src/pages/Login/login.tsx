@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FormEvent } from "react";
+import React, { FormEvent, useState } from "react";
 import {
   Button,
   Input,
@@ -12,23 +12,53 @@ import {
 import { Icon } from "@iconify/react";
 import { AcmeIcon } from "@/components/AcmeIcon";
 import { loginApi } from './../../apis/user.api';
-import { useRouter } from 'next/router'; // Add this import at the top of your file
+import { useNavigate } from 'react-router-dom'; // Add this import at the top of your file
 
 
 
 export default function Login() {  
-  const [isVisible, setIsVisible] = React.useState(false);
+
+  const navigate = useNavigate();
+  const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  
-  const handleLogin = async (e:FormEvent) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const validateEmail = (email: string) => {
+    const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    return re.test(email);
+  };
+
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-    console.log(email,password)
-    const result = await loginApi(email, password).then((response) =>console.log(response)).catch((error) => console.log(error))
-    console.log(result); 
-    
-    
+    setErrorMessage("");
+
+    if (!validateEmail(email)) {
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
+
+    try {
+      const result = await loginApi(email, password);
+      console.log(result);
+      
+      if (result.status === 200 && result.data.token) {
+        // Login successful, navigate to /homeuser
+        navigate('/homeuser');
+      } else {
+        // Handle login failure (you might want to show an error message)
+        setErrorMessage("Login failed. Please check your credentials and try again.");
+      }
+    } catch (error: any) {
+      // Handle any errors that occur during the API call
+      console.error('Error during login:', error);
+      if (error.response && error.response.status === 401) {
+        setErrorMessage("Incorrect email or password. Please try again.");
+      } else {
+        setErrorMessage("An error occurred during login. Please try again later.");
+      }
+    }
   }
 
   return (
@@ -77,6 +107,12 @@ export default function Login() {
             <p className="shrink-0 text-tiny text-default-500">OR</p>
             <Divider className="flex-1" />
           </div>
+
+          {errorMessage && (
+            <div className="w-full p-3 text-sm text-red-500 bg-red-100 rounded-md">
+              {errorMessage}
+            </div>
+          )}
 
           <form
             className="flex w-full flex-col gap-3"
