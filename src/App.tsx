@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
-import { Route, Routes, Navigate, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from '@apis/authen'; // Đảm bảo đường dẫn này chính xác
+import React from "react";
+import { Route, Routes, Navigate, useLocation } from "react-router-dom";
+import { useAuth } from '@apis/authen';
 
 import IndexPage from "@/pages/home/index";
 import DocsPage from "@/pages/Docs/docs";
@@ -22,73 +22,58 @@ import OrdersPage from "./pages/Orders/Orders";
 import AdminPage from "./pages/Admin/admin";
 import StaffPage from "./pages/Staff/staff";
 
-const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
 
   if (!isAuthenticated) {
+    // Redirect them to the /login page, but save the current location they were
+    // trying to go to when they were redirected. This allows us to send them
+    // along to that page after they login, which is a nicer user experience
+    // than dropping them off on the home page.
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return element;
-};
-
-const GuestRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
-  const { isAuthenticated } = useAuth();
-
-  if (isAuthenticated) {
-    return <Navigate to="/homeuser" replace />;
-  }
-
-  return element;
-};
-
-const RootRedirect: React.FC = () => {
-  const { isAuthenticated } = useAuth();
-  
-  if (isAuthenticated) {
-    return <Navigate to="/homeuser" replace />;
-  }
-  
-  return <IndexPage />;
+  return <>{children}</>;
 };
 
 function App() {
   const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
 
   return (
     <Routes>
       <Route 
         path="/" 
-        element={isAuthenticated ? <Navigate to="/homeuser" /> : <IndexPage />}
+        element={isAuthenticated ? <Navigate to="/homeuser" replace /> : <IndexPage />}
       />
       
-      {/* Guest routes */}
-      <Route element={<GuestRoute element={<DocsPage />} />} path="/docs" />
-      <Route element={<GuestRoute element={<PricingPage />} />} path="/pricing"/>
-      <Route element={<GuestRoute element={<BlogPage />} />} path="/blog" />
-      <Route element={<GuestRoute element={<AboutPage />} />} path="/about" />
-      <Route element={<GuestRoute element={<LoginPage />} />} path="/login" />
-      <Route element={<GuestRoute element={<SignUpPage />} />} path="/signup" />
-      <Route element={<GuestRoute element={<ServicesPage />} />} path="/services" />
+      {/* Public routes */}
+      <Route path="/docs" element={<DocsPage />} />
+      <Route path="/pricing" element={<PricingPage />} />
+      <Route path="/blog" element={<BlogPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/services" element={<ServicesPage />} />
 
-      {/* Guest Blog */}
-      <Route element={<GuestRoute element={<Blog1Page/>} />} path="/blog/blog1" />
-      <Route element={<GuestRoute element={<Blog2Page/>} />} path="/blog/blog2" />
-      <Route element={<GuestRoute element={<Blog3Page/>} />} path="/blog/blog3" />
+      {/* Public Blog */}
+      <Route path="/blog/blog1" element={<Blog1Page />} />
+      <Route path="/blog/blog2" element={<Blog2Page />} />
+      <Route path="/blog/blog3" element={<Blog3Page />} />
+
+      {/* Auth routes */}
+      <Route path="/login" element={isAuthenticated ? <Navigate to="/homeuser" replace /> : <LoginPage />} />
+      <Route path="/signup" element={isAuthenticated ? <Navigate to="/homeuser" replace /> : <SignUpPage />} />
 
       {/* Protected User routes */}
-      <Route element={<ProtectedRoute element={<UserPage />} />} path="/homeuser" />
-      <Route element={<ProtectedRoute element={<BlogPageUser />} />} path="/bloguser" />
-      <Route element={<ProtectedRoute element={<PricingPageUser />} />} path="/pricinguser" />
-      <Route element={<ProtectedRoute element={<AboutPageUser />} />} path="/aboutuser" />
-      <Route element={<ProtectedRoute element={<DocsPageUser />} />} path="/docsuser" />
-      <Route element={<ProtectedRoute element={<OrdersPage />} />} path="/orders"/>
+      <Route path="/homeuser" element={<ProtectedRoute><UserPage /></ProtectedRoute>} />
+      <Route path="/bloguser" element={<ProtectedRoute><BlogPageUser /></ProtectedRoute>} />
+      <Route path="/pricinguser" element={<ProtectedRoute><PricingPageUser /></ProtectedRoute>} />
+      <Route path="/aboutuser" element={<ProtectedRoute><AboutPageUser /></ProtectedRoute>} />
+      <Route path="/docsuser" element={<ProtectedRoute><DocsPageUser /></ProtectedRoute>} />
+      <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
 
       {/* Admin Pages */}
-      <Route element={<ProtectedRoute element={<AdminPage />} />} path="/admin" />
-      <Route element={<ProtectedRoute element={<StaffPage />} />} path="/staff"/>
+      <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+      <Route path="/staff" element={<ProtectedRoute><StaffPage /></ProtectedRoute>} />
     </Routes>
   );
 }
