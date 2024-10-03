@@ -1,100 +1,57 @@
-"use client";
+import React, { useEffect } from "react";
+import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
+import { useAuth } from '@apis/authen'; // Đảm bảo đường dẫn này chính xác
 
-import React from "react";
-import {
-  Navbar as NextUINavbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  NavbarMenu,
-  NavbarMenuItem,
-  NavbarMenuToggle,
-  Link,
-  Button,
-  Divider,
-  Avatar,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-  Card,
-  CardBody,
-  CardFooter,
-  Image,
-  Chip,
-} from "@nextui-org/react";
-import { Icon } from "@iconify/react";
-import { cn } from "@nextui-org/react";
-import { Logo } from "@/components/icons";
-import { ThemeSwitch } from "@/components/theme-switch";
-import { SiteConfig } from "@/config/site";
-import { ProfileModal } from "@/components/Profile/ProfileModal";
-import { SettingsModal } from "@/components/Settings/SettingsModal";
-import { FeedbackModal } from '@/components/Feedback/FeedbackModal';
-import { useState, FormEvent } from "react";
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@apis/authen';
-// Define the pages array
-const pages = [
-  { name: "Home", href: "/homeuser" },
-  { name: "Services", href: "/docsuser" },
-  { name: "Blog", href: "/bloguser" },
-  { name: "About Us", href: "/aboutuser" },
-  { name: "Pricing", href: "/pricinguser" },
-];
+import IndexPage from "@/pages/home/index";
+import DocsPage from "@/pages/Docs/docs";
+import PricingPage from "@/pages/Pricing/pricing";
+import BlogPage from "@/pages/Blog/blog";
+import AboutPage from "@/pages/About/about";
+import LoginPage from "@/pages/Login/login";
+import SignUpPage from "@/pages/Singup/signup";
+import ServicesPage from "@/pages/Services/services";
+import UserPage from "./pages/home/homeuser";
+import Blog1Page from "./components/Blog/blog1";
+import Blog2Page from "./components/Blog/blog2";
+import Blog3Page from "./components/Blog/blog3"; 
+import BlogPageUser from "./pages/Blog/bloguser";
+import PricingPageUser from "@/pages/Pricing/pricinguser";
+import AboutPageUser from "./pages/About/aboutuser";
+import DocsPageUser from "@/pages/Docs/docsuser"; 
+import OrdersPage from "./pages/Orders/Orders";
+import AdminPage from "./pages/Admin/admin";
+import StaffPage from "./pages/Staff/staff";
 
-const menuItems = [
-  "About",
-  "Blog",
-  "Customers",
-  "Pricing",
-  "Enterprise",
-  "Changelog",
-  "Documentation",
-  "Contact Us",
-];
+const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
 
-export const NavbarUser = () => {
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return element;
+};
+
+const RootRedirect: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+  
+  if (isAuthenticated) {
+    return <Navigate to="/homeuser" replace />;
+  }
+  
+  return <IndexPage />;
+};
+
+function App() {
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const { isOpen: isProfileOpen, onOpen: onProfileOpen, onClose: onProfileClose } = useDisclosure();
-  const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
-  const { isOpen: isFeedOpen, onOpen: onFeedOpen, onClose: onFeedClose } = useDisclosure();
-  const [errorMessage, setErrorMessage] = useState("");
-  const { logout } = useAuth();
-  const handleLogout = async () => {
-    setErrorMessage("");
-    try {
-      await logout();
-      navigate('/');
-    } catch (error) {
-      console.error('Logout failed:', error);
-      // Handle logout error (e.g., show error message to user)
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/homeuser');
     }
-  };
-
-  const handleViewProfile = () => {
-    onProfileOpen();
-  };
-
-  const handleOpenSettings = () => {
-    onSettingsOpen();
-  };
-
-  const handleOpenFeedback = () => {
-    onFeedOpen();
-  };
-
-  const handleMyOrders = () => {
-    // Use Next.js router to navigate to the orders page
-    window.location.href = '/orders';
-  };
+  }, [isAuthenticated, navigate]);
 
   return (
     <>
@@ -227,5 +184,36 @@ export const NavbarUser = () => {
       <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
       <FeedbackModal isOpen={isFeedOpen} onClose={onFeedClose} />
     </>
+    <Routes>
+      <Route path="/" element={isAuthenticated ? <Navigate to="/homeuser" /> : <IndexPage />} />
+      
+      {/* Guest routes */}
+      <Route element={<DocsPage />} path="/docs" />
+      <Route element={<PricingPage />} path="/pricing"/>
+      <Route element={<BlogPage />} path="/blog" />
+      <Route element={<AboutPage />} path="/about" />
+      <Route element={<LoginPage />} path="/login" />
+      <Route element={<SignUpPage />} path="/signup" />
+      <Route element={<ServicesPage />} path="/services" />
+
+      {/* Guest Blog */}
+      <Route element={<Blog1Page/>} path="/blog/blog1" />
+      <Route element={<Blog2Page/>} path="/blog/blog2" />
+      <Route element={<Blog3Page/>} path="/blog/blog3" />
+
+      {/* Protected User routes */}
+      <Route element={isAuthenticated ? <UserPage /> : <Navigate to="/login" />} path="/homeuser" />
+      <Route element={isAuthenticated ? <BlogPageUser /> : <Navigate to="/login" />} path="/bloguser" />
+      <Route element={isAuthenticated ? <PricingPageUser /> : <Navigate to="/login" />} path="/pricinguser" />
+      <Route element={isAuthenticated ? <AboutPageUser /> : <Navigate to="/login" />} path="/aboutuser" />
+      <Route element={isAuthenticated ? <DocsPageUser /> : <Navigate to="/login" />} path="/docsuser" />
+      <Route element={isAuthenticated ? <OrdersPage /> : <Navigate to="/login" />} path="/orders"/>
+
+      {/* Admin Pages */}
+      <Route element={isAuthenticated ? <AdminPage /> : <Navigate to="/login" />} path="/admin" />
+      <Route element={isAuthenticated ? <StaffPage /> : <Navigate to="/login" />} path="/staff"/>
+    </Routes>
   );
-};
+}
+
+export default App;
