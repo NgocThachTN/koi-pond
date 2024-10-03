@@ -18,7 +18,7 @@ import { cn } from "@nextui-org/react";
 import { Logo } from "@/components/icons";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SiteConfig } from "@/config/site";
-
+import { useAuth } from '@apis/authen';
 // Define the pages array
 const pages = [
   { name: "Home", href: "/" },
@@ -41,7 +41,7 @@ const menuItems = [
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-
+  const { isAuthenticated } = useAuth();
   return (
     <NextUINavbar
       classNames={{
