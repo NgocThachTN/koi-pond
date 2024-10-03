@@ -61,11 +61,7 @@ function App() {
     <Routes>
       <Route 
         path="/" 
-        element={
-          <GuestRoute 
-            element={isAuthenticated ? <Navigate to="/homeuser" /> : <IndexPage />} 
-          />
-        } 
+        element={isAuthenticated ? <Navigate to="/homeuser" /> : <IndexPage />}
       />
       
       {/* Guest routes */}
@@ -83,16 +79,16 @@ function App() {
       <Route element={<GuestRoute element={<Blog3Page/>} />} path="/blog/blog3" />
 
       {/* Protected User routes */}
-      <Route element={isAuthenticated ? <UserPage /> : <Navigate to="/homeuser" />} path="/homeuser" />
-      <Route element={isAuthenticated ? <BlogPageUser /> : <Navigate to="/bloguser" />} path="/bloguser" />
-      <Route element={isAuthenticated ? <PricingPageUser /> : <Navigate to="/pricinguser" />} path="/pricinguser" />
-      <Route element={isAuthenticated ? <AboutPageUser /> : <Navigate to="/aboutuser" />} path="/aboutuser" />
-      <Route element={isAuthenticated ? <DocsPageUser /> : <Navigate to="/docsuser" />} path="/docsuser" />
-      <Route element={isAuthenticated ? <OrdersPage /> : <Navigate to="/orders" />} path="/orders"/>
+      <Route element={<ProtectedRoute element={<UserPage />} />} path="/homeuser" />
+      <Route element={<ProtectedRoute element={<BlogPageUser />} />} path="/bloguser" />
+      <Route element={<ProtectedRoute element={<PricingPageUser />} />} path="/pricinguser" />
+      <Route element={<ProtectedRoute element={<AboutPageUser />} />} path="/aboutuser" />
+      <Route element={<ProtectedRoute element={<DocsPageUser />} />} path="/docsuser" />
+      <Route element={<ProtectedRoute element={<OrdersPage />} />} path="/orders"/>
 
       {/* Admin Pages */}
-      <Route element={isAuthenticated ? <AdminPage /> : <Navigate to="/login" />} path="/admin" />
-      <Route element={isAuthenticated ? <StaffPage /> : <Navigate to="/login" />} path="/staff"/>
+      <Route element={<ProtectedRoute element={<AdminPage />} />} path="/admin" />
+      <Route element={<ProtectedRoute element={<StaffPage />} />} path="/staff"/>
     </Routes>
   );
 }
