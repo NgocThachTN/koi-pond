@@ -83,7 +83,14 @@ function App() {
       <Route element={<GuestRoute element={<Blog3Page/>} />} path="/blog/blog3" />
 
       {/* Protected User routes */}
-      <Route element={isAuthenticated ? <UserPage /> : <Navigate to="/homeuser" />} path="/homeuser" />
+      <Route 
+        path="/homeuser" 
+        element={
+          <ProtectedRoute 
+            element={<UserPage />}
+          />
+        } 
+      />
       <Route element={isAuthenticated ? <BlogPageUser /> : <Navigate to="/bloguser" />} path="/bloguser" />
       <Route element={isAuthenticated ? <PricingPageUser /> : <Navigate to="/pricinguser" />} path="/pricinguser" />
       <Route element={isAuthenticated ? <AboutPageUser /> : <Navigate to="/aboutuser" />} path="/aboutuser" />
