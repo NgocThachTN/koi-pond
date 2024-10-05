@@ -67,7 +67,8 @@ export const NavbarUser = () => {
   const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
   const { isOpen: isFeedOpen, onOpen: onFeedOpen, onClose: onFeedClose } = useDisclosure();
   const [errorMessage, setErrorMessage] = useState("");
-  const { logout } = useAuth();
+  const { logout, userEmail } = useAuth(); // Thay đổi này
+
   const handleLogout = async () => {
     setErrorMessage("");
     try {
@@ -77,6 +78,13 @@ export const NavbarUser = () => {
       console.error('Logout failed:', error);
       // Handle logout error (e.g., show error message to user)
     }
+  };
+
+  // Hàm để lấy tên hiển thị từ email
+  const getDisplayName = (email: string | null) => {
+    if (!email) return 'Guest';
+    // Lấy phần trước @ trong email để hiển thị
+    return email.split('@')[0];
   };
 
   const handleViewProfile = () => {
@@ -150,7 +158,7 @@ export const NavbarUser = () => {
                 as="button"
                 color="secondary"
                 size="md"
-                src="https://i.pinimg.com/564x/14/8d/0e/148d0e0f3a55b0c93bf04d85b6f9e3e9.jpg"
+                src="https://sohanews.sohacdn.com/160588918557773824/2020/12/17/photo-1-16081985708991024135226.jpg"
               />
             </DropdownTrigger>
             <DropdownMenu
@@ -159,7 +167,7 @@ export const NavbarUser = () => {
             >
               <DropdownItem key="profile">
                 <p>Welcome, </p>
-                <p>Saito Asuka</p>
+                <p>{getDisplayName(userEmail)}</p> {/* Thay đổi này */}
               </DropdownItem>
               <DropdownItem key="view_profile" onPress={handleViewProfile}>
                 View Profile

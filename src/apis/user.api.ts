@@ -5,12 +5,13 @@ interface LoginResType{
     token: string,
     role: string,
     email: string,
-
+    userName: string, // Change this line from fullName to userName
 }
+
 export const loginApi = (email: string, password: string) => {
   return http.post<LoginResType>('Authentication/login', { 
-    email:email,
-    password:password,
+    email: email,
+    password: password,
     
   }) 
 }
