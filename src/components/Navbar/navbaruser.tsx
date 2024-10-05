@@ -143,48 +143,45 @@ export const NavbarUser = () => {
           <NavbarItem>
             <ThemeSwitch />
           </NavbarItem>
-          <NavbarItem className="ml-2 !flex gap-2">
-            <Dropdown>
-              <NavbarItem>
-                <DropdownTrigger>
-                  <Avatar
-                    as="button"
-                    color="secondary"
-                    size="md"
-                    src="https://i.pinimg.com/564x/14/8d/0e/148d0e0f3a55b0c93bf04d85b6f9e3e9.jpg"
-                  />
-                </DropdownTrigger>
-              </NavbarItem>
-              <DropdownMenu
-                aria-label="User menu actions"
-                onAction={(actionKey) => console.log({ actionKey })}
+          {/* Remove the NavbarItem wrapper around the Dropdown */}
+          <Dropdown>
+            <DropdownTrigger>
+              <Avatar
+                as="button"
+                color="secondary"
+                size="md"
+                src="https://i.pinimg.com/564x/14/8d/0e/148d0e0f3a55b0c93bf04d85b6f9e3e9.jpg"
+              />
+            </DropdownTrigger>
+            <DropdownMenu
+              aria-label="User menu actions"
+              onAction={(actionKey) => console.log({ actionKey })}
+            >
+              <DropdownItem key="profile">
+                <p>Welcome, </p>
+                <p>Saito Asuka</p>
+              </DropdownItem>
+              <DropdownItem key="view_profile" onPress={handleViewProfile}>
+                View Profile
+              </DropdownItem>
+              <DropdownItem key="settings" onPress={handleOpenSettings}>
+                Settings
+              </DropdownItem>
+              <DropdownItem key="team_settings" onPress={handleMyOrders}>
+                My Orders
+              </DropdownItem>
+              <DropdownItem key="help_and_feedback" onPress={handleOpenFeedback}>
+                Feedback
+              </DropdownItem>
+              <DropdownItem
+                key="logout"
+                color="danger"
+                onPress={() => handleLogout()}
               >
-                <DropdownItem key="profile">
-                  <p>Welcome, </p>
-                  <p>Saito Asuka</p>
-                </DropdownItem>
-                <DropdownItem key="view_profile" onPress={handleViewProfile}>
-                  View Profile
-                </DropdownItem>
-                <DropdownItem key="settings" onPress={handleOpenSettings}>
-                  Settings
-                </DropdownItem>
-                <DropdownItem key="team_settings" onPress={handleMyOrders}>
-                  My Orders
-                </DropdownItem>
-                <DropdownItem key="help_and_feedback" onPress={handleOpenFeedback}>
-                  Feedback
-                </DropdownItem>
-                <DropdownItem
-                  key="logout"
-                  color="danger"
-                  onPress={() => handleLogout()}
-                >
-                  Log Out
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </NavbarItem>
+                Log Out
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
         </NavbarContent>
        
         <NavbarMenuToggle className="text-default-400 md:hidden" />
