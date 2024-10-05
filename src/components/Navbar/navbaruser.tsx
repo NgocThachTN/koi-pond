@@ -147,11 +147,12 @@ export const NavbarUser = () => {
         </NavbarContent>
 
         {/* Right Content */}
-        <NavbarContent className="hidden md:flex" justify="end">
+        <NavbarContent className="hidden md:flex items-center" justify="end">
           <NavbarItem>
             <ThemeSwitch />
           </NavbarItem>
-          {/* Remove the NavbarItem wrapper around the Dropdown */}
+          {/* Add a divider here */}
+          <Divider orientation="vertical" className="h-6 mx-4" />
           <Dropdown>
             <DropdownTrigger>
               <Avatar
