@@ -34,7 +34,7 @@ export default function Login() {
     try {
       await login(email, password);
       
-      if (userRole === 'admin') {
+      if (userRole === 'Admin') {
         navigate('/admin');
       } else if (userRole === 'staff') {
         navigate('/staff');

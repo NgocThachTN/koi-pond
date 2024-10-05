@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { token, role, email: userEmail, userName } = response.data; // Update this line
       console.log('Login successful:', { token, role, userEmail, userName }); // Update this line
       localStorage.setItem('authToken', token);
-      localStorage.setItem('userRole', role);
+      localStorage.setItem('userRole', role);  // Đảm bảo 'role' này khớp với giá trị từ API
       localStorage.setItem('userEmail', userEmail);
       localStorage.setItem('userName', userName); // Add this line
       setIsAuthenticated(true);
