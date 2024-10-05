@@ -46,7 +46,14 @@ const pages = [
   { name: "Services", href: "/docsuser" },
   { name: "Blog", href: "/bloguser" },
   { name: "About Us", href: "/aboutuser" },
-  { name: "Pricing", href: "/pricinguser" },
+  {
+    name: "Pricing",
+    href: "#",
+    dropdown: [
+      { name: "Thiết kế có sẵn ", href: "/pricinguser" },
+      { name: "Bản vẽ theo yêu cầu", href: "/pricing2user" },
+    ],
+  },
 ];
 
 const menuItems = [
@@ -132,16 +139,39 @@ export const NavbarUser = () => {
         <NavbarContent justify="center" className="gap-20">
           {pages.map((page) => (
             <NavbarItem key={page.name}>
-              <Link
-                className={cn("text-default-500", {
-                  "text-foreground": page.name === "Customers",
-                })}
-                href={page.href}
-                size="sm"
-                aria-current={page.name === "Customers" ? "page" : undefined}
-              >
-                {page.name}
-              </Link>
+              {page.dropdown ? (
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Button
+                      disableRipple
+                      className="p-0 bg-transparent data-[hover=true]:bg-transparent"
+                      endContent={<Icon icon="mdi:chevron-down" />}
+                      radius="sm"
+                      variant="light"
+                    >
+                      {page.name}
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu aria-label={`${page.name} dropdown`}>
+                    {page.dropdown.map((item) => (
+                      <DropdownItem key={item.name}>
+                        <Link href={item.href}>{item.name}</Link>
+                      </DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+              ) : (
+                <Link
+                  className={cn("text-default-500", {
+                    "text-foreground": page.name === "Customers",
+                  })}
+                  href={page.href}
+                  size="sm"
+                  aria-current={page.name === "Customers" ? "page" : undefined}
+                >
+                  {page.name}
+                </Link>
+              )}
             </NavbarItem>
           ))}
         </NavbarContent>
