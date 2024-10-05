@@ -23,30 +23,28 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const { login } = useAuth();
+  const { login, userRole } = useAuth();
 
   const validateEmail = (email: string) => {
     const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
     return re.test(email);
   };
 
-  const handleLogin = async (e: FormEvent) => {
-    e.preventDefault();
-    setErrorMessage("");
-
-    if (!validateEmail(email)) {
-      setErrorMessage("Please enter a valid email address.");
-      return;
-    }
-
+  const handleLogin = async () => {
     try {
       await login(email, password);
-      navigate('/homeuser');
+      
+      if (userRole === 'admin') {
+        navigate('/admin');
+      } else if (userRole === 'staff') {
+        navigate('/staff');
+      } else {
+        navigate('/homeuser');
+      }
     } catch (error) {
-      console.error('Login failed:', error);
-      // Handle login error (e.g., show error message to user)
+      // Xử lý lỗi
     }
-  }
+  };
 
   return (
     <div className="relative flex h-screen w-screen">
