@@ -53,11 +53,12 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
               />
             </ModalBody>
             <ModalFooter>
-              <Button color="danger" variant="light" onPress={onClose}>
+              <Button color="secondary" variant="light" onPress={onClose}>
                 Cancel
               </Button>
               <Button 
-                color="primary" 
+                color="secondary" 
+                variant="light"
                 onPress={handleSubmit}
                 endContent={<SendIcon />}
                 isDisabled={!feedback.trim()}

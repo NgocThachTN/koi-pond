@@ -33,7 +33,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="2xl">
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      size="2xl"
+      classNames={{
+        body: "bg-purple-100", // Thêm màu nền tím nhạt
+      }}
+    >
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">Settings</ModalHeader>
         <ModalBody>
@@ -61,7 +68,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="mb-4"
                 />
-                <Button color="primary" type="submit">
+                <Button color="secondary" type="submit">
                   Change Password
                 </Button>
               </form>
@@ -75,7 +82,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   onChange={(e) => setEmail(e.target.value)}
                   className="mb-4"
                 />
-                <Button color="primary" type="submit">
+                <Button color="secondary" type="submit">
                   Change Email
                 </Button>
               </form>
@@ -83,7 +90,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           </Tabs>
         </ModalBody>
         <ModalFooter>
-          <Button color="danger" variant="light" onPress={onClose}>
+          <Button color="secondary" variant="light" onPress={onClose}>
             Close
           </Button>
         </ModalFooter>

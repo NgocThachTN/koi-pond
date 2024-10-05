@@ -4,9 +4,9 @@ import { Card, CardHeader, CardBody, CardFooter, Image, Link, Button } from "@ne
 
 const posts = [
 
-  { name: "Hồ cá Koi mini", href: "/blog/blog1 ", src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcuzvYzDSx5ofrVNoq2WwOQtOq5KEdE9NRwg&s" },
-  { name: "Hồ cá Koi ngoài trời", href: "/blog/blog2", src: "https://hocakoimiennam.vn/img_data/images/059131098791_HINH-10.png" },
-  { name: "Hồ cá Koi trong nhà", href: "/blog/blog3", src: "https://hocakoimiennam.vn/img_data/images/ho%203.jpg" },
+  { name: "Mini Koi Pond", href: "/blog/blog1 ", src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcuzvYzDSx5ofrVNoq2WwOQtOq5KEdE9NRwg&s" },
+  { name: "Koi Pond Garden", href: "/blog/blog2", src: "https://hocakoimiennam.vn/img_data/images/059131098791_HINH-10.png" },
+  { name: "Koi Pond Indoor", href: "/blog/blog3", src: "https://hocakoimiennam.vn/img_data/images/ho%203.jpg" },
 
 ];
 
@@ -36,7 +36,7 @@ export default function BlogPage() {
               </CardBody>
               <CardFooter>
                 <Link href={post.href}>
-                  <Button>Xem bài viết</Button>
+                  <Button>More</Button>
                 </Link>
               </CardFooter>
             </Card>

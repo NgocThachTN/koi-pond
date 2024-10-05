@@ -66,7 +66,7 @@ function OrdersPage() {
   }, [onOpen])
 
   return (
-    <div>
+    <div className="min-h-screen bg-purple-100"> {/* Added background color here */}
       <NavbarUser />
       <div className="container mx-auto py-8">
         <Card className="mb-8">

@@ -1,5 +1,3 @@
-
-
 import DefaultLayout from "@/layouts/default";
 
 import React from "react";
@@ -29,7 +27,7 @@ export default function Blog2Page() {
 
       <Card>
         <CardHeader>
-          <h1 className="text-2xl font-bold">Hồ cá koi ngoài trời đẹp</h1>
+          <h1 className="text-2xl font-bold">Beautiful Koi Pond Gardens</h1>
         </CardHeader>
         <CardBody>
           <Image
@@ -40,21 +38,21 @@ export default function Blog2Page() {
           />
           <Spacer y={4} />
           <p>
-            Những hộ gia đình có sân vườn và khuôn viên rộng bên ngoài. Họ có đam mê và yêu thích các loại cá cảnh,
-            như là loại cá koi thì việc xây dựng, thi công bể cá koi ngoài trời sẽ là một giải pháp giúp không gian ngoài
-            thật đẹp và có giá trị về mặt hình ảnh hơn rất nhiều.
+            Households with spacious gardens and outdoor areas, who have a passion and love for ornamental fish
+            such as koi, will find that building an outdoor koi pond is a solution that greatly enhances the beauty
+            and visual value of their outdoor space.
           </p>
           <Spacer y={4} />
           <p>
-            Không gian ngoài sân vườn với sự kết hợp của nước, thủy sinh, cá koi...với nhiều màu sắc hòa trộn sẽ mang lại
-            một không gian sống động cho sân vườn của bạn. Tính thẩm mỹ chính là một yếu tố giúp cho sân vườn của
-            bạn đẹp hơn, mang tính thiên nhiên hơn.
+            The outdoor garden space, combined with water, aquatic life, and koi fish in a blend of many colors,
+            will bring a vibrant atmosphere to your garden. The aesthetic aspect is a key factor in making your
+            garden more beautiful and more natural.
           </p>
           <Spacer y={4} />
           <p>
-            Một mẫu hồ cá có kích thước vừa phải lấp đầy những khoảng trống trong sân vườn của bạn, đó chính là
-            những điểm ấn tượng mà khách hàng có thể nhìn thấy trong căn nhà của bạn. Sự kết hợp của cây cối, sân
-            vườn, giả sơn, cùng với hồ cá koi sẽ tạo nên một không gian hoàn thiện về mặt nội dung và kết cấu.
+            A moderately sized fish pond that fills the empty spaces in your garden becomes an impressive feature
+            that visitors can admire in your home. The combination of trees, garden, rockery, and koi pond will
+            create a space that is complete in both content and structure.
           </p>
         </CardBody>
         <CardBody>
