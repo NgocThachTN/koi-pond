@@ -38,7 +38,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       onClose={onClose} 
       size="2xl"
       classNames={{
-        body: "bg-purple-100", // Thêm màu nền tím nhạt
+        base: "bg-content1 dark:bg-content1",
+        header: "border-b border-divider",
+        footer: "border-t border-divider",
+        closeButton: "hover:bg-default-300/50 active:bg-default-200/50",
       }}
     >
       <ModalContent>

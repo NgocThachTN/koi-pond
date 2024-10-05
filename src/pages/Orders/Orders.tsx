@@ -53,7 +53,7 @@ function OrdersPage() {
         )
       case "maintenance":
         return order.status === "completed" ? (
-          <Button size="sm" onClick={() => {
+          <Button size="sm" color="secondary" onClick={() => { // Changed to secondary
             setSelectedOrder(order)
             onOpen()
           }}>
@@ -66,13 +66,13 @@ function OrdersPage() {
   }, [onOpen])
 
   return (
-    <div className="min-h-screen bg-purple-100"> {/* Added background color here */}
+    <div className="min-h-screen bg-background"> {/* Added background color here */}
       <NavbarUser />
       <div className="container mx-auto py-8">
         <Card className="mb-8">
           <CardHeader className="flex justify-between">
             <h1 className="text-2xl font-bold">Koi Pond Construction Orders</h1>
-            <Button color="primary">Create New Order</Button>
+            <Button color="secondary">Create New Order</Button>
           </CardHeader>
           <CardBody>
             <Table
@@ -101,7 +101,7 @@ function OrdersPage() {
                 isCompact
                 showControls
                 showShadow
-                color="primary"
+                color="secondary" // Changed to secondary
                 page={page}
                 total={pages}
                 onChange={setPage}
@@ -122,7 +122,7 @@ function OrdersPage() {
                 <p>Next Maintenance Date: {selectedOrder?.maintenanceDate}</p>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button color="secondary" variant="light" onPress={onClose}>
                   Close
                 </Button>
               </ModalFooter>
