@@ -60,11 +60,14 @@ const RoleBasedRedirect: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
   
-  if (userRole === 'Admin') {
-    return <Navigate to="/admin" replace />;
+  switch (userRole) {
+    case 'Admin':
+      return <Navigate to="/admin" replace />;
+    case 'Staff':
+      return <Navigate to="/staff" replace />;
+    default:
+      return <Navigate to="/homeuser" replace />;
   }
-  
-  return <Navigate to="/homeuser" replace />;
 };
 
 function App() {
@@ -99,7 +102,11 @@ function App() {
         path="/homeuser" 
         element={
           <ProtectedRoute 
-            element={userRole === 'Admin' ? <Navigate to="/admin" /> : <UserPage />}
+            element={
+              userRole === 'Admin' ? <Navigate to="/admin" /> :
+              userRole === 'Staff' ? <Navigate to="/staff" /> :
+              <UserPage />
+            }
           />
         } 
       />
@@ -114,7 +121,7 @@ function App() {
         path="/admin" 
         element={
           <ProtectedRoute 
-            element={userRole === 'Admin' ? <AdminPage /> : <Navigate to="/homeuser" />}
+            element={userRole === 'Admin' ? <AdminPage /> : <Navigate to="/unauthorized" />}
           />
         } 
       />
@@ -122,7 +129,7 @@ function App() {
         path="/staff" 
         element={
           <ProtectedRoute 
-            element={userRole === 'Admin' ? <StaffPage /> : <Navigate to="/homeuser" />}
+            element={userRole === 'Staff' ? <StaffPage /> : <Navigate to="/unauthorized" />}
           />
         }
       />
