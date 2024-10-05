@@ -16,11 +16,13 @@ import Blog2Page from "./components/Blog/blog2";
 import Blog3Page from "./components/Blog/blog3"; 
 import BlogPageUser from "./pages/Blog/bloguser";
 import PricingPageUser from "@/pages/Pricing/pricinguser";
+import PricingPageUser2 from "@/pages/Pricing/pricinguser2";
 import AboutPageUser from "./pages/About/aboutuser";
 import DocsPageUser from "@/pages/Docs/docsuser"; 
 import OrdersPage from "./pages/Orders/Orders";
 import AdminPage from "./pages/Admin/admin";
 import StaffPage from "./pages/Staff/staff";
+
 
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { isAuthenticated } = useAuth();
@@ -115,6 +117,7 @@ function App() {
       <Route element={isAuthenticated ? <AboutPageUser /> : <Navigate to="/aboutuser" />} path="/aboutuser" />
       <Route element={isAuthenticated ? <DocsPageUser /> : <Navigate to="/docsuser" />} path="/docsuser" />
       <Route element={isAuthenticated ? <OrdersPage /> : <Navigate to="/orders" />} path="/orders"/>
+      <Route element={isAuthenticated ? <PricingPageUser2 /> : <Navigate to="/pricinguser2" />} path="/pricinguser2" />
 
       {/* Admin Pages */}
       <Route 

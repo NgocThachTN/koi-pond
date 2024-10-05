@@ -36,10 +36,10 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { SiteConfig } from "@/config/site";
 import { ProfileModal } from "@/components/Profile/ProfileModal";
 import { SettingsModal } from "@/components/Settings/SettingsModal";
-import { FeedbackModal } from '@/components/Feedback/FeedbackModal';
+import { FeedbackModal } from "@/components/Feedback/FeedbackModal";
 import { useState, FormEvent } from "react";
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@apis/authen';
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@apis/authen";
 // Define the pages array
 const pages = [
   { name: "Home", href: "/homeuser" },
@@ -51,7 +51,7 @@ const pages = [
     href: "#",
     dropdown: [
       { name: "Thiết kế có sẵn ", href: "/pricinguser" },
-      { name: "Bản vẽ theo yêu cầu", href: "/pricing2user" },
+      { name: "Bản vẽ theo yêu cầu", href: "/pricinguser2" },
     ],
   },
 ];
@@ -70,9 +70,21 @@ const menuItems = [
 export const NavbarUser = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const { isOpen: isProfileOpen, onOpen: onProfileOpen, onClose: onProfileClose } = useDisclosure();
-  const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
-  const { isOpen: isFeedOpen, onOpen: onFeedOpen, onClose: onFeedClose } = useDisclosure();
+  const {
+    isOpen: isProfileOpen,
+    onOpen: onProfileOpen,
+    onClose: onProfileClose,
+  } = useDisclosure();
+  const {
+    isOpen: isSettingsOpen,
+    onOpen: onSettingsOpen,
+    onClose: onSettingsClose,
+  } = useDisclosure();
+  const {
+    isOpen: isFeedOpen,
+    onOpen: onFeedOpen,
+    onClose: onFeedClose,
+  } = useDisclosure();
   const [errorMessage, setErrorMessage] = useState("");
   const { logout, userEmail } = useAuth(); // Thay đổi này
 
@@ -80,18 +92,18 @@ export const NavbarUser = () => {
     setErrorMessage("");
     try {
       await logout();
-      navigate('/');
+      navigate("/");
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
       // Handle logout error (e.g., show error message to user)
     }
   };
 
   // Hàm để lấy tên hiển thị từ email
   const getDisplayName = (email: string | null) => {
-    if (!email) return 'Guest';
+    if (!email) return "Guest";
     // Lấy phần trước @ trong email để hiển thị
-    return email.split('@')[0];
+    return email.split("@")[0];
   };
 
   const handleViewProfile = () => {
@@ -108,7 +120,7 @@ export const NavbarUser = () => {
 
   const handleMyOrders = () => {
     // Use Next.js router to navigate to the orders page
-    window.location.href = '/orders';
+    window.location.href = "/orders";
   };
 
   return (
@@ -209,7 +221,10 @@ export const NavbarUser = () => {
               <DropdownItem key="team_settings" onPress={handleMyOrders}>
                 My Orders
               </DropdownItem>
-              <DropdownItem key="help_and_feedback" onPress={handleOpenFeedback}>
+              <DropdownItem
+                key="help_and_feedback"
+                onPress={handleOpenFeedback}
+              >
                 Feedback
               </DropdownItem>
               <DropdownItem
@@ -222,7 +237,7 @@ export const NavbarUser = () => {
             </DropdownMenu>
           </Dropdown>
         </NavbarContent>
-       
+
         <NavbarMenuToggle className="text-default-400 md:hidden" />
 
         <NavbarMenu className="top-[calc(var(--navbar-height)_-_1px)] max-h-fit bg-default-200/50 pb-6 pt-6 shadow-medium backdrop-blur-md backdrop-saturate-150 dark:bg-default-100/50">
@@ -240,11 +255,14 @@ export const NavbarUser = () => {
           <NavbarMenuItem>
             <ThemeSwitch />
           </NavbarMenuItem>
-          <NavbarMenuItem>
-         
-          </NavbarMenuItem>
+          <NavbarMenuItem></NavbarMenuItem>
           <NavbarMenuItem className="mb-4">
-            <Button fullWidth as={Link} className="bg-foreground text-background" href="/signup">
+            <Button
+              fullWidth
+              as={Link}
+              className="bg-foreground text-background"
+              href="/signup"
+            >
               Get Started
             </Button>
           </NavbarMenuItem>
@@ -253,7 +271,9 @@ export const NavbarUser = () => {
               <Link className="mb-2 w-full text-default-500" href="#" size="md">
                 {item}
               </Link>
-              {index < menuItems.length - 1 && <Divider className="opacity-50" />}
+              {index < menuItems.length - 1 && (
+                <Divider className="opacity-50" />
+              )}
             </NavbarMenuItem>
           ))}
         </NavbarMenu>
