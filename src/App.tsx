@@ -21,8 +21,7 @@ import DocsPageUser from "@/pages/Docs/docsuser";
 import OrdersPage from "./pages/Orders/Orders";
 import AdminPage from "./pages/Admin/admin";
 import StaffPage from "./pages/Staff/staff";
-import PricingUser1 from "./pages/Pricing/pricinguser1";
-import PricingUser2 from "./pages/Pricing/pricinguser2";
+
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
@@ -54,8 +53,25 @@ const RootRedirect: React.FC = () => {
   return <IndexPage />;
 };
 
+const RoleBasedRedirect: React.FC = () => {
+  const { isAuthenticated, userRole } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  switch (userRole) {
+    case 'Admin':
+      return <Navigate to="/admin" replace />;
+    case 'Staff':
+      return <Navigate to="/staff" replace />;
+    default:
+      return <Navigate to="/homeuser" replace />;
+  }
+};
+
 function App() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, userRole } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -63,9 +79,7 @@ function App() {
       <Route 
         path="/" 
         element={
-          <GuestRoute 
-            element={isAuthenticated ? <Navigate to="/homeuser" /> : <IndexPage />} 
-          />
+          isAuthenticated ? <RoleBasedRedirect /> : <IndexPage />
         } 
       />
       
@@ -88,7 +102,11 @@ function App() {
         path="/homeuser" 
         element={
           <ProtectedRoute 
-            element={<UserPage />}
+            element={
+              userRole === 'Admin' ? <Navigate to="/admin" /> :
+              userRole === 'Staff' ? <Navigate to="/staff" /> :
+              <UserPage />
+            }
           />
         } 
       />
@@ -97,11 +115,24 @@ function App() {
       <Route element={isAuthenticated ? <AboutPageUser /> : <Navigate to="/aboutuser" />} path="/aboutuser" />
       <Route element={isAuthenticated ? <DocsPageUser /> : <Navigate to="/docsuser" />} path="/docsuser" />
       <Route element={isAuthenticated ? <OrdersPage /> : <Navigate to="/orders" />} path="/orders"/>
-      
-      <Route element={isAuthenticated ? <PricingUser2 /> : <Navigate to="/pricing2user" />} path="/pricing2user" />
+
       {/* Admin Pages */}
-      <Route element={isAuthenticated ? <AdminPage /> : <Navigate to="/login" />} path="/admin" />
-      <Route element={isAuthenticated ? <StaffPage /> : <Navigate to="/login" />} path="/staff"/>
+      <Route 
+        path="/admin" 
+        element={
+          <ProtectedRoute 
+            element={userRole === 'Admin' ? <AdminPage /> : <Navigate to="/unauthorized" />}
+          />
+        } 
+      />
+      <Route 
+        path="/staff" 
+        element={
+          <ProtectedRoute 
+            element={userRole === 'Staff' ? <StaffPage /> : <Navigate to="/unauthorized" />}
+          />
+        }
+      />
     </Routes>
   );
 }
