@@ -18,12 +18,12 @@ const statusColorMap: Record<string, "warning" | "primary" | "success"> = {
   completed: "success",
 }
 
-// Giả lập dữ liệu
+// Mock data
 const mockOrders: Order[] = [
-  { id: "KOI-001", projectName: "Hồ Cá Koi Sân Vườn", date: "2023-03-15", status: "completed" },
-  { id: "KOI-002", projectName: "Hồ Cá Koi Mini", date: "2023-03-20", status: "pending" },
-  { id: "KOI-003", projectName: "Hồ Cá Koi Biệt Thự", date: "2023-03-10", status: "completed", maintenanceDate: "2023-09-10" },
-  // Thêm nhiều đơn hàng khác ở đây...
+  { id: "KOI-001", projectName: "Garden Koi Pond", date: "2023-03-15", status: "completed" },
+  { id: "KOI-002", projectName: "Mini Koi Pond", date: "2023-03-20", status: "pending" },
+  { id: "KOI-003", projectName: "Villa Koi Pond", date: "2023-03-10", status: "completed", maintenanceDate: "2023-09-10" },
+  // Add more orders here...
 ]
 
 function OrdersPage() {
@@ -57,7 +57,7 @@ function OrdersPage() {
             setSelectedOrder(order)
             onOpen()
           }}>
-            Xem bảo trì
+            View Maintenance
           </Button>
         ) : null
       default:
@@ -71,19 +71,19 @@ function OrdersPage() {
       <div className="container mx-auto py-8">
         <Card className="mb-8">
           <CardHeader className="flex justify-between">
-            <h1 className="text-2xl font-bold">Đơn Đặt Thi Công Hồ Cá Koi</h1>
-            <Button color="primary">Tạo đơn mới</Button>
+            <h1 className="text-2xl font-bold">Koi Pond Construction Orders</h1>
+            <Button color="primary">Create New Order</Button>
           </CardHeader>
           <CardBody>
             <Table
-              aria-label="Bảng đơn đặt thi công hồ cá Koi"
+              aria-label="Koi Pond Construction Orders Table"
             >
               <TableHeader>
-                <TableColumn key="id">ID Đơn hàng</TableColumn>
-                <TableColumn key="projectName">Tên công trình</TableColumn>
-                <TableColumn key="date">Ngày đặt</TableColumn>
-                <TableColumn key="status">Trạng thái</TableColumn>
-                <TableColumn key="maintenance">Bảo trì</TableColumn>
+                <TableColumn key="id">Order ID</TableColumn>
+                <TableColumn key="projectName">Project Name</TableColumn>
+                <TableColumn key="date">Order Date</TableColumn>
+                <TableColumn key="status">Status</TableColumn>
+                <TableColumn key="maintenance">Maintenance</TableColumn>
               </TableHeader>
               <TableBody items={items}>
                 {(item) => (
@@ -95,7 +95,7 @@ function OrdersPage() {
             </Table>
             <div className="flex justify-between items-center mt-4">
               <span className="text-small text-default-400">
-                Tổng {mockOrders.length} đơn hàng
+                Total {mockOrders.length} orders
               </span>
               <Pagination
                 isCompact
@@ -115,15 +115,15 @@ function OrdersPage() {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">Thông tin bảo trì</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">Maintenance Information</ModalHeader>
               <ModalBody>
-                <p>ID Đơn hàng: {selectedOrder?.id}</p>
-                <p>Tên công trình: {selectedOrder?.projectName}</p>
-                <p>Ngày bảo trì tiếp theo: {selectedOrder?.maintenanceDate}</p>
+                <p>Order ID: {selectedOrder?.id}</p>
+                <p>Project Name: {selectedOrder?.projectName}</p>
+                <p>Next Maintenance Date: {selectedOrder?.maintenanceDate}</p>
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
-                  Đóng
+                  Close
                 </Button>
               </ModalFooter>
             </>

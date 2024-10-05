@@ -15,7 +15,7 @@ import {
   Input,
   Textarea,
 } from "@nextui-org/react";
-import { Icon } from "@iconify/react";
+import { Icon } from "@iconify/react"; 
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -63,7 +63,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
                         <Avatar
                           isBordered
                           color="default"
-                          src="https://i.pinimg.com/564x/14/8d/0e/148d0e0f3a55b0c93bf04d85b6f9e3e9.jpg"
+                          src="https://sohanews.sohacdn.com/160588918557773824/2020/12/17/photo-1-16081985708991024135226.jpg"
                           className="w-24 h-24 text-large"
                         />
                         <div className="flex flex-col gap-1 items-start justify-center">
