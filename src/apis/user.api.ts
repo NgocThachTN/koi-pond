@@ -27,7 +27,6 @@ interface RegisterReqType {
 }
 
 interface RegisterResType {
-  // Define the response type here. For example:
   success: boolean;
   message: string;
   userId?: string;
