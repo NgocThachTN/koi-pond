@@ -51,7 +51,7 @@ const pages = [
     href: "#",
     dropdown: [
       { name: "Thiết kế có sẵn ", href: "/pricinguser" },
-      { name: "Bản vẽ theo yêu cầu", href: "/pricing2user" },
+      { name: "Bản vẽ theo yêu cầu", href: "/pricinguser2" },
     ],
   },
 ];
