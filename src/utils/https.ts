@@ -4,7 +4,7 @@ class Http {
   instance: AxiosInstance
   constructor() {
     this.instance = axios.create({
-      baseURL: 'http://localhost:5273/api/',
+      baseURL: 'https://koipondconstructionmanagement20241004010355.azurewebsites.net/api/',
       //   timeout: 10000,
       headers: {
         'Content-Type': 'application/json'
