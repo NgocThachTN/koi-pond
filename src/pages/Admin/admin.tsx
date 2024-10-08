@@ -84,8 +84,8 @@ function AdminPage() {
       <div className="flex-1 overflow-auto">
         <header className="flex justify-between items-center p-4 bg-background">
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <Button 
-            color="danger" 
+          <Button
+            color="danger"
             variant="flat"
             onClick={handleLogout}
           >
