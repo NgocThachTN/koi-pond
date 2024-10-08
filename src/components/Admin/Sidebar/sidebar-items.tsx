@@ -14,20 +14,20 @@ export const items: SidebarItem[] = [
     title: "Dashboard",
   },
   {
-    key: "user-management",
+    key: "Users",
     title: "User Management",
     icon: "solar:users-group-two-rounded-outline",
     type: SidebarItemType.Nest,
     items: [
       {
         key: "staff",
-        href: "#", // Changed from "/user-management/staff"
+        href: "#",
         icon: "solar:user-id-linear",
         title: "Staff",
       },
       {
         key: "customers",
-        href: "#", // Changed from "/user-management/customers"
+        href: "#",
         icon: "solar:user-rounded-linear",
         title: "Customers",
       },
