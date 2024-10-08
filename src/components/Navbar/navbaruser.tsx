@@ -43,14 +43,14 @@ import { useAuth } from "@apis/authen";
 // Define the pages array
 const pages = [
   { name: "Home", href: "/homeuser" },
-  { name: "Services", href: "/docsuser",},
+  { name: "Services", href: "/docsuser" },
   { name: "Blog", href: "/bloguser" },
   { name: "About Us", href: "/aboutuser" },
   {
     name: "Pricing",
     href: "#",
     dropdown: [
-      { name: "Thiết kế có sẵn", href: "/pricinguser" },
+      { name: "Thiết kế có sẵn ", href: "/pricinguser" },
       { name: "Bản vẽ theo yêu cầu", href: "/pricinguser2" },
     ],
   },

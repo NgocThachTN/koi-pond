@@ -3,7 +3,6 @@ import { NavbarUser } from '@/components/Navbar/navbaruser'
 import { Card, CardBody, CardHeader, Button, Pagination } from "@nextui-org/react"
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react"
 import { Chip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Textarea, Input } from "@nextui-org/react"
-import { useNavigate } from 'react-router-dom';
 
 type Order = {
   id: string
@@ -35,7 +34,6 @@ const mockOrders: Order[] = [
 ]
 
 function OrdersPage() {
-  const navigate = useNavigate();
   const [page, setPage] = React.useState(1)
   const rowsPerPage = 10
   const {isOpen: isDetailsOpen, onOpen: onDetailsOpen, onClose: onDetailsClose} = useDisclosure()
@@ -72,19 +70,10 @@ function OrdersPage() {
             View Details
           </Button>
         )
-      case "maintenance":
-        return order.status === "completed" ? (
-          <Button 
-            color="secondary" 
-            onPress={() => navigate(`/maintenance`)}
-          >
-            Maintenance
-          </Button>
-        ) : null
       default:
         return cellValue
     }
-  }, [onDetailsOpen, navigate])
+  }, [onDetailsOpen])
 
   const handleFeedbackSubmit = () => {
     if (selectedOrder) {
@@ -94,7 +83,13 @@ function OrdersPage() {
     onDetailsClose()
   }
 
-  
+  const handleMaintenanceSubmit = () => {
+    if (selectedOrder && selectedOrder.status === "completed") {
+      // In a real application, you would update the order in your backend here
+      console.log(`Scheduling maintenance for order ${selectedOrder.id}: ${maintenanceDate}`)
+    }
+    onDetailsClose()
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -115,7 +110,6 @@ function OrdersPage() {
                 <TableColumn key="date">Order Date</TableColumn>
                 <TableColumn key="status">Status</TableColumn>
                 <TableColumn key="details">Details</TableColumn>
-                <TableColumn key="maintenance">Maintenance</TableColumn>
               </TableHeader>
               <TableBody items={items}>
                 {(item) => (
@@ -173,7 +167,18 @@ function OrdersPage() {
                     )}
                   </div>
                 </div>
-                
+                {selectedOrder?.status === "completed" && (
+                  <div className="mt-4">
+                    <h3 className="text-lg font-semibold mb-2">Schedule Maintenance</h3>
+                    <Input
+                      type="date"
+                      label="Maintenance Date"
+                      placeholder="Select a date"
+                      value={maintenanceDate}
+                      onChange={(e) => setMaintenanceDate(e.target.value)}
+                    />
+                  </div>
+                )}
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
@@ -184,7 +189,9 @@ function OrdersPage() {
                     <Button color="secondary" onPress={handleFeedbackSubmit}>
                       Submit Feedback
                     </Button>
-                    
+                    <Button color="primary" onPress={handleMaintenanceSubmit}>
+                      Schedule Maintenance
+                    </Button>
                   </>
                 )}
               </ModalFooter>

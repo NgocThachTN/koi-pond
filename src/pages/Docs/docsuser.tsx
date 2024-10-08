@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/defaultuser";
 import { Input, Select, Textarea, Button, Card, CardBody, CardHeader, Divider, Avatar, SelectItem, Chip } from "@nextui-org/react";
@@ -19,8 +19,6 @@ export default function DocsPageUser() {
 }
 
 function QuotationForm() {
-  const [selectedService, setSelectedService] = useState("");
-
   return (
     <Card className="max-w-3xl w-full mx-auto shadow-2xl bg-white/10 backdrop-blur-md">
       <CardHeader className="flex gap-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white p-6">
@@ -60,32 +58,26 @@ function QuotationForm() {
               startContent={<FaMapMarkerAlt className="text-violet-500" />}
             />
           </div>
+          <Input
+            label="Garden Area (m²)"
+            placeholder="e.g., 100"
+            variant="faded"
+            startContent={<FaRuler className="text-violet-500" />}
+            endContent={<Chip size="sm" variant="flat" color="secondary">m²</Chip>}
+          />
           <Select 
             label="Select Service"
             placeholder="Choose the service you're interested in"
             variant="faded"
             startContent={<FaList className="text-violet-500" />}
-            onChange={(e) => setSelectedService(e.target.value)}
           >
-            <SelectItem key="sample" value="sample">Sample</SelectItem>
-            <SelectItem key="design" value="design">Design</SelectItem>
+            <SelectItem key="landscape" value="landscape">Landscape Design and Construction</SelectItem>
+            <SelectItem key="garden" value="garden">Garden Design and Construction</SelectItem>
+            <SelectItem key="patio" value="patio">Patio Design and Construction</SelectItem>
+            <SelectItem key="koi-pond" value="koi-pond">Koi Pond Design and Construction</SelectItem>
+            <SelectItem key="vertical-garden" value="vertical-garden">Vertical Garden Design and Construction</SelectItem>
+            <SelectItem key="other" value="other">Other Services</SelectItem>
           </Select>
-          
-          {selectedService === "sample" && (
-            <Select 
-              label="Details of Service"
-              placeholder="Choose the service you're interested in"
-              variant="faded"
-              startContent={<FaList className="text-violet-500" />}
-            >
-              <SelectItem key="landscape" value="landscape">Landscape Design and Construction</SelectItem>
-              <SelectItem key="garden" value="garden">Garden Design and Construction</SelectItem>
-              <SelectItem key="patio" value="patio">Patio Design and Construction</SelectItem>
-              <SelectItem key="koi-pond" value="koi-pond">Koi Pond Design and Construction</SelectItem>
-              <SelectItem key="vertical-garden" value="vertical-garden">Vertical Garden Design and Construction</SelectItem>
-              <SelectItem key="other" value="other">Other Services</SelectItem>
-            </Select>
-          )}
           <Textarea 
             label="Request Details"
             placeholder="Describe your requirements in detail"
