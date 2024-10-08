@@ -22,6 +22,7 @@ import DocsPageUser from "@/pages/Docs/docsuser";
 import OrdersPage from "./pages/Orders/Orders";
 import AdminPage from "./pages/Manager/manager";
 import StaffPage from "./pages/Staff/staff";
+import MaintenancePageUser from "./pages/Maintenance/maintenance";
 
 
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
@@ -118,7 +119,7 @@ function App() {
       <Route element={isAuthenticated ? <DocsPageUser /> : <Navigate to="/docsuser" />} path="/docsuser" />
       <Route element={isAuthenticated ? <OrdersPage /> : <Navigate to="/orders" />} path="/orders"/>
       <Route element={isAuthenticated ? <PricingPageUser2 /> : <Navigate to="/pricinguser2" />} path="/pricinguser2" />
-
+      <Route element={isAuthenticated ? <MaintenancePageUser /> : <Navigate to="/maintenance" />} path="/maintenance" />
       {/* Admin Pages */}
       <Route 
         path="/manager" 

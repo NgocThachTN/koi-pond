@@ -4,12 +4,12 @@ import DefaultLayout from "@/layouts/defaultuser";
 import { Input, Select, Textarea, Button, Card, CardBody, CardHeader, Divider, Avatar, SelectItem, Chip } from "@nextui-org/react";
 import { FaLeaf, FaPhone, FaEnvelope, FaMapMarkerAlt, FaRuler, FaList, FaComments } from 'react-icons/fa';
 
-export default function DocsPageUser() {
+export default function MaintenancePageUser() {
   return (
     <DefaultLayout>
       <section className="flex flex-col items-center justify-center gap-8 py-12 md:py-16">
         <div className="text-center">
-          <h1 className={title({ color: "violet" })}>Garden Design Services</h1>
+          <h1 className={title({ color: "violet" })}>Maintenance Services</h1>
           <p className="mt-4 text-lg text-violet-600">We turn your ideas into reality</p>
         </div>
         <QuotationForm />
@@ -61,7 +61,7 @@ function QuotationForm() {
             />
           </div>
           <Select 
-            label="Select Service"
+            label="Sample Service"
             placeholder="Choose the service you're interested in"
             variant="faded"
             startContent={<FaList className="text-violet-500" />}
@@ -71,21 +71,7 @@ function QuotationForm() {
             <SelectItem key="design" value="design">Design</SelectItem>
           </Select>
           
-          {selectedService === "sample" && (
-            <Select 
-              label="Details of Service"
-              placeholder="Choose the service you're interested in"
-              variant="faded"
-              startContent={<FaList className="text-violet-500" />}
-            >
-              <SelectItem key="landscape" value="landscape">Landscape Design and Construction</SelectItem>
-              <SelectItem key="garden" value="garden">Garden Design and Construction</SelectItem>
-              <SelectItem key="patio" value="patio">Patio Design and Construction</SelectItem>
-              <SelectItem key="koi-pond" value="koi-pond">Koi Pond Design and Construction</SelectItem>
-              <SelectItem key="vertical-garden" value="vertical-garden">Vertical Garden Design and Construction</SelectItem>
-              <SelectItem key="other" value="other">Other Services</SelectItem>
-            </Select>
-          )}
+          
           <Textarea 
             label="Request Details"
             placeholder="Describe your requirements in detail"
