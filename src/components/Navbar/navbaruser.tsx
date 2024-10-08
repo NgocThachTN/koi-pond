@@ -119,7 +119,6 @@ export const NavbarUser = () => {
   };
 
   const handleMyOrders = () => {
-    // Use Next.js router to navigate to the orders page
     window.location.href = "/orders";
   };
 

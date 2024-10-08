@@ -20,7 +20,7 @@ import PricingPageUser2 from "@/pages/Pricing/pricinguser2";
 import AboutPageUser from "./pages/About/aboutuser";
 import DocsPageUser from "@/pages/Docs/docsuser"; 
 import OrdersPage from "./pages/Orders/Orders";
-import AdminPage from "./pages/Admin/admin";
+import AdminPage from "./pages/Manager/manager";
 import StaffPage from "./pages/Staff/staff";
 
 
@@ -63,8 +63,8 @@ const RoleBasedRedirect: React.FC = () => {
   }
   
   switch (userRole) {
-    case 'Admin':
-      return <Navigate to="/admin" replace />;
+    case 'Manager':
+      return <Navigate to="/manager" replace />;
     case 'Staff':
       return <Navigate to="/staff" replace />;
     default:
@@ -105,7 +105,7 @@ function App() {
         element={
           <ProtectedRoute 
             element={
-              userRole === 'Admin' ? <Navigate to="/admin" /> :
+              userRole === 'Manager' ? <Navigate to="/manager" /> :
               userRole === 'Staff' ? <Navigate to="/staff" /> :
               <UserPage />
             }
@@ -121,10 +121,10 @@ function App() {
 
       {/* Admin Pages */}
       <Route 
-        path="/admin" 
+        path="/manager" 
         element={
           <ProtectedRoute 
-            element={userRole === 'Admin' ? <AdminPage /> : <Navigate to="/unauthorized" />}
+            element={userRole === 'Manager' ? <AdminPage /> : <Navigate to="/unauthorized" />}
           />
         } 
       />
