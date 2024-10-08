@@ -1,189 +1,94 @@
-import React, { useState } from 'react';
-import { useAuth } from '@apis/authen';
-import { useNavigate } from 'react-router-dom';
-import { Button, Card, CardBody, CardHeader, Divider, Chip } from "@nextui-org/react";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/table";
-import { FaUsers, FaShoppingCart, FaFish, FaTachometerAlt } from 'react-icons/fa';
+"use client";
 
-function AdminPage() {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
-  const [activeItem, setActiveItem] = useState('dashboard');
+import React, { useState } from "react";
+import {Avatar, Button, Card, CardBody, CardFooter, ScrollShadow, Spacer} from "@nextui-org/react";
+import {Icon} from "@iconify/react";
+
+import {AcmeIcon} from "@/components/AcmeIcon";
+import {items} from "@/components/Admin/Sidebar/sidebar-items";
+
+import Sidebar from "@/components/Admin/Sidebar/sidebar";
+import {ThemeSwitch} from "@/components/theme-switch"; // Add this import
+import {useAuth} from "@/apis/authen"; // Add this import
+
+import Dashboard from "@/pages/Manager/dashbroad/Dashbroad";
+
+
+export default function Component() {
+  const { logout } = useAuth(); // Add this line to get the logout function
+  const [selectedKey, setSelectedKey] = useState("dashboard");
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
   };
 
-  const users = [
-    { id: 1, name: "Tony Reichert", role: "CEO", team: "Management", status: "active", age: "29" },
-    { id: 2, name: "Zoey Lang", role: "Tech Lead", team: "Development", status: "paused", age: "25" },
-    { id: 3, name: "Jane Fisher", role: "Designer", team: "Design", status: "active", age: "22" },
-  ];
-
-  const SidebarItem = ({ title, icon, isActive, onClick }) => (
-    <Button
-      className={`justify-start ${isActive ? 'bg-primary text-white' : ''}`}
-      variant={isActive ? "solid" : "light"}
-      startContent={icon}
-      onClick={onClick}
-      fullWidth
-    >
-      {title}
-    </Button>
-  );
-
   const renderContent = () => {
-    switch (activeItem) {
-      case 'dashboard':
-        return <DashboardContent users={users} />;
-      case 'users':
-        return <UserManagementContent />;
-      case 'orders':
-        return <OrdersContent />;
-      case 'koi':
-        return <KoiPondContent />;
+    switch (selectedKey) {
+      case "dashboard":
+        return <Dashboard />;
       default:
-        return null;
+        return <div>Content for {selectedKey}</div>;
     }
   };
 
   return (
-    <div className="flex h-screen bg-background">
-      <Card className="h-screen w-64 rounded-none">
-        <CardBody className="p-4">
-          <div className="flex flex-col gap-2">
-            <SidebarItem
-              title="Dashboard"
-              icon={<FaTachometerAlt />}
-              isActive={activeItem === 'dashboard'}
-              onClick={() => setActiveItem('dashboard')}
-            />
-            <SidebarItem
-              title="User Management"
-              icon={<FaUsers />}
-              isActive={activeItem === 'users'}
-              onClick={() => setActiveItem('users')}
-            />
-            <SidebarItem
-              title="Orders"
-              icon={<FaShoppingCart />}
-              isActive={activeItem === 'orders'}
-              onClick={() => setActiveItem('orders')}
-            />
-            <SidebarItem
-              title="Koi Pond Construction"
-              icon={<FaFish />}
-              isActive={activeItem === 'koi'}
-              onClick={() => setActiveItem('koi')}
-            />
+    <div className="flex h-dvh">
+      <div className="relative flex h-full w-72 flex-none flex-col border-r-small border-divider p-6">
+        {/* Sidebar content remains the same */}
+        <div className="flex items-center justify-between px-2">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground">
+              <AcmeIcon className="text-background" />
+            </div>
+            <span className="text-small font-bold ">KoiPond Management</span>
           </div>
-        </CardBody>
-      </Card>
-
-      <div className="flex-1 overflow-auto">
-        <header className="flex justify-between items-center p-4 bg-background">
-          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <ThemeSwitch />
+        </div>
+        <Spacer y={12} />
+        <div className="flex items-center gap-3 px-4">
+          <Avatar isBordered size="sm" src="https://i.pinimg.com/736x/ea/34/21/ea342127be35831759fcecf5d54af59f.jpg" />
+          <div className="flex flex-col">
+            <p className="text-small font-medium text-default-600">Saito Asuka</p>
+            <p className="text-tiny text-default-400">Manager</p>
+          </div>
+        </div>
+        <ScrollShadow className="-mr-6 h-full max-h-full py-6 pr-6">
+          <Sidebar 
+            defaultSelectedKey={selectedKey} 
+            items={items} 
+            onSelectionChange={(key) => setSelectedKey(key as string)}
+          />
+        </ScrollShadow>
+        <div className="mt-auto flex flex-col">
           <Button
-            color="danger"
-            variant="flat"
+            fullWidth
+            className="justify-start text-default-500 data-[hover=true]:text-foreground"
+            startContent={
+              <Icon className="text-default-500" icon="solar:info-circle-line-duotone" width={24} />
+            }
+            variant="light"
+          >
+            Help & Information
+          </Button>
+          <Button
+            className="justify-start text-default-500 data-[hover=true]:text-foreground"
+            startContent={
+              <Icon
+                className="rotate-180 text-default-500"
+                icon="solar:minus-circle-line-duotone"
+                width={24}
+              />
+            }
+            variant="light"
             onClick={handleLogout}
           >
-            Logout
+            Log Out
           </Button>
-        </header>
-        <main className="p-4">
-          {renderContent()}
-        </main>
+        </div>
+      </div>
+      <div className="flex-grow p-6">
+        {renderContent()}
       </div>
     </div>
   );
 }
-
-const DashboardContent = ({ users }) => (
-  <>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <StatCard title="Total Users" value="18,275" change="+2.5%" />
-      <StatCard title="Revenue" value="$24,780" change="-0.7%" isNegative />
-      <StatCard title="Active Projects" value="23" change="+1" />
-    </div>
-
-    <Card>
-      <CardHeader>
-        <h3 className="text-lg font-semibold">Recent Users</h3>
-      </CardHeader>
-      <Divider />
-      <CardBody>
-        <Table aria-label="Example static collection table">
-          <TableHeader>
-            <TableColumn>NAME</TableColumn>
-            <TableColumn>ROLE</TableColumn>
-            <TableColumn>TEAM</TableColumn>
-            <TableColumn>STATUS</TableColumn>
-            <TableColumn>AGE</TableColumn>
-          </TableHeader>
-          <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.role}</TableCell>
-                <TableCell>{user.team}</TableCell>
-                <TableCell>
-                  <Chip color={user.status === 'active' ? 'success' : 'warning'} variant="flat">
-                    {user.status}
-                  </Chip>
-                </TableCell>
-                <TableCell>{user.age}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardBody>
-    </Card>
-  </>
-);
-
-const StatCard = ({ title, value, change, isNegative = false }) => (
-  <Card>
-    <CardBody>
-      <p className="text-sm text-default-500">{title}</p>
-      <p className="text-2xl font-bold">{value}</p>
-      <p className={`text-sm ${isNegative ? 'text-danger' : 'text-success'}`}>{change}</p>
-    </CardBody>
-  </Card>
-);
-
-const UserManagementContent = () => (
-  <Card>
-    <CardHeader>
-      <h3 className="text-lg font-semibold">User Management</h3>
-    </CardHeader>
-    <CardBody>
-      <p>User management content goes here.</p>
-    </CardBody>
-  </Card>
-);
-
-const OrdersContent = () => (
-  <Card>
-    <CardHeader>
-      <h3 className="text-lg font-semibold">Orders</h3>
-    </CardHeader>
-    <CardBody>
-      <p>Orders content goes here.</p>
-    </CardBody>
-  </Card>
-);
-
-const KoiPondContent = () => (
-  <Card>
-    <CardHeader>
-      <h3 className="text-lg font-semibold">Koi Pond Construction Process</h3>
-    </CardHeader>
-    <CardBody>
-      <p>Koi pond construction process content goes here.</p>
-    </CardBody>
-  </Card>
-);
-
-export default AdminPage;
