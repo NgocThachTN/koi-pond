@@ -8,6 +8,11 @@ import {
   Divider,
   User,
   Checkbox,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { AcmeIcon } from "@/components/AcmeIcon";
@@ -24,6 +29,8 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const { login } = useAuth();
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
 
   const validateEmail = (email: string) => {
     const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
@@ -44,7 +51,8 @@ export default function Login() {
       navigate('/homeuser');
     } catch (error) {
       console.error('Login failed:', error);
-      // Handle login error (e.g., show error message to user)
+      setErrorModalMessage("Invalid email or password. Please try again.");
+      setIsErrorModalOpen(true);
     }
   }
 
@@ -174,6 +182,25 @@ export default function Login() {
           <div className="absolute inset-0 bg-black bg-opacity-30"></div>
         </div>
       </div>
+
+      {/* Error Modal */}
+      <Modal 
+        isOpen={isErrorModalOpen} 
+        onClose={() => setIsErrorModalOpen(false)}
+        placement="center"
+      >
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">Login Error</ModalHeader>
+          <ModalBody>
+            <p>{errorModalMessage}</p>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" variant="light" onPress={() => setIsErrorModalOpen(false)}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
