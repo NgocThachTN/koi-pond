@@ -107,7 +107,7 @@ function OrdersPage() {
                   <TableHeader>
                     <TableColumn key="id">Order ID</TableColumn>
                     <TableColumn key="requestName">Project Name</TableColumn>
-                    <TableColumn key="userName">User Name</TableColumn>
+                    <TableColumn key="userName">Customer Name</TableColumn>
                     <TableColumn key="designName">Design Name</TableColumn>
                     <TableColumn key="sampleName">Sample Name</TableColumn>
                     <TableColumn key="description">Description</TableColumn>
