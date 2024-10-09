@@ -177,7 +177,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
                             variant="flat"
                             color="warning"
                           >
-                            saitoasuka.com
+                            koipondconstruction.com
                           </Chip>
                         </div>
                       </div>

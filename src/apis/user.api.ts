@@ -9,7 +9,7 @@ interface LoginResType{
 }
 
 export const loginApi = (email: string, password: string) => {
-  return http.post<LoginResType>('Authenticate/login', { 
+  return http.post<LoginResType>('Auth/login', { 
     email: email,
     password: password,
     
@@ -33,7 +33,7 @@ interface RegisterResType {
 }
 
 export const registerApi = (userData: RegisterReqType) => {
-  return http.post<RegisterResType>('Authenticate/signup', userData);
+  return http.post<RegisterResType>('Auth/signup', userData);
 }
 
 interface UserInfoType {
@@ -44,7 +44,7 @@ interface UserInfoType {
 }
 
 export const getUserInfoApi = () => {
-  return http.get<UserInfoType>('Account');
+  return http.get<UserInfoType>('Accounts');
 }
 
 
