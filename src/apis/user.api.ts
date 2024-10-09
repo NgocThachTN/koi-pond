@@ -108,6 +108,53 @@ export const sendSampleRequestApi = (requestData: SampleRequestType) => {
   return http.post<SampleRequestResType>('Requests/BySample', requestData);
 }
 
+export interface UserRequest {
+  $id: string;
+  users: {
+    $id: string;
+    $values: Array<{
+      $id: string;
+      address: string;
+      email: string;
+      name: string;
+      password: string;
+      phoneNumber: string;
+      roleId: number;
+      userName: string;
+    }>;
+  };
+  designs: {
+    $id: string;
+    $values: Array<{
+      constructionTypeName: string;
+      designName: string;
+      designSize: string;
+      designPrice: number;
+      designImage: string;
+    }>;
+  };
+  samples: {
+    $id: string;
+    $values: Array<{
+      constructionTypeName: string;
+      sampleName: string;
+      sampleSize: string;
+      samplePrice: number;
+      sampleImage: string;
+    }>;
+  };
+  requestName: string;
+  description: string;
+}
+
+export const getUserRequestsApi = (email: string): Promise<UserRequest[]> => {
+  return http.get<{$id: string, $values: UserRequest[]}>(`Requests`)
+    .then(response => {
+      console.log('API response:', response.data); // Log the entire response
+      return response.data.$values || [];
+    });
+}
+
 
 
 
