@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { NavbarUser } from '@/components/Navbar/navbaruser'
 import { Card, CardBody, CardHeader, Button, Pagination } from "@nextui-org/react"
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react"
-import { Chip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Textarea, Input } from "@nextui-org/react"
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/react"
 import { getUserRequestsApi, UserRequest } from '@/apis/user.api'
+import { Divider } from "@nextui-org/react"
 
 const statusColorMap: Record<string, "warning" | "primary" | "success"> = {
   pending: "warning",
@@ -65,9 +66,9 @@ function OrdersPage() {
       case "userName":
         return order.users.$values[0]?.userName || 'N/A'
       case "designName":
-        return order.designs.$values[0]?.designName || 'N/A'
+        return order.designs.$values[0]?.designName || 'No Selected'
       case "sampleName":
-        return order.samples.$values[0]?.sampleName || 'N/A'
+        return order.samples.$values[0]?.sampleName || 'No Selected'
       case "description":
         return order.description
       case "details":
@@ -140,35 +141,62 @@ function OrdersPage() {
         </Card>
       </div>
 
-      <Modal isOpen={isDetailsOpen} onClose={onDetailsClose} size="2xl">
+      <Modal 
+        isOpen={isDetailsOpen} 
+        onClose={onDetailsClose} 
+        size="3xl"
+      >
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">Order Details</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">
+                <h2 className="text-xl font-bold">Order Details</h2>
+              </ModalHeader>
               <ModalBody>
                 {selectedOrder && (
-                  <div>
-                    <p><strong>Order ID:</strong> {selectedOrder.$id}</p>
-                    <p><strong>Project Name:</strong> {selectedOrder.requestName}</p>
-                    <p><strong>User Name:</strong> {selectedOrder.users.$values[0]?.userName || 'N/A'}</p>
-                    <p><strong>User Email:</strong> {selectedOrder.users.$values[0]?.email || 'N/A'}</p>
-                    <p><strong>User Phone:</strong> {selectedOrder.users.$values[0]?.phoneNumber || 'N/A'}</p>
-                    <p><strong>User Address:</strong> {selectedOrder.users.$values[0]?.address || 'N/A'}</p>
-                    {selectedOrder.designs.$values[0] && (
-                      <>
-                        <p><strong>Design Name:</strong> {selectedOrder.designs.$values[0].designName}</p>
-                        <p><strong>Design Size:</strong> {selectedOrder.designs.$values[0].designSize}</p>
-                        <p><strong>Design Price:</strong> {selectedOrder.designs.$values[0].designPrice}</p>
-                      </>
-                    )}
-                    {selectedOrder.samples.$values[0] && (
-                      <>
-                        <p><strong>Sample Name:</strong> {selectedOrder.samples.$values[0].sampleName}</p>
-                        <p><strong>Sample Size:</strong> {selectedOrder.samples.$values[0].sampleSize}</p>
-                        <p><strong>Sample Price:</strong> {selectedOrder.samples.$values[0].samplePrice}</p>
-                      </>
-                    )}
-                    <p><strong>Description:</strong> {selectedOrder.description}</p>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">Customer Information</h3>
+                        <p><strong>Name:</strong> {selectedOrder.users.$values[0]?.userName || 'N/A'}</p>
+                        <p><strong>Email:</strong> {selectedOrder.users.$values[0]?.email || 'N/A'}</p>
+                        <p><strong>Phone:</strong> {selectedOrder.users.$values[0]?.phoneNumber || 'N/A'}</p>
+                        <p><strong>Address:</strong> {selectedOrder.users.$values[0]?.address || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">Order Information</h3>
+                        <p><strong>Order ID:</strong> {selectedOrder.$id}</p>
+                        <p><strong>Project Name:</strong> {selectedOrder.requestName}</p>
+                        <p><strong>Description:</strong> {selectedOrder.description}</p>
+                      </div>
+                    </div>
+                    <Divider />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">Design Details</h3>
+                        {selectedOrder.designs.$values[0] ? (
+                          <>
+                            <p><strong>Name:</strong> {selectedOrder.designs.$values[0].designName}</p>
+                            <p><strong>Size:</strong> {selectedOrder.designs.$values[0].designSize}</p>
+                            <p><strong>Price:</strong> ${selectedOrder.designs.$values[0].designPrice}</p>
+                          </>
+                        ) : (
+                          <p>No design selected</p>
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">Sample Details</h3>
+                        {selectedOrder.samples.$values[0] ? (
+                          <>
+                            <p><strong>Name:</strong> {selectedOrder.samples.$values[0].sampleName}</p>
+                            <p><strong>Size:</strong> {selectedOrder.samples.$values[0].sampleSize}</p>
+                            <p><strong>Price:</strong> ${selectedOrder.samples.$values[0].samplePrice}</p>
+                          </>
+                        ) : (
+                          <p>No sample selected</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
               </ModalBody>
