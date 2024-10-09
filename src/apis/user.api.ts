@@ -9,7 +9,7 @@ interface LoginResType{
 }
 
 export const loginApi = (email: string, password: string) => {
-  return http.post<LoginResType>('Authentication/login', { 
+  return http.post<LoginResType>('Authenticate/login', { 
     email: email,
     password: password,
     
