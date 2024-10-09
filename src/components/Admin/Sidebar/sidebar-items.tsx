@@ -20,13 +20,13 @@ export const items: SidebarItem[] = [
     type: SidebarItemType.Nest,
     items: [
       {
-        key: "staff",
+        key: "Staff",
         href: "#",
         icon: "solar:user-id-linear",
         title: "Staff",
       },
       {
-        key: "customers",
+        key: "Customers",
         href: "#",
         icon: "solar:user-rounded-linear",
         title: "Customers",
@@ -59,6 +59,20 @@ export const items: SidebarItem[] = [
     ],
   },
   {
+    key: "feedback-management",
+    title: "Feedback Management",
+    icon: "solar:chat-round-dots-linear",
+    type: SidebarItemType.Nest,
+    items: [
+      {
+        key: "customer-feedback",
+        href: "#",
+        icon: "solar:user-speak-linear",
+        title: "Customer Feedback",
+      },
+    ],
+  },
+  {
     key: "contract-management",
     href: "#",
     icon: "solar:document-linear",
@@ -70,12 +84,6 @@ export const items: SidebarItem[] = [
     icon: "solar:chart-2-linear",
     title: "Statistics",
   },
-//   {
-//     key: "settings",
-//     href: "/settings",
-//     icon: "solar:settings-linear",
-//     title: "Settings",
-//   },
 ];
 
 export const sectionItems: SidebarItem[] = [

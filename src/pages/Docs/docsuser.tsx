@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/defaultuser";
 import { Input, Select, Textarea, Button, Card, CardBody, CardHeader, Divider, Avatar, SelectItem, Chip } from "@nextui-org/react";
@@ -19,6 +19,10 @@ export default function DocsPageUser() {
 }
 
 function QuotationForm() {
+  const [selectedService, setSelectedService] = useState("");
+  const [selectedSampleName, setSelectedSampleName] = useState("");
+  const [selectedDesignName, setSelectedDesignName] = useState("");
+
   return (
     <Card className="max-w-3xl w-full mx-auto shadow-2xl bg-white/10 backdrop-blur-md">
       <CardHeader className="flex gap-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white p-6">
@@ -58,26 +62,86 @@ function QuotationForm() {
               startContent={<FaMapMarkerAlt className="text-violet-500" />}
             />
           </div>
-          <Input
-            label="Garden Area (m²)"
-            placeholder="e.g., 100"
-            variant="faded"
-            startContent={<FaRuler className="text-violet-500" />}
-            endContent={<Chip size="sm" variant="flat" color="secondary">m²</Chip>}
-          />
           <Select 
-            label="Select Service"
+            label="Request Name"
             placeholder="Choose the service you're interested in"
             variant="faded"
             startContent={<FaList className="text-violet-500" />}
+            onChange={(e) => setSelectedService(e.target.value)}
           >
-            <SelectItem key="landscape" value="landscape">Landscape Design and Construction</SelectItem>
-            <SelectItem key="garden" value="garden">Garden Design and Construction</SelectItem>
-            <SelectItem key="patio" value="patio">Patio Design and Construction</SelectItem>
-            <SelectItem key="koi-pond" value="koi-pond">Koi Pond Design and Construction</SelectItem>
-            <SelectItem key="vertical-garden" value="vertical-garden">Vertical Garden Design and Construction</SelectItem>
-            <SelectItem key="other" value="other">Other Services</SelectItem>
+            <SelectItem key="sample" value="sample">Sample Projects</SelectItem>
+            <SelectItem key="design" value="design">Custom Design</SelectItem>
           </Select>
+          
+          {selectedService === "sample" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Select 
+                label="Sample Name"
+                placeholder="Choose the project type"
+                variant="faded"
+                startContent={<FaList className="text-violet-500" />}
+                onChange={(e) => setSelectedSampleName(e.target.value)}
+              >
+                <SelectItem key="traditional" value="traditional">Traditional Koi Pond</SelectItem>
+                <SelectItem key="modern" value="modern">Modern Koi Pond</SelectItem>
+                <SelectItem key="natural" value="natural">Natural Koi Pond</SelectItem>
+                <SelectItem key="indoor" value="indoor">Indoor Koi Pond</SelectItem>
+              </Select>
+
+              <Select 
+                label="Sample Size"
+                placeholder="Choose the project size"
+                variant="faded"
+                startContent={<FaRuler className="text-violet-500" />}
+              >
+                <SelectItem key="small" value="small">Small (up to 500 gallons)</SelectItem>
+                <SelectItem key="medium" value="medium">Medium (500-1500 gallons)</SelectItem>
+                <SelectItem key="large" value="large">Large (1500-5000 gallons)</SelectItem>
+                <SelectItem key="extra-large" value="extra-large">Extra Large (5000+ gallons)</SelectItem>
+              </Select>
+            </div>
+          )}
+
+          {selectedService === "design" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Select 
+                label="Design Name"
+                placeholder="Choose the design type"
+                variant="faded"
+                startContent={<FaList className="text-violet-500" />}
+                onChange={(e) => setSelectedDesignName(e.target.value)}
+              >
+                <SelectItem key="traditional" value="traditional">Traditional Koi Pond</SelectItem>
+                <SelectItem key="modern" value="modern">Modern Koi Pond</SelectItem>
+                <SelectItem key="natural" value="natural">Natural Koi Pond</SelectItem>
+                <SelectItem key="zen" value="zen">Zen-style Koi Pond</SelectItem>
+                <SelectItem key="raised" value="raised">Raised Koi Pond</SelectItem>
+              </Select>
+
+              <Select 
+                label="Design Size"
+                placeholder="Choose the design size"
+                variant="faded"
+                startContent={<FaRuler className="text-violet-500" />}
+              >
+                <SelectItem key="small" value="small">Small (up to 500 gallons)</SelectItem>
+                <SelectItem key="medium" value="medium">Medium (500-1500 gallons)</SelectItem>
+                <SelectItem key="large" value="large">Large (1500-5000 gallons)</SelectItem>
+                <SelectItem key="extra-large" value="extra-large">Extra Large (5000+ gallons)</SelectItem>
+              </Select>
+            </div>
+          )}
+
+          {selectedDesignName && (
+            <Textarea 
+              label="Additional Design Requirements"
+              placeholder="Describe any specific features or elements you'd like in your koi pond design"
+              variant="faded"
+              minRows={3}
+              startContent={<FaComments className="text-violet-500 mt-2" />}
+            />
+          )}
+
           <Textarea 
             label="Request Details"
             placeholder="Describe your requirements in detail"

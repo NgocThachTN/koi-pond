@@ -1,4 +1,4 @@
-"use client";
+"use client"; //Avatar người dùng
 
 import type {AvatarProps} from "@nextui-org/react";
 
