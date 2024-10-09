@@ -12,8 +12,9 @@ export default function SignUpPage() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isVisible, setIsVisible] = useState(false);
   const [formData, setFormData] = useState({
-    userName: "",
-    email: "",
+    name: "",
+    username: "",
+    email: "", // Added email field
     password: "",
     confirmPassword: "",
     address: "",
@@ -48,8 +49,13 @@ export default function SignUpPage() {
 
     try {
       const response = await registerApi({
-        ...formData,
-        roleId: 0 // Assuming default role is 0, adjust as needed
+        username: formData.username,
+        password: formData.password,
+        email: formData.email, // Include email in the API call
+        name: formData.name,
+        phoneNumber: formData.phoneNumber,
+        address: formData.address,
+        roleId: 1 // Assuming default role is 1, adjust as needed
       });
       console.log("Registration successful:", response);
       onOpen(); // Open the success modal
@@ -107,16 +113,26 @@ export default function SignUpPage() {
             <Input
               isRequired
               label="Full Name"
-              name="userName"
+              name="name"
               placeholder="Enter your Full Name"
               type="text"
               variant="underlined"
-              value={formData.userName}
+              value={formData.name}
               onChange={handleInputChange}
             />
             <Input
               isRequired
-              label="Email Address"
+              label="Username"
+              name="username"
+              placeholder="Enter your username"
+              type="text"
+              variant="underlined"
+              value={formData.username}
+              onChange={handleInputChange}
+            />
+            <Input
+              isRequired
+              label="Email"
               name="email"
               placeholder="Enter your email"
               type="email"

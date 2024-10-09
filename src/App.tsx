@@ -23,10 +23,23 @@ import OrdersPage from "./pages/Orders/Orders";
 import AdminPage from "./pages/Manager/manager";
 import StaffPage from "./pages/Staff/staff";
 
+// Import các trang Manager
+import Dashboard from "@/pages/Manager/dashbroad/Dashbroad";
+import StaffManagement from "@/pages/Manager/user-management/staff";
+import CustomerManagement from "@/pages/Manager/user-management/customers";
+import DesignAndSample from "@/pages/Manager/request-management/design-and-sample";
+import MaintenanceManagement from "@/pages/Manager/request-management/maintenance";
+import FeedbackManagement from "@/pages/Manager/feedback-management/feedback-management";
+import ContractManagement from "@/pages/Manager/contract-management/contract-management";
+import Statistics from "@/pages/Manager/statistics/statistics";
 
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, userRole } = useAuth();
   const location = useLocation();
+
+  console.log('ProtectedRoute - isAuthenticated:', isAuthenticated);
+  console.log('ProtectedRoute - userRole:', userRole);
+  console.log('ProtectedRoute - current path:', location.pathname);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
@@ -75,6 +88,12 @@ const RoleBasedRedirect: React.FC = () => {
 function App() {
   const { isAuthenticated, userRole } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    console.log('Current route:', location.pathname);
+    console.log('Current userRole:', userRole);
+  }, [location, userRole]);
 
   return (
     <Routes>
@@ -119,15 +138,65 @@ function App() {
       <Route element={isAuthenticated ? <OrdersPage /> : <Navigate to="/orders" />} path="/orders"/>
       <Route element={isAuthenticated ? <PricingPageUser2 /> : <Navigate to="/pricinguser2" />} path="/pricinguser2" />
 
-      {/* Admin Pages */}
+      {/* Manager Pages */}
       <Route 
         path="/manager" 
         element={
           <ProtectedRoute 
-            element={userRole === 'Manager' ? <AdminPage /> : <Navigate to="/unauthorized" />}
+            element={userRole === 'Manager' ? <AdminPage /> : <Navigate to="/manager" />}
           />
         } 
       />
+      <Route 
+        path="/manager/dashboard" 
+        element={
+          isAuthenticated && userRole === 'Manager' ? <Dashboard /> : <Navigate to="/manager" />
+        }
+      />
+      <Route 
+        path="/manager/user-management/staff" 
+        element={
+          isAuthenticated && userRole === 'Manager' ? <StaffManagement /> : <Navigate to="/manager/user-management/staff" />
+        }
+      />
+      <Route 
+        path="/manager/user-management/customers" 
+        element={
+          isAuthenticated && userRole === 'Manager' ? <CustomerManagement /> : <Navigate to="/manager/user-management/customers" />
+        }
+      />
+      <Route 
+        path="/manager/request-management/design-and-sample" 
+        element={
+          isAuthenticated && userRole === 'Manager' ? <DesignAndSample /> : <Navigate to="/manager/request-management/design-and-sample" />
+        }
+      />
+      <Route 
+        path="/manager/request-management/maintenance" 
+        element={
+          isAuthenticated && userRole === 'Manager' ? <MaintenanceManagement /> : <Navigate to="/manager/request-management/maintenance" />
+        }
+      />
+      <Route 
+        path="/manager/feedback-management" 
+        element={
+          isAuthenticated && userRole === 'Manager' ? <FeedbackManagement /> : <Navigate to="/manager/feedback-management" />
+        }
+      />
+      <Route 
+        path="/manager/contract-management" 
+        element={
+          isAuthenticated && userRole === 'Manager' ? <ContractManagement /> : <Navigate to="/manager/contract-management" />
+        }
+      />
+      <Route 
+        path="/manager/statistics" 
+        element={
+          isAuthenticated && userRole === 'Manager' ? <Statistics /> : <Navigate to="/manager/statistics" />
+        }
+      />
+
+      {/* Staff Page */}
       <Route 
         path="/staff" 
         element={
@@ -136,6 +205,10 @@ function App() {
           />
         }
       />
+
+      {/* Catch-all route for unauthorized access */}
+      <Route path="/unauthorized" element={<h1>Unauthorized Access</h1>} />
+      <Route path="*" element={<h1>404 Not Found</h1>} />
     </Routes>
   );
 }

@@ -17,11 +17,10 @@ export const loginApi = (email: string, password: string) => {
 }
 
 interface RegisterReqType {
-  name: string;
-  userName: string;
-  email: string;
+  username: string;
   password: string;
-  confirmPassword: string;
+  email: string;
+  name: string;
   phoneNumber: string;
   address: string;
   roleId: number;
