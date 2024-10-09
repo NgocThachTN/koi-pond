@@ -8,9 +8,9 @@ import {
   type Selection,
 } from "@nextui-org/react";
 import React from "react";
-import {Listbox, Tooltip, ListboxItem, ListboxSection} from "@nextui-org/react";
-import {Icon} from "@iconify/react";
-import {cn} from "@nextui-org/react";
+import { Listbox, Tooltip, ListboxItem, ListboxSection } from "@nextui-org/react";
+import { Icon } from "@iconify/react";
+import { cn } from "@nextui-org/react";
 
 export enum SidebarItemType {
   Nest = "nest",

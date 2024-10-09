@@ -26,9 +26,9 @@ function StaffPage() {
     switch (activeItem) {
       case 'dashboard':
         return <DashboardContent users={users} />;
-      case 'project':
+      case 'project-sample':
         return <ProjectsManagementContent />;
-      case 'orders':
+      case 'project-design':
         return <OrdersContent />;
       case 'koi':
         return <KoiPondContent />;
@@ -48,7 +48,7 @@ function StaffPage() {
       <div className="flex-1 overflow-auto">
         <header className="flex justify-between items-center p-4 bg-background">
           <h1 className="text-2xl font-bold"></h1>
-         
+
         </header>
         <main className="p-4">
           {renderContent()}

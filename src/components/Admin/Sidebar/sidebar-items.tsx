@@ -1,7 +1,7 @@
-import {Chip} from "@nextui-org/react";
-import {Icon} from "@iconify/react";
+import { Chip } from "@nextui-org/react";
+import { Icon } from "@iconify/react";
 
-import {type SidebarItem, SidebarItemType} from "./sidebar";
+import { type SidebarItem, SidebarItemType } from "./sidebar";
 import TeamAvatar from "./team-avatar.tsx";
 
 
@@ -21,9 +21,14 @@ export const items: SidebarItem[] = [
     items: [
       {
         key: "Staff",
-        href: "#",
+        href: "/staff-admin", // Updated href
         icon: "solar:user-id-linear",
         title: "Staff",
+        endContent: (
+          <Chip size="sm" variant="flat">
+            HELLO STAFF
+          </Chip>
+        ),
       },
       {
         key: "Customers",
