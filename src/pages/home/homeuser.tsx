@@ -67,10 +67,10 @@ export default function UserPage() {
                 </div>
               </div>
 
-              <div className="flex gap-3 justify-center md:justify-start mt-6">
+              <div className="flex gap-3 justify-center md:justify-start mt-6 ">
                 <Link
                   className={buttonStyles({
-                    color: "primary",
+                    color: "secondary",
                     radius: "full",
                     variant: "shadow",
                   })}
@@ -80,6 +80,7 @@ export default function UserPage() {
                 </Link>
                 <Link
                   className={buttonStyles({
+                    color: "secondary",
                     variant: "bordered",
                     radius: "full",
                   })}
