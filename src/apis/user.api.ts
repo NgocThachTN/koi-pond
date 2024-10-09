@@ -17,6 +17,7 @@ export const loginApi = (email: string, password: string) => {
 }
 
 interface RegisterReqType {
+  name: string;
   userName: string;
   email: string;
   password: string;
@@ -36,7 +37,16 @@ export const registerApi = (userData: RegisterReqType) => {
   return http.post<RegisterResType>('Authenticate/signup', userData);
 }
 
+interface UserInfoType {
+  name: string;
+  phoneNumber: string;
+  address: string;
+  userName: string;
+}
 
+export const getUserInfoApi = () => {
+  return http.get<UserInfoType>('Account');
+}
 
 
 

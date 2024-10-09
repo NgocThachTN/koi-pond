@@ -47,6 +47,11 @@ export default function Login() {
     }
 
     try {
+      const response = await loginApi(email, password);
+      console.log('Login response:', response.data);
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('userName', response.data.userName);
+      localStorage.setItem('userEmail', response.data.email); // Added this line
       await login(email, password);
       navigate('/homeuser');
     } catch (error) {
