@@ -9,30 +9,25 @@ import TeamAvatar from "./team-avatar.tsx";
 export const items: SidebarItem[] = [
   {
     key: "dashboard",
-    href: "#",
+    href: "/manager/dashboard",
     icon: "solar:home-2-linear",
     title: "Dashboard",
   },
   {
-    key: "Users",
+    key: "user-management",
     title: "User Management",
     icon: "solar:users-group-two-rounded-outline",
     type: SidebarItemType.Nest,
     items: [
       {
-        key: "Staff",
-        href: "/staff-admin", // Updated href
+        key: "staff",
+        href: "/manager/user-management/staff",
         icon: "solar:user-id-linear",
         title: "Staff",
-        endContent: (
-          <Chip size="sm" variant="flat">
-            HELLO STAFF
-          </Chip>
-        ),
       },
       {
-        key: "Customers",
-        href: "#",
+        key: "customers",
+        href: "/manager/user-management/customers",
         icon: "solar:user-rounded-linear",
         title: "Customers",
       },
@@ -46,7 +41,7 @@ export const items: SidebarItem[] = [
     items: [
       {
         key: "design-and-sample",
-        href: "#",
+        href: "/manager/request-management/design-and-sample",
         icon: "solar:palette-linear",
         title: "Design & Sample",
         endContent: (
@@ -57,7 +52,7 @@ export const items: SidebarItem[] = [
       },
       {
         key: "maintenance",
-        href: "#",
+        href: "/manager/request-management/maintenance",
         icon: "solar:wrench-linear",
         title: "Maintenance",
       },
@@ -65,27 +60,19 @@ export const items: SidebarItem[] = [
   },
   {
     key: "feedback-management",
-    title: "Feedback Management",
+    href: "/manager/feedback-management",
     icon: "solar:chat-round-dots-linear",
-    type: SidebarItemType.Nest,
-    items: [
-      {
-        key: "customer-feedback",
-        href: "#",
-        icon: "solar:user-speak-linear",
-        title: "Customer Feedback",
-      },
-    ],
+    title: "Feedback Management",
   },
   {
     key: "contract-management",
-    href: "#",
+    href: "/manager/contract-management",
     icon: "solar:document-linear",
     title: "Contract Management",
   },
   {
     key: "statistics",
-    href: "#",
+    href: "/manager/statistics",
     icon: "solar:chart-2-linear",
     title: "Statistics",
   },
