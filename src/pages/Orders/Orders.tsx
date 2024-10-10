@@ -18,7 +18,7 @@ function OrdersPage() {
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
   const rowsPerPage = 10
-  const { isOpen: isDetailsOpen, onOpen: onDetailsOpen, onClose: onDetailsClose } = useDisclosure()
+  const {isOpen: isDetailsOpen, onOpen: onDetailsOpen, onClose: onDetailsClose} = useDisclosure()
   const [selectedOrder, setSelectedOrder] = React.useState<UserRequest | null>(null)
 
   useEffect(() => {
@@ -30,7 +30,7 @@ function OrdersPage() {
         if (userEmail) {
           const data = await getUserRequestsApi(userEmail)
           // Lọc các đơn hàng chỉ của người dùng hiện tại
-          const userOrders = data.filter(order =>
+          const userOrders = data.filter(order => 
             order.users?.$values?.[0]?.email === userEmail
           )
           setOrders(userOrders)
@@ -144,9 +144,9 @@ function OrdersPage() {
         </Card>
       </div>
 
-      <Modal
-        isOpen={isDetailsOpen}
-        onClose={onDetailsClose}
+      <Modal 
+        isOpen={isDetailsOpen} 
+        onClose={onDetailsClose} 
         size="3xl"
       >
         <ModalContent>
@@ -160,7 +160,7 @@ function OrdersPage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <h3 className="text-lg font-semibold mb-2">Customer Informationnn</h3>
+                        <h3 className="text-lg font-semibold mb-2">Customer Information</h3>
                         <p><strong>Name:</strong> {selectedOrder.users.$values[0]?.userName || 'N/A'}</p>
                         <p><strong>Email:</strong> {selectedOrder.users.$values[0]?.email || 'N/A'}</p>
                         <p><strong>Phone:</strong> {selectedOrder.users.$values[0]?.phoneNumber || 'N/A'}</p>
