@@ -43,7 +43,7 @@ const DesignAndSample: React.FC = () => {
       contractStartDate: new Date().toISOString(),
       contractEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
       status: "Processing",
-      description: `Contract created for request: ${request.requestName}`,
+      description: request.description, // Use the description from the request
     };
 
     try {
