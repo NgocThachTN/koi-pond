@@ -65,10 +65,14 @@ function OrdersPage() {
         return order.requestName
       case "userName":
         return order.users.$values[0]?.userName || 'N/A'
-      case "designName":
-        return order.designs.$values[0]?.designName || 'No Selected'
-      case "sampleName":
-        return order.samples.$values[0]?.sampleName || 'No Selected'
+      case "type":
+        if (order.designs.$values[0]) {
+          return 'Design'
+        } else if (order.samples.$values[0]) {
+          return 'Sample'
+        } else {
+          return 'No Selection'
+        }
       case "description":
         return order.description
       case "details":
@@ -107,9 +111,8 @@ function OrdersPage() {
                   <TableHeader>
                     <TableColumn key="id">Order ID</TableColumn>
                     <TableColumn key="requestName">Project Name</TableColumn>
-                    <TableColumn key="userName">Customer Name</TableColumn>
-                    <TableColumn key="designName">Design Name</TableColumn>
-                    <TableColumn key="sampleName">Sample Name</TableColumn>
+                    <TableColumn key="userName">User Name</TableColumn>
+                    <TableColumn key="type">Type</TableColumn>
                     <TableColumn key="description">Description</TableColumn>
                     <TableColumn key="details">Details</TableColumn>
                   </TableHeader>
