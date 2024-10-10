@@ -200,7 +200,7 @@ export const NavbarUser = () => {
                 as="button"
                 color="secondary"
                 size="md"
-                src="https://sohanews.sohacdn.com/160588918557773824/2020/12/17/photo-1-16081985708991024135226.jpg"
+                src="https://w7.pngwing.com/pngs/613/636/png-transparent-computer-icons-user-profile-male-avatar-avatar-heroes-logo-black-thumbnail.png"
               />
             </DropdownTrigger>
             <DropdownMenu
