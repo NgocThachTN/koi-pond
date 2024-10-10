@@ -121,7 +121,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
                           <Avatar
                             isBordered
                             color="default"
-                            src="https://sohanews.sohacdn.com/160588918557773824/2020/12/17/photo-1-16081985708991024135226.jpg"
+                            src="https://w7.pngwing.com/pngs/613/636/png-transparent-computer-icons-user-profile-male-avatar-avatar-heroes-logo-black-thumbnail.png"
                             className="w-24 h-24 text-large"
                           />
                           <div className="flex flex-col gap-1 items-start justify-center">

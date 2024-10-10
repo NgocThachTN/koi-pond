@@ -155,6 +155,130 @@ export const getUserRequestsApi = (email: string): Promise<UserRequest[]> => {
     });
 }
 
+interface ContractByRequestDesignType {
+  requests: Array<{
+    users: Array<{
+      name: string;
+      phoneNumber: string;
+      address: string;
+      userName: string;
+      email: string;
+      password: string;
+      roleId: number;
+    }>;
+    designs: Array<{
+      constructionTypeName: string;
+      designName: string;
+      designSize: string;
+      designPrice: number;
+      designImage: string;
+    }>;
+    requestName: string;
+    description: string;
+  }>;
+  contractName: string;
+  contractStartDate: string;
+  contractEndDate: string;
+  status: string;
+  description: string;
+}
+
+interface ContractResponseType {
+  success: boolean;
+  message: string;
+  contractId?: string;
+  // Add any other fields that the API might return
+}
+
+export const createContractByRequestDesignApi = (contractData: ContractByRequestDesignType) => {
+  return http.post<ContractResponseType>('Contracts/ByRequestDesign', contractData);
+}
+
+interface ContractBySampleDesignType {
+  requests: Array<{
+    users: Array<{
+      name: string;
+      phoneNumber: string;
+      address: string;
+      userName: string;
+      email: string;
+      password: string;
+      roleId: number;
+    }>;
+    designs: Array<{
+      constructionTypeName: string;
+      designName: string;
+      designSize: string;
+      designPrice: number;
+      designImage: string;
+    }>;
+    samples: Array<{
+      constructionTypeName: string;
+      sampleName: string;
+      sampleSize: string;
+      samplePrice: number;
+      sampleImage: string;
+    }>;
+    requestName: string;
+    description: string;
+  }>;
+  contractName: string;
+  contractStartDate: string;
+  contractEndDate: string;
+  status: string;
+  description: string;
+}
+
+interface ContractResponseType {
+  success: boolean;
+  message: string;
+  contractId?: string;
+  // Add any other fields that the API might return
+}
+
+export const createContractBySampleDesignApi = (contractData: ContractBySampleDesignType) => {
+  return http.post<ContractResponseType>('Contracts/BySampleDesign', contractData);
+}
+
+export interface Contract {
+  requests: Array<{
+    users: Array<{
+      name: string;
+      phoneNumber: string;
+      address: string;
+      userName: string;
+      email: string;
+      password: string;
+      roleId: number;
+    }>;
+    designs: Array<{
+      constructionTypeName: string;
+      designName: string;
+      designSize: string;
+      designPrice: number;
+      designImage: string;
+    }>;
+    samples: Array<{
+      constructionTypeName: string;
+      sampleName: string;
+      sampleSize: string;
+      samplePrice: number;
+      sampleImage: string;
+    }>;
+    requestName: string;
+    description: string;
+  }>;
+  contractName: string;
+  contractStartDate: string;
+  contractEndDate: string;
+  status: string;
+  description: string;
+}
+
+export const getContractsApi = () => {
+  return http.get<Contract[]>('Contracts');
+}
+
 
 
 
