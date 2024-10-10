@@ -18,7 +18,7 @@ function OrdersPage() {
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
   const rowsPerPage = 10
-  const {isOpen: isDetailsOpen, onOpen: onDetailsOpen, onClose: onDetailsClose} = useDisclosure()
+  const { isOpen: isDetailsOpen, onOpen: onDetailsOpen, onClose: onDetailsClose } = useDisclosure()
   const [selectedOrder, setSelectedOrder] = React.useState<UserRequest | null>(null)
 
   useEffect(() => {
@@ -30,7 +30,7 @@ function OrdersPage() {
         if (userEmail) {
           const data = await getUserRequestsApi(userEmail)
           // Lọc các đơn hàng chỉ của người dùng hiện tại
-          const userOrders = data.filter(order => 
+          const userOrders = data.filter(order =>
             order.users?.$values?.[0]?.email === userEmail
           )
           setOrders(userOrders)
@@ -65,14 +65,10 @@ function OrdersPage() {
         return order.requestName
       case "userName":
         return order.users.$values[0]?.userName || 'N/A'
-      case "type":
-        if (order.designs.$values[0]) {
-          return 'Design'
-        } else if (order.samples.$values[0]) {
-          return 'Sample'
-        } else {
-          return 'No Selection'
-        }
+      case "designName":
+        return order.designs.$values[0]?.designName || 'No Selected'
+      case "sampleName":
+        return order.samples.$values[0]?.sampleName || 'No Selected'
       case "description":
         return order.description
       case "details":
@@ -111,8 +107,9 @@ function OrdersPage() {
                   <TableHeader>
                     <TableColumn key="id">Order ID</TableColumn>
                     <TableColumn key="requestName">Project Name</TableColumn>
-                    <TableColumn key="userName">User Name</TableColumn>
-                    <TableColumn key="type">Type</TableColumn>
+                    <TableColumn key="userName">Customer Name</TableColumn>
+                    <TableColumn key="designName">Design Name</TableColumn>
+                    <TableColumn key="sampleName">Sample Name</TableColumn>
                     <TableColumn key="description">Description</TableColumn>
                     <TableColumn key="details">Details</TableColumn>
                   </TableHeader>
@@ -144,9 +141,9 @@ function OrdersPage() {
         </Card>
       </div>
 
-      <Modal 
-        isOpen={isDetailsOpen} 
-        onClose={onDetailsClose} 
+      <Modal
+        isOpen={isDetailsOpen}
+        onClose={onDetailsClose}
         size="3xl"
       >
         <ModalContent>
@@ -160,7 +157,7 @@ function OrdersPage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <h3 className="text-lg font-semibold mb-2">Customer Information</h3>
+                        <h3 className="text-lg font-semibold mb-2">Customer Informationnn</h3>
                         <p><strong>Name:</strong> {selectedOrder.users.$values[0]?.userName || 'N/A'}</p>
                         <p><strong>Email:</strong> {selectedOrder.users.$values[0]?.email || 'N/A'}</p>
                         <p><strong>Phone:</strong> {selectedOrder.users.$values[0]?.phoneNumber || 'N/A'}</p>
