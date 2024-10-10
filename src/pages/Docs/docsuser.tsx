@@ -76,7 +76,7 @@ function QuotationForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const commonData = {
       user: {
         name: userInfo.name,
@@ -187,24 +187,22 @@ function QuotationForm() {
                 startContent={<FaMapMarkerAlt className="text-violet-500" />}
               />
             </div>
-            
-            <Select 
+
+            <Select
               label="Request Name"
               placeholder="Choose the type of Koi pond"
               variant="faded"
               startContent={<FaList className="text-violet-500" />}
               onChange={(e) => setSelectedRequestType(e.target.value)}
             >
-              <SelectItem key="Landscape Design and Construction" value="Landscape Design and Construction">Landscape Design and Construction</SelectItem>
-                <SelectItem key="Garden Design and Construction" value="Garden Design and Construction">Garden Design and Construction</SelectItem>
-                <SelectItem key="Patio Design and Construction" value="Patio Design and Construction">Patio Design and Construction</SelectItem>
-                <SelectItem key="Koi Pond Design and Construction" value="Koi Pond Design and Construction">Koi Pond Design and Construction</SelectItem>
-                <SelectItem key="Vertical Garden Design and Construction" value="Vertical Garden Design and Construction">Vertical Garden Design and Construction</SelectItem>
-                <SelectItem key="Other Services" value="other">Other Services</SelectItem>
+              <SelectItem key="Mini Koi Pond" value="Mini Koi Pond">Mini Koi Pond</SelectItem>
+              <SelectItem key="Koi Pond Garden" value="Koi Pond Garden">Koi Pond Garden</SelectItem>
+              <SelectItem key="Koi Pond Indoor" value="Koi Pond Indoor">Koi Pond Indoor</SelectItem>
+
             </Select>
 
             {selectedRequestType && (
-              <Select 
+              <Select
                 label="Type"
                 placeholder="Choose the service you're interested in"
                 variant="faded"
@@ -215,10 +213,10 @@ function QuotationForm() {
                 <SelectItem key="design" value="design">Custom Design</SelectItem>
               </Select>
             )}
-            
+
             {selectedService === "sample" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Select 
+                <Select
                   label="Sample Name"
                   placeholder="Choose the project type"
                   variant="faded"
@@ -227,11 +225,10 @@ function QuotationForm() {
                 >
                   <SelectItem key="Traditional Koi Pond" value="Traditional Koi Pond">Traditional Koi Pond</SelectItem>
                   <SelectItem key="Modern Koi Pond" value="Modern Koi Pond">Modern Koi Pond</SelectItem>
-                  <SelectItem key="Natural Koi Pond" value="Natural Koi Pond">Natural Koi Pond</SelectItem>
-                  <SelectItem key="Indoor Koi Pond" value="Indoor Koi Pond">Indoor Koi Pond</SelectItem>
+                  <SelectItem key="Natural Koi Pond" value="Natural Koi Pond">Japanese Koi Pond</SelectItem>
                 </Select>
 
-                <Select 
+                <Select
                   label="Sample Size"
                   placeholder="Choose the project size"
                   variant="faded"
@@ -248,7 +245,7 @@ function QuotationForm() {
 
             {selectedService === "design" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Select 
+                <Select
                   label="Design Name"
                   placeholder="Choose the design type"
                   variant="faded"
@@ -262,7 +259,7 @@ function QuotationForm() {
                   <SelectItem key="Raised Koi Pond" value="Raised Koi Pond">Raised Koi Pond</SelectItem>
                 </Select>
 
-                <Select 
+                <Select
                   label="Design Size"
                   placeholder="Choose the design size"
                   variant="faded"
@@ -277,7 +274,7 @@ function QuotationForm() {
               </div>
             )}
 
-            <Textarea 
+            <Textarea
               label="Request Details"
               placeholder="Describe your requirements in detail"
               variant="faded"
@@ -285,9 +282,9 @@ function QuotationForm() {
               startContent={<FaComments className="text-violet-500 mt-2" />}
               onChange={(e) => setDescription(e.target.value)}
             />
-            <Button 
+            <Button
               type="submit"
-              color="secondary" 
+              color="secondary"
               className="w-full text-lg font-semibold py-6 bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300"
             >
               Submit Quote Request
@@ -297,8 +294,8 @@ function QuotationForm() {
         </CardBody>
       </Card>
 
-      <Modal 
-        isOpen={isSuccessModalOpen} 
+      <Modal
+        isOpen={isSuccessModalOpen}
         onClose={() => setIsSuccessModalOpen(false)}
         backdrop="blur"
       >
