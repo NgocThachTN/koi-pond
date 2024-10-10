@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import DefaultManagerLayout from '@/layouts/defaultmanager';
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Tooltip, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@nextui-org/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Tooltip, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Pagination } from "@nextui-org/react";
 import { getUserRequestsApi, UserRequest, createContractByRequestDesignApi, createContractBySampleDesignApi } from '@/apis/user.api';
 
 const DesignAndSample: React.FC = () => {
   const [requests, setRequests] = useState<UserRequest[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [contractId, setContractId] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -113,6 +115,11 @@ const DesignAndSample: React.FC = () => {
     }
   };
 
+  const paginatedRequests = requests.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <DefaultManagerLayout>
       <div className="p-6">
@@ -125,7 +132,7 @@ const DesignAndSample: React.FC = () => {
               </TableColumn>
             )}
           </TableHeader>
-          <TableBody items={requests}>
+          <TableBody items={paginatedRequests}>
             {(item) => (
               <TableRow key={item.$id}>
                 {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
@@ -133,6 +140,14 @@ const DesignAndSample: React.FC = () => {
             )}
           </TableBody>
         </Table>
+
+        <div className="flex justify-center mt-4">
+          <Pagination
+            total={Math.ceil(requests.length / itemsPerPage)}
+            page={currentPage}
+            onChange={setCurrentPage}
+          />
+        </div>
 
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
           <ModalContent>

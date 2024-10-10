@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import DefaultManagerLayout from '@/layouts/defaultmanager';
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Tooltip } from "@nextui-org/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Tooltip, Pagination } from "@nextui-org/react";
 import { getContractsApi, Contract } from '@/apis/user.api';
 
 const ContractManagement: React.FC = () => {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchContracts();
@@ -33,6 +35,11 @@ const ContractManagement: React.FC = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
+  const paginatedContracts = contracts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <DefaultManagerLayout>
       <div className="p-6">
@@ -47,7 +54,7 @@ const ContractManagement: React.FC = () => {
             <TableColumn>Description</TableColumn>
           </TableHeader>
           <TableBody>
-            {contracts.map((contract, index) => (
+            {paginatedContracts.map((contract, index) => (
               <TableRow key={index}>
                 <TableCell>{contract.contractName}</TableCell>
                 <TableCell>{getCustomerName(contract)}</TableCell>
@@ -67,6 +74,14 @@ const ContractManagement: React.FC = () => {
             ))}
           </TableBody>
         </Table>
+        
+        <div className="flex justify-center mt-4">
+          <Pagination
+            total={Math.ceil(contracts.length / itemsPerPage)}
+            page={currentPage}
+            onChange={setCurrentPage}
+          />
+        </div>
       </div>
     </DefaultManagerLayout>
   );
