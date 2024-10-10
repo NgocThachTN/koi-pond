@@ -5,7 +5,6 @@ import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from 
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/react"
 import { getUserRequestsApi, UserRequest } from '@/apis/user.api'
 import { Divider } from "@nextui-org/react"
-import { getContractsApi, Contract } from '@/apis/user.api'
 
 const statusColorMap: Record<string, "warning" | "primary" | "success"> = {
   pending: "warning",
@@ -21,7 +20,6 @@ function OrdersPage() {
   const rowsPerPage = 10
   const { isOpen: isDetailsOpen, onOpen: onDetailsOpen, onClose: onDetailsClose } = useDisclosure()
   const [selectedOrder, setSelectedOrder] = React.useState<UserRequest | null>(null)
-  const [selectedContract, setSelectedContract] = useState<Contract | null>(null)
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -59,20 +57,6 @@ function OrdersPage() {
     return orders.slice(start, end)
   }, [page, orders])
 
-  const fetchContractForOrder = async (orderId: string) => {
-    try {
-      const response = await getContractsApi()
-      const contracts = response.data.$values
-      const relatedContract = contracts.find(contract => 
-        contract.requests.$values.some(request => request.$id === orderId)
-      )
-      setSelectedContract(relatedContract || null)
-    } catch (error) {
-      console.error('Failed to fetch contract:', error)
-      setSelectedContract(null)
-    }
-  }
-
   const renderCell = React.useCallback((order: UserRequest, columnKey: React.Key) => {
     switch (columnKey) {
       case "id":
@@ -89,9 +73,8 @@ function OrdersPage() {
         return order.description
       case "details":
         return (
-          <Button size="sm" color="secondary" onClick={async () => {
+          <Button size="sm" color="secondary" onClick={() => {
             setSelectedOrder(order)
-            await fetchContractForOrder(order.$id)
             onDetailsOpen()
           }}>
             View Details
@@ -100,7 +83,7 @@ function OrdersPage() {
       default:
         return 'N/A'
     }
-  }, [onDetailsOpen, fetchContractForOrder])
+  }, [onDetailsOpen])
 
   return (
     <div className="min-h-screen bg-background">
@@ -215,19 +198,6 @@ function OrdersPage() {
                       </div>
                     </div>
                   </div>
-                )}
-                {selectedContract && (
-                  <>
-                    <Divider />
-                    <div>
-                      <h3 className="text-lg font-semibold mb-2">Contract Information</h3>
-                      <p><strong>Contract Name:</strong> {selectedContract.contractName}</p>
-                      <p><strong>Start Date:</strong> {new Date(selectedContract.contractStartDate).toLocaleDateString()}</p>
-                      <p><strong>End Date:</strong> {new Date(selectedContract.contractEndDate).toLocaleDateString()}</p>
-                      <p><strong>Status:</strong> {selectedContract.status}</p>
-                      <p><strong>Description:</strong> {selectedContract.description}</p>
-                    </div>
-                  </>
                 )}
               </ModalBody>
               <ModalFooter>

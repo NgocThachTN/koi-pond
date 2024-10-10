@@ -24,7 +24,7 @@ const DesignAndSample: React.FC = () => {
   }, []);
 
   const columns = [
-    { name: "USER", uid: "user" },
+    { name: "CUSTOMER", uid: "user" },
     { name: "REQUEST NAME", uid: "requestName" },
     { name: "DESCRIPTION", uid: "description" },
     { name: "DESIGN", uid: "design" },
