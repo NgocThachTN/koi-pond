@@ -151,9 +151,9 @@ export default function Login() {
               variant="underlined"
             />
             <div className="flex items-center justify-between px-1 py-2">
-              <Checkbox name="remember" size="sm">
+              {/* <Checkbox name="remember" size="sm">
                 Remember for 15 days
-              </Checkbox>
+              </Checkbox> */}
               <Link className="text-default-500" href="#" size="sm">
                 Forgot password?
               </Link>
