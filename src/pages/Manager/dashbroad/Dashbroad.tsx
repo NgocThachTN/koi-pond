@@ -1,18 +1,138 @@
-import React from "react";
-import { Card, CardBody, CardHeader, Divider, Progress, Spacer } from "@nextui-org/react";
+import React, { useEffect, useState } from "react";
+import { Card, CardBody, CardHeader, Divider, Chip, Tooltip, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
-const data = [
-  { month: 'Jan', completed: 4, inProgress: 3, pending: 2 },
-  { month: 'Feb', completed: 3, inProgress: 4, pending: 1 },
-  { month: 'Mar', completed: 5, inProgress: 2, pending: 3 },
-  { month: 'Apr', completed: 6, inProgress: 3, pending: 2 },
-  { month: 'May', completed: 4, inProgress: 5, pending: 1 },
-  { month: 'Jun', completed: 7, inProgress: 4, pending: 2 },
-];
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer } from 'recharts';
+import { getAccountInfo, AccountInfo } from '@/apis/manager.api';
+import { getUserRequestsApi, UserRequest, getContractsApi, Contract } from '@/apis/user.api';
 
 const Dashboard = () => {
+  const [accounts, setAccounts] = useState<AccountInfo[]>([]);
+  const [requests, setRequests] = useState<UserRequest[]>([]);
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const accountsData = await getAccountInfo();
+        const requestsData = await getUserRequestsApi('');
+        const contractsData = await getContractsApi();
+        
+        setAccounts(accountsData || []);
+        // Sort requests from newest to oldest
+        const sortedRequests = requestsData.sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setRequests(sortedRequests);
+        setContracts(Array.isArray(contractsData.data.$values) ? contractsData.data.$values : []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const customerCount = accounts.filter(account => account.roleId === 1).length;
+  const staffCount = accounts.filter(account => account.roleId === 3).length;
+  const pendingRequestsCount = requests.length;
+  const totalContractsCount = contracts.length;
+
+  // Prepare data for the chart
+  const requestStatusCounts = {
+    pending: pendingRequestsCount,
+    processing: 0,
+    complete: 0
+  };
+
+  const contractStatusCounts = {
+    pending: 0,
+    processing: 0,
+    complete: 0
+  };
+
+  contracts.forEach(contract => {
+    const status = contract.status?.toLowerCase();
+    if (status && status in contractStatusCounts) {
+      contractStatusCounts[status as keyof typeof contractStatusCounts]++;
+    }
+  });
+
+  const chartData = [
+    { 
+      name: 'Pending', 
+      requests: requestStatusCounts.pending, 
+      contracts: contractStatusCounts.pending,
+    },
+    { 
+      name: 'Processing', 
+      requests: requestStatusCounts.processing, 
+      contracts: contractStatusCounts.processing,
+    },
+    { 
+      name: 'Complete', 
+      requests: requestStatusCounts.complete, 
+      contracts: contractStatusCounts.complete,
+    },
+  ];
+
+  const processingContracts = contracts
+    .filter(contract => contract.status?.toLowerCase() === 'processing')
+    .sort((a, b) => new Date(b.contractStartDate).getTime() - new Date(a.contractStartDate).getTime());
+
+  const getCustomerName = (contract: Contract) => {
+    return contract.requests.$values[0]?.users.$values[0]?.name || 'N/A';
+  };
+
+  const getRequestName = (contract: Contract) => {
+    return contract.requests.$values[0]?.requestName || 'N/A';
+  };
+
+  const renderCell = (request: UserRequest, columnKey: React.Key) => {
+    const user = request.users.$values[0];
+    const design = request.designs.$values[0];
+    const sample = request.samples.$values[0];
+
+    switch (columnKey) {
+      case "user":
+        return (
+          <div>
+            <div className="font-semibold">{user.name}</div>
+            <div className="text-sm text-gray-500">{user.email}</div>
+          </div>
+        );
+      case "requestName":
+        return request.requestName;
+      case "description":
+        return (
+          <Tooltip content={request.description}>
+            <span className="truncate max-w-xs">{request.description}</span>
+          </Tooltip>
+        );
+      case "design":
+        return design ? (
+          <Chip color="primary" variant="flat">
+            {design.designName}
+          </Chip>
+        ) : "N/A";
+      case "sample":
+        return sample ? (
+          <Chip color="secondary" variant="flat">
+            {sample.sampleName}
+          </Chip>
+        ) : "N/A";
+      default:
+        return null;
+    }
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Koi Pond Construction Dashboard</h1>
@@ -20,10 +140,10 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-primary/10">
           <CardBody className="flex flex-row items-center">
-            <Icon icon="mdi:fish" width={40} height={40} className="text-primary" />
+            <Icon icon="mdi:file-document-multiple" width={40} height={40} className="text-primary" />
             <div className="ml-4">
-              <p className="text-small">Total Koi Ponds</p>
-              <p className="text-2xl font-bold">1,234</p>
+              <p className="text-small">Total Contracts</p>
+              <p className="text-2xl font-bold">{totalContractsCount}</p>
             </div>
           </CardBody>
         </Card>
@@ -33,7 +153,7 @@ const Dashboard = () => {
             <Icon icon="mdi:account-group" width={40} height={40} className="text-success" />
             <div className="ml-4">
               <p className="text-small">Total Customers</p>
-              <p className="text-2xl font-bold">567</p>
+              <p className="text-2xl font-bold">{customerCount}</p>
             </div>
           </CardBody>
         </Card>
@@ -42,18 +162,18 @@ const Dashboard = () => {
           <CardBody className="flex flex-row items-center">
             <Icon icon="mdi:clipboard-text-clock" width={40} height={40} className="text-warning" />
             <div className="ml-4">
-              <p className="text-small">Pending Orders</p>
-              <p className="text-2xl font-bold">89</p>
+              <p className="text-small">Pending Requests</p>
+              <p className="text-2xl font-bold">{pendingRequestsCount}</p>
             </div>
           </CardBody>
         </Card>
         
         <Card className="bg-secondary/10">
           <CardBody className="flex flex-row items-center">
-            <Icon icon="mdi:cash" width={40} height={40} className="text-secondary" />
+            <Icon icon="mdi:account-hard-hat" width={40} height={40} className="text-secondary" />
             <div className="ml-4">
-              <p className="text-small">Revenue (This Month)</p>
-              <p className="text-2xl font-bold">$123,456</p>
+              <p className="text-small">Total Staff</p>
+              <p className="text-2xl font-bold">{staffCount}</p>
             </div>
           </CardBody>
         </Card>
@@ -61,88 +181,75 @@ const Dashboard = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
-          <CardHeader>Construction Orders Overview</CardHeader>
+          <CardHeader>Requests and Contracts by Status</CardHeader>
           <Divider />
           <CardBody>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data}>
+              <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
+                <XAxis dataKey="name" />
                 <YAxis />
-                <Tooltip />
+                <ChartTooltip />
                 <Legend />
-                <Bar dataKey="completed" stackId="a" fill="#4ade80" />
-                <Bar dataKey="inProgress" stackId="a" fill="#facc15" />
-                <Bar dataKey="pending" stackId="a" fill="#f87171" />
+                <Bar dataKey="requests" fill="#8884d8" name="Requests" />
+                <Bar dataKey="contracts" fill="#82ca9d" name="Contracts" />
               </BarChart>
             </ResponsiveContainer>
           </CardBody>
         </Card>
         
         <Card>
-          <CardHeader>Customer Satisfaction</CardHeader>
+          <CardHeader>Processing Contracts</CardHeader>
           <Divider />
           <CardBody>
             <div className="space-y-4">
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span>Very Satisfied</span>
-                  <span>75%</span>
+              {processingContracts.slice(0, 5).map((contract, index) => (
+                <div key={index} className="flex justify-between items-center">
+                  <div>
+                    <p className="font-semibold">{getRequestName(contract)}</p>
+                    <p className="text-small text-default-400">
+                      {getCustomerName(contract)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <Chip color="warning" variant="flat">
+                      {contract.status}
+                    </Chip>
+                    <p className="text-small text-default-400">
+                      {new Date(contract.contractStartDate).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
-                <Progress color="success" value={75} />
-              </div>
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span>Satisfied</span>
-                  <span>20%</span>
-                </div>
-                <Progress color="primary" value={20} />
-              </div>
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span>Neutral</span>
-                  <span>4%</span>
-                </div>
-                <Progress color="warning" value={4} />
-              </div>
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span>Unsatisfied</span>
-                  <span>1%</span>
-                </div>
-                <Progress color="danger" value={1} />
-              </div>
+              ))}
             </div>
           </CardBody>
         </Card>
       </div>
       
       <Card>
-        <CardHeader>Recent Koi Pond Construction Projects</CardHeader>
+        <CardHeader>Recent Requests</CardHeader>
         <Divider />
         <CardBody>
-          <div className="space-y-4">
-            {[
-              { customer: "John Doe", size: "Large", status: "Completed", date: "2023-06-15" },
-              { customer: "Jane Smith", size: "Medium", status: "In Progress", date: "2023-06-10" },
-              { customer: "Bob Johnson", size: "Small", status: "Pending", date: "2023-06-05" },
-            ].map((project, index) => (
-              <div key={index} className="flex justify-between items-center">
-                <div>
-                  <p className="font-semibold">{project.customer}</p>
-                  <p className="text-small text-default-400">{project.size} Koi Pond</p>
-                </div>
-                <div className="text-right">
-                  <p className={`font-semibold ${
-                    project.status === "Completed" ? "text-success" :
-                    project.status === "In Progress" ? "text-warning" :
-                    "text-danger"
-                  }`}>{project.status}</p>
-                  <p className="text-small text-default-400">{project.date}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <Table aria-label="Recent Requests Table">
+            <TableHeader>
+              <TableColumn>CUSTOMER</TableColumn>
+              <TableColumn>REQUEST NAME</TableColumn>
+              <TableColumn>DESCRIPTION</TableColumn>
+              <TableColumn>DESIGN</TableColumn>
+              <TableColumn>SAMPLE</TableColumn>
+            </TableHeader>
+            <TableBody>
+              {requests.slice(0, 5).map((request, index) => (
+                <TableRow key={index}>
+                  <TableCell>{renderCell(request, "user")}</TableCell>
+                  <TableCell>{renderCell(request, "requestName")}</TableCell>
+                  <TableCell>{renderCell(request, "description")}</TableCell>
+                  <TableCell>{renderCell(request, "design")}</TableCell>
+                  <TableCell>{renderCell(request, "sample")}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardBody>
       </Card>
     </div>
