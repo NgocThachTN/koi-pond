@@ -6,15 +6,62 @@ import { useAuth } from "@/apis/authen";
 import { Avatar, Button, Spacer, ScrollShadow } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { AcmeIcon } from "@/components/AcmeIcon";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getUserInfoApi } from '@/apis/user.api';
 
-export default function DefaultManagerLayout({
+interface UserInfo {
+  name: string;
+  phoneNumber: string;
+  address: string;
+  userName: string;
+  email: string;
+  roleId: number;
+}
+
+const getRoleName = (roleId: number | undefined) => {
+  switch (roleId) {
+    case 1:
+      return "Customer";
+    case 2:
+      return "Manager";
+    case 3:
+      return "Staff";
+    default:
+      return "Unknown Role";
+  }
+};
+
+export default function DefaultStaffLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
     const { logout } = useAuth();
     const [selectedKey, setSelectedKey] = useState("dashboard");
+    const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+
+    useEffect(() => {
+        fetchUserInfo();
+    }, []);
+
+    const fetchUserInfo = async () => {
+        try {
+            const response = await getUserInfoApi();
+            if (response.data) {
+                if (Array.isArray(response.data.$values)) {
+                    const loggedInUserEmail = localStorage.getItem('userEmail');
+                    const user = response.data.$values.find((u: UserInfo) => u.email === loggedInUserEmail);
+                    if (user) {
+                        setUserInfo(user);
+                    }
+                } else if (typeof response.data === 'object') {
+                    setUserInfo(response.data);
+                }
+            }
+        } catch (error) {
+            console.error('Failed to fetch user info:', error);
+        }
+    };
 
     const handleLogout = () => {
         logout();
@@ -23,9 +70,9 @@ export default function DefaultManagerLayout({
     return (
         <>
             <Head>
-                <title>Koi Pond Management</title>
+                <title>Koi Pond Management - Staff</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <meta name="description" content="Koi Pond Management Dashboard" />
+                <meta name="description" content="Koi Pond Management Staff Dashboard" />
             </Head>
             <div className="flex h-dvh">
                 <div className="relative flex h-full w-72 flex-none flex-col border-r-small border-divider p-6">
@@ -42,8 +89,8 @@ export default function DefaultManagerLayout({
                     <div className="flex items-center gap-3 px-4">
                         <Avatar isBordered size="sm" src="https://i.pinimg.com/736x/ea/34/21/ea342127be35831759fcecf5d54af59f.jpg" />
                         <div className="flex flex-col">
-                            <p className="text-small font-medium text-default-600">Saito Asuka</p>
-                            <p className="text-tiny text-default-400">Manager</p>
+                            <p className="text-small font-medium text-default-600">{userInfo?.name || 'Unknown User'}</p>
+                            <p className="text-tiny text-default-400">{getRoleName(userInfo?.roleId)}</p>
                         </div>
                     </div>
                     <ScrollShadow className="-mr-6 h-full max-h-full py-6 pr-6">
