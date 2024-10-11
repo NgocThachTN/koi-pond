@@ -10,10 +10,18 @@ import {
   Chip,
   Tooltip,
   Button,
-  Pagination
+  Pagination,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Input,
+  useDisclosure
 } from "@nextui-org/react";
 import { EyeIcon, EditIcon, DeleteIcon } from "@nextui-org/shared-icons";
-import { getAccountInfo, AccountInfo } from '@/apis/manager.api';
+import { FaPlus } from 'react-icons/fa';
+import { getAccountInfo, AccountInfo, updateAccountInfo, deleteAccountInfo, createAccountInfo, CreateAccountInfo } from '@/apis/manager.api';
 
 const columns = [
   { name: "NAME", uid: "name" },
@@ -27,6 +35,20 @@ const columns = [
 const CustomerManagement: React.FC = () => {
   const [users, setUsers] = useState<AccountInfo[]>([]);
   const [page, setPage] = useState(1);
+  const [selectedUser, setSelectedUser] = useState<AccountInfo | null>(null);
+  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
+  const { isOpen: isCreateOpen, onOpen: onCreateOpen, onClose: onCreateClose } = useDisclosure();
+  const [newCustomer, setNewCustomer] = useState<CreateAccountInfo>({
+    accountId: 0,
+    name: "",
+    phoneNumber: "",
+    address: "",
+    userName: "",
+    email: "",
+    password: "",
+    roleId: 1 // Mặc định là role customer
+  });
   const rowsPerPage = 7;
 
   useEffect(() => {
@@ -63,6 +85,68 @@ const CustomerManagement: React.FC = () => {
     return users.slice(start, end);
   }, [page, users]);
 
+  const handleEdit = (user: AccountInfo) => {
+    setSelectedUser(user);
+    onEditOpen();
+  };
+
+  const handleDelete = (user: AccountInfo) => {
+    setSelectedUser(user);
+    onDeleteOpen();
+  };
+
+  const handleUpdateUser = async () => {
+    if (selectedUser) {
+      try {
+        await updateAccountInfo(selectedUser.accountId, selectedUser);
+        const updatedUsers = users.map(user => 
+          user.accountId === selectedUser.accountId ? selectedUser : user
+        );
+        setUsers(updatedUsers);
+        onEditClose();
+      } catch (error) {
+        console.error("Failed to update user:", error);
+      }
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (selectedUser) {
+      try {
+        await deleteAccountInfo(selectedUser.accountId);
+        const updatedUsers = users.filter(user => user.accountId !== selectedUser.accountId);
+        setUsers(updatedUsers);
+        onDeleteClose();
+      } catch (error) {
+        console.error("Failed to delete user:", error);
+      }
+    }
+  };
+
+  const handleCreateCustomer = async () => {
+    try {
+      await createAccountInfo(newCustomer);
+      // Refresh danh sách khách hàng sau khi tạo mới
+      const data = await getAccountInfo();
+      const customers = data.filter(user => user.roleId === 1);
+      setUsers(customers);
+      onCreateClose();
+      // Reset form
+      setNewCustomer({
+        accountId: 0,
+        name: "",
+        phoneNumber: "",
+        address: "",
+        userName: "",
+        email: "",
+        password: "",
+        roleId: 1
+      });
+    } catch (error) {
+      console.error("Failed to create customer:", error);
+    }
+  };
+
   const renderCell = React.useCallback((user: AccountInfo, columnKey: React.Key) => {
     const cellValue = user[columnKey as keyof AccountInfo];
 
@@ -82,12 +166,12 @@ const CustomerManagement: React.FC = () => {
               </Button>
             </Tooltip>
             <Tooltip content="Edit user">
-              <Button isIconOnly size="sm" variant="light">
+              <Button isIconOnly size="sm" variant="light" onPress={() => handleEdit(user)}>
                 <EditIcon className="text-default-400" />
               </Button>
             </Tooltip>
             <Tooltip color="danger" content="Delete user">
-              <Button isIconOnly size="sm" variant="light">
+              <Button isIconOnly size="sm" variant="light" onPress={() => handleDelete(user)}>
                 <DeleteIcon className="text-danger" />
               </Button>
             </Tooltip>
@@ -101,7 +185,12 @@ const CustomerManagement: React.FC = () => {
   return (
     <DefaultManagerLayout>
       <div className="w-full">
-        <h1 className="text-2xl font-bold mb-4">Customer Management</h1>
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Customer Management</h1>
+          <Button color="primary" endContent={<FaPlus />} onPress={onCreateOpen}>
+            Add New Customer
+          </Button>
+        </div>
         <Table 
           aria-label="Customer table with custom cells"
           bottomContent={
@@ -133,6 +222,110 @@ const CustomerManagement: React.FC = () => {
             )}
           </TableBody>
         </Table>
+
+        <Modal isOpen={isEditOpen} onClose={onEditClose}>
+          <ModalContent>
+            <ModalHeader>Edit User</ModalHeader>
+            <ModalBody>
+              {selectedUser && (
+                <>
+                  <Input
+                    label="Name"
+                    value={selectedUser.name}
+                    onChange={(e) => setSelectedUser({...selectedUser, name: e.target.value})}
+                  />
+                  <Input
+                    label="Phone"
+                    value={selectedUser.phoneNumber}
+                    onChange={(e) => setSelectedUser({...selectedUser, phoneNumber: e.target.value})}
+                  />
+                  <Input
+                    label="Address"
+                    value={selectedUser.address}
+                    onChange={(e) => setSelectedUser({...selectedUser, address: e.target.value})}
+                  />
+                  <Input
+                    label="Email"
+                    value={selectedUser.email}
+                    onChange={(e) => setSelectedUser({...selectedUser, email: e.target.value})}
+                  />
+                </>
+              )}
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onPress={handleUpdateUser}>
+                Save Changes
+              </Button>
+              <Button color="danger" variant="light" onPress={onEditClose}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+
+        <Modal isOpen={isDeleteOpen} onClose={onDeleteClose}>
+          <ModalContent>
+            <ModalHeader>Delete User</ModalHeader>
+            <ModalBody>
+              Are you sure you want to delete this user?
+            </ModalBody>
+            <ModalFooter>
+              <Button color="danger" onPress={handleDeleteUser}>
+                Delete
+              </Button>
+              <Button color="primary" variant="light" onPress={onDeleteClose}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+
+        <Modal isOpen={isCreateOpen} onClose={onCreateClose}>
+          <ModalContent>
+            <ModalHeader>Create New Customer</ModalHeader>
+            <ModalBody>
+              <Input
+                label="Name"
+                value={newCustomer.name}
+                onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
+              />
+              <Input
+                label="Phone"
+                value={newCustomer.phoneNumber}
+                onChange={(e) => setNewCustomer({...newCustomer, phoneNumber: e.target.value})}
+              />
+              <Input
+                label="Address"
+                value={newCustomer.address}
+                onChange={(e) => setNewCustomer({...newCustomer, address: e.target.value})}
+              />
+              <Input
+                label="Username"
+                value={newCustomer.userName}
+                onChange={(e) => setNewCustomer({...newCustomer, userName: e.target.value})}
+              />
+              <Input
+                label="Email"
+                value={newCustomer.email}
+                onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})}
+              />
+              <Input
+                label="Password"
+                type="password"
+                value={newCustomer.password}
+                onChange={(e) => setNewCustomer({...newCustomer, password: e.target.value})}
+              />
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onPress={handleCreateCustomer}>
+                Create Customer
+              </Button>
+              <Button color="danger" variant="light" onPress={onCreateClose}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       </div>
     </DefaultManagerLayout>
   );

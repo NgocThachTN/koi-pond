@@ -48,3 +48,20 @@ export const deleteAccountInfo = async (id: number): Promise<void> => {
   await http.delete(`Accounts/${id}`);
 }
 
+// Thêm interface mới cho việc tạo tài khoản
+export interface CreateAccountInfo {
+  accountId: number;
+  name: string;
+  phoneNumber: string;
+  address: string;
+  userName: string;
+  email: string;
+  password: string;
+  roleId: number;
+}
+
+// Thêm hàm mới để tạo tài khoản
+export const createAccountInfo = async (accountInfo: CreateAccountInfo): Promise<void> => {
+  await http.post('Accounts', accountInfo);
+}
+
