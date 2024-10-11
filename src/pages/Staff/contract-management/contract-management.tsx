@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import DefaultManagerLayout from '@/layouts/defaultmanager';
+import DefaultStaffLayout from '@/layouts/defaultstaff';
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Tooltip, Pagination } from "@nextui-org/react";
 import { getContractsApi, Contract } from '@/apis/user.api';
 
@@ -45,7 +45,7 @@ const ContractManagement: React.FC = () => {
   );
 
   return (
-    <DefaultManagerLayout>
+    <DefaultStaffLayout>
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Contract Management</h1>
         <Table aria-label="Contracts table">
@@ -89,7 +89,7 @@ const ContractManagement: React.FC = () => {
           />
         </div>
       </div>
-    </DefaultManagerLayout>
+    </DefaultStaffLayout>
   );
 };
 
