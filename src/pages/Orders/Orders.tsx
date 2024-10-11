@@ -65,7 +65,7 @@ function OrdersPage() {
   }, [])
 
   const allItems = React.useMemo(() => {
-    const contractItems = contracts.flatMap(contract => 
+    const contractItems = contracts.flatMap(contract =>
       contract.requests.$values.map(request => ({
         ...request,
         contractStatus: contract.status,
@@ -113,7 +113,7 @@ function OrdersPage() {
             setSelectedItem(item)
             onDetailsOpen()
           }}>
-            View Details
+            View Detailsss
           </Button>
         )
       default:
@@ -251,5 +251,3 @@ function OrdersPage() {
     </div>
   )
 }
-
-export default OrdersPage
