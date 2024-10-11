@@ -99,10 +99,14 @@ function OrdersPage() {
     switch (columnKey) {
       case "requestName":
         return item.requestName
-      case "designName":
-        return item.designs.$values[0]?.designName || 'N/A'
-      case "sampleName":
-        return item.samples.$values[0]?.sampleName || 'N/A'
+      case "type":
+        if (item.designs.$values[0]?.designName) {
+          return 'Design'
+        } else if (item.samples.$values[0]?.sampleName) {
+          return 'Sample'
+        } else {
+          return 'N/A'
+        }
       case "status":
         return item.hasContract ? item.contractStatus : 'Pending'
       case "description":
@@ -113,7 +117,7 @@ function OrdersPage() {
             setSelectedItem(item)
             onDetailsOpen()
           }}>
-            View Detailsss
+            View Details
           </Button>
         )
       default:
@@ -141,8 +145,7 @@ function OrdersPage() {
                 <Table aria-label="Koi Pond Construction Requests Table">
                   <TableHeader>
                     <TableColumn key="requestName">Request Name</TableColumn>
-                    <TableColumn key="designName">Design Name</TableColumn>
-                    <TableColumn key="sampleName">Sample Name</TableColumn>
+                    <TableColumn key="type">Type</TableColumn>
                     <TableColumn key="status">Status</TableColumn>
                     <TableColumn key="description">Description</TableColumn>
                     <TableColumn key="details">Details</TableColumn>
@@ -251,3 +254,4 @@ function OrdersPage() {
     </div>
   )
 }
+export default OrdersPage;

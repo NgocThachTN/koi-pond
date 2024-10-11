@@ -18,7 +18,11 @@ const ContractManagement: React.FC = () => {
     try {
       setLoading(true);
       const response = await getContractsApi();
-      setContracts(response.data.$values);
+      // Sắp xếp contracts theo ngày tạo mới nhất
+      const sortedContracts = response.data.$values.sort((a, b) =>
+        new Date(b.contractStartDate).getTime() - new Date(a.contractStartDate).getTime()
+      );
+      setContracts(sortedContracts);
       setError(null);
     } catch (err) {
       setError("Failed to fetch contracts");
@@ -59,7 +63,9 @@ const ContractManagement: React.FC = () => {
                 <TableCell>{contract.contractName}</TableCell>
                 <TableCell>{getCustomerName(contract)}</TableCell>
                 <TableCell>{new Date(contract.contractStartDate).toLocaleDateString()}</TableCell>
-                <TableCell>{new Date(contract.contractEndDate).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  {new Date(new Date(contract.contractStartDate).setMonth(new Date(contract.contractStartDate).getMonth() + 3)).toLocaleDateString()}
+                </TableCell>
                 <TableCell>
                   <Chip color={contract.status === "Active" ? "success" : "warning"} variant="flat">
                     {contract.status}

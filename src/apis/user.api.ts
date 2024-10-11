@@ -1,19 +1,19 @@
 import http from "@/utils/https"
 
 
-interface LoginResType{
-    token: string,
-    role: string,
-    email: string,
-    userName: string, // Change this line from fullName to userName
+interface LoginResType {
+  token: string,
+  role: string,
+  email: string,
+  userName: string, // Change this line from fullName to userName
 }
 
 export const loginApi = (email: string, password: string) => {
-  return http.post<LoginResType>('Auth/login', { 
+  return http.post<LoginResType>('Auth/login', {
     email: email,
     password: password,
-    
-  }) 
+
+  })
 }
 
 interface RegisterReqType {
@@ -148,7 +148,7 @@ export interface UserRequest {
 }
 
 export const getUserRequestsApi = (email: string): Promise<UserRequest[]> => {
-  return http.get<{$id: string, $values: UserRequest[]}>(`Requests`)
+  return http.get<{ $id: string, $values: UserRequest[] }>(`Requests`)
     .then(response => {
       console.log('API response:', response.data); // Log the entire response
       return response.data.$values || [];
@@ -277,6 +277,22 @@ export interface Contract {
 
 export const getContractsApi = () => {
   return http.get<Contract[]>('Contracts');
+}
+
+interface UpdateContractStatusType {
+  contractId: string;
+  newStatus: string;
+}
+
+interface UpdateContractStatusResponseType {
+  success: boolean;
+  message: string;
+}
+
+export const updateContractStatusApi = (updateData: UpdateContractStatusType) => {
+  return http.put<UpdateContractStatusResponseType>(`Contracts/${updateData.contractId}/status`, {
+    status: updateData.newStatus
+  });
 }
 
 

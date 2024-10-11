@@ -22,6 +22,10 @@ import DocsPageUser from "@/pages/Docs/docsuser";
 import OrdersPage from "./pages/Orders/Orders";
 import AdminPage from "./pages/Manager/manager";
 import StaffPage from "./pages/Staff/staff";
+import StaffDashboard from "./pages/Staff/dashbroad/Dashbroad";
+import DesignAndSampleStaff from "./pages/Staff/request-management/design-and-sample";
+import MaintenanceStaffManagement from "./pages/Staff/request-management/maintenance";
+import ContractStaffManagement from "./pages/Staff/contract-management/contract-management";
 
 // Import các trang Manager
 import Dashboard from "@/pages/Manager/dashbroad/Dashbroad";
@@ -203,6 +207,32 @@ function App() {
           <ProtectedRoute
             element={userRole === 'Staff' ? <StaffPage /> : <Navigate to="/unauthorized" />}
           />
+        }
+      />
+
+      <Route
+        path="/staff/dashboard"
+        element={
+          isAuthenticated && userRole === 'Staff' ? <StaffDashboard /> : <Navigate to="/staff" />
+        }
+      />
+
+      <Route
+        path="/staff/request-management/design-and-sample"
+        element={
+          isAuthenticated && userRole === 'Staff' ? <DesignAndSampleStaff /> : <Navigate to="/staff/request-management/design-and-sample" />
+        }
+      />
+      <Route
+        path="/staff/request-management/maintenance"
+        element={
+          isAuthenticated && userRole === 'Staff' ? <MaintenanceStaffManagement /> : <Navigate to="/staff/request-management/maintenance" />
+        }
+      />
+      <Route
+        path="/staff/contract-management"
+        element={
+          isAuthenticated && userRole === 'Staff' ? <ContractStaffManagement /> : <Navigate to="/staff/contract-management" />
         }
       />
 

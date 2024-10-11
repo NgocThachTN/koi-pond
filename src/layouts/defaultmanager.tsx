@@ -47,9 +47,9 @@ export default function DefaultManagerLayout({
             </div>
           </div>
           <ScrollShadow className="-mr-6 h-full max-h-full py-6 pr-6">
-            <Sidebar 
-              defaultSelectedKey={selectedKey} 
-              items={items} 
+            <Sidebar
+              defaultSelectedKey={selectedKey}
+              items={items}
               onSelectionChange={(key) => setSelectedKey(key as string)}
             />
           </ScrollShadow>
