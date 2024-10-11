@@ -113,7 +113,7 @@ function OrdersPage() {
             setSelectedItem(item)
             onDetailsOpen()
           }}>
-            View Details
+            View Detailsss
           </Button>
         )
       default:
