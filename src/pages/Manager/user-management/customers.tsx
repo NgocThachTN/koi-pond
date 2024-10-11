@@ -19,22 +19,26 @@ import {
   Input,
   useDisclosure
 } from "@nextui-org/react";
-import { EyeIcon, EditIcon, DeleteIcon } from "@nextui-org/shared-icons";
+import { EyeIcon, EditIcon, DeleteIcon, SearchIcon } from "@nextui-org/shared-icons";
 import { FaPlus } from 'react-icons/fa';
 import { getAccountInfo, AccountInfo, updateAccountInfo, deleteAccountInfo, createAccountInfo, CreateAccountInfo } from '@/apis/manager.api';
 
 const columns = [
+  { name: "NO", uid: "no" },
   { name: "NAME", uid: "name" },
   { name: "PHONE", uid: "phoneNumber" },
   { name: "ADDRESS", uid: "address" },
   { name: "EMAIL", uid: "email" },
   { name: "ROLE", uid: "roleId" },
+  { name: "ACCOUNT COUNT", uid: "accountCount" },
   { name: "ACTIONS", uid: "actions" },
 ];
 
 const CustomerManagement: React.FC = () => {
-  const [users, setUsers] = useState<AccountInfo[]>([]);
+  const [users, setUsers] = useState<(AccountInfo & { accountCount: number })[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<(AccountInfo & { accountCount: number })[]>([]);
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<AccountInfo | null>(null);
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
@@ -57,17 +61,18 @@ const CustomerManagement: React.FC = () => {
         const data = await getAccountInfo();
         const customers = data.filter(user => user.roleId === 1);
         
-        // Remove duplicates based on email
-        const uniqueCustomers = customers.reduce((acc: AccountInfo[], current) => {
-          const x = acc.find(item => item.email === current.email);
-          if (!x) {
-            return acc.concat([current]);
+        const uniqueCustomers = customers.reduce((acc, user) => {
+          if (!acc[user.email]) {
+            acc[user.email] = { ...user, accountCount: 1 };
           } else {
-            return acc;
+            acc[user.email].accountCount += 1;
           }
-        }, []);
+          return acc;
+        }, {} as Record<string, AccountInfo & { accountCount: number }>);
 
-        setUsers(uniqueCustomers);
+        const customersArray = Object.values(uniqueCustomers);
+        setUsers(customersArray);
+        setFilteredUsers(customersArray);
       } catch (error) {
         console.error("Failed to fetch users:", error);
       }
@@ -76,14 +81,26 @@ const CustomerManagement: React.FC = () => {
     fetchUsers();
   }, []);
 
-  const pages = Math.ceil(users.length / rowsPerPage);
+  useEffect(() => {
+    const lowercasedFilter = searchTerm.toLowerCase();
+    const filtered = users.filter(user => 
+      user.name.toLowerCase().includes(lowercasedFilter)
+    );
+    setFilteredUsers(filtered);
+    setPage(1);
+  }, [searchTerm, users]);
+
+  const pages = Math.ceil(filteredUsers.length / rowsPerPage);
 
   const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
-    return users.slice(start, end);
-  }, [page, users]);
+    return filteredUsers.slice(start, end).map((user, index) => ({
+      ...user,
+      no: start + index + 1
+    }));
+  }, [page, filteredUsers]);
 
   const handleEdit = (user: AccountInfo) => {
     setSelectedUser(user);
@@ -147,14 +164,22 @@ const CustomerManagement: React.FC = () => {
     }
   };
 
-  const renderCell = React.useCallback((user: AccountInfo, columnKey: React.Key) => {
-    const cellValue = user[columnKey as keyof AccountInfo];
+  const renderCell = React.useCallback((user: AccountInfo & { accountCount: number, no: number }, columnKey: React.Key) => {
+    const cellValue = user[columnKey as keyof (AccountInfo & { accountCount: number, no: number })];
 
     switch (columnKey) {
+      case "no":
+        return <div>{user.no}</div>;
       case "roleId":
         return (
           <Chip color="primary" size="sm" variant="flat">
             Customer
+          </Chip>
+        );
+      case "accountCount":
+        return (
+          <Chip color={user.accountCount > 1 ? "warning" : "success"} size="sm" variant="flat">
+            {user.accountCount}
           </Chip>
         );
       case "actions":
@@ -187,9 +212,20 @@ const CustomerManagement: React.FC = () => {
       <div className="w-full">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">Customer Management</h1>
-          <Button color="primary" endContent={<FaPlus />} onPress={onCreateOpen}>
-            Add New Customer
-          </Button>
+          <div className="flex gap-4">
+            <Input
+              isClearable
+              className="w-full sm:max-w-[44%]"
+              placeholder="Search by name..."
+              startContent={<SearchIcon />}
+              value={searchTerm}
+              onClear={() => setSearchTerm("")}
+              onValueChange={setSearchTerm}
+            />
+            <Button color="primary" endContent={<FaPlus />} onPress={onCreateOpen}>
+              Add New Customer
+            </Button>
+          </div>
         </div>
         <Table 
           aria-label="Customer table with custom cells"

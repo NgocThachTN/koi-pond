@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import DefaultManagerLayout from '@/layouts/defaultmanager';
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Tooltip, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Pagination } from "@nextui-org/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Tooltip, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Pagination, Input } from "@nextui-org/react";
+import { SearchIcon } from '@nextui-org/shared-icons';
 import { getUserRequestsApi, UserRequest, createContractByRequestDesignApi, createContractBySampleDesignApi } from '@/apis/user.api';
 
 const DesignAndSample: React.FC = () => {
   const [requests, setRequests] = useState<UserRequest[]>([]);
+  const [filteredRequests, setFilteredRequests] = useState<UserRequest[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [contractId, setContractId] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -15,6 +18,7 @@ const DesignAndSample: React.FC = () => {
       try {
         const data = await getUserRequestsApi('');
         setRequests(data);
+        setFilteredRequests(data);
       } catch (error) {
         console.error('Error fetching requests:', error);
       }
@@ -22,6 +26,17 @@ const DesignAndSample: React.FC = () => {
 
     fetchRequests();
   }, []);
+
+  useEffect(() => {
+    const lowercasedFilter = searchTerm.toLowerCase();
+    const filtered = requests.filter(request => 
+      request.users.$values.some(user => 
+        user.name.toLowerCase().includes(lowercasedFilter)
+      )
+    );
+    setFilteredRequests(filtered);
+    setCurrentPage(1);
+  }, [searchTerm, requests]);
 
   const columns = [
     { name: "CUSTOMER", uid: "user" },
@@ -115,15 +130,27 @@ const DesignAndSample: React.FC = () => {
     }
   };
 
-  const paginatedRequests = requests.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedRequests = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return filteredRequests.slice(start, end);
+  }, [currentPage, filteredRequests]);
 
   return (
     <DefaultManagerLayout>
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Design & Sample Management</h1>
+        <div className="flex justify-between items-center mb-4">
+          <Input
+            isClearable
+            className="w-full sm:max-w-[44%]"
+            placeholder="Search by customer name..."
+            startContent={<SearchIcon />}
+            value={searchTerm}
+            onClear={() => setSearchTerm("")}
+            onValueChange={setSearchTerm}
+          />
+        </div>
         <Table aria-label="User Requests Table">
           <TableHeader columns={columns}>
             {(column) => (
@@ -143,7 +170,7 @@ const DesignAndSample: React.FC = () => {
 
         <div className="flex justify-center mt-4">
           <Pagination
-            total={Math.ceil(requests.length / itemsPerPage)}
+            total={Math.ceil(filteredRequests.length / itemsPerPage)}
             page={currentPage}
             onChange={setCurrentPage}
           />
