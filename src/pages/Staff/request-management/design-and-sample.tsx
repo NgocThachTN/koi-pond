@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import DefaultManagerLayout from '@/layouts/defaultmanager';
+import DefaultStaffLayout from '@/layouts/defaultstaff';
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Tooltip, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Pagination } from "@nextui-org/react";
 import { getUserRequestsApi, UserRequest, createContractByRequestDesignApi, createContractBySampleDesignApi } from '@/apis/user.api';
 
@@ -116,7 +116,7 @@ const DesignAndSampleStaff: React.FC = () => {
   );
 
   return (
-    <DefaultManagerLayout>
+    <DefaultStaffLayout>
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Design & Sample Management</h1>
         <Table aria-label="User Requests Table">
@@ -159,7 +159,7 @@ const DesignAndSampleStaff: React.FC = () => {
           </ModalContent>
         </Modal>
       </div>
-    </DefaultManagerLayout>
+    </DefaultStaffLayout>
   );
 };
 
