@@ -37,10 +37,13 @@ export const registerApi = (userData: RegisterReqType) => {
 }
 
 interface UserInfoType {
+  accountId: number;
   name: string;
   phoneNumber: string;
   address: string;
   userName: string;
+  email: string;
+  roleId: number;
 }
 
 export const getUserInfoApi = () => {
