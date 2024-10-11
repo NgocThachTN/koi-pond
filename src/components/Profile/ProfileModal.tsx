@@ -17,6 +17,7 @@ import {
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { getUserInfoApi } from '@/apis/user.api';
+import { updateAccountInfo, UpdateAccountInfo } from '@/apis/manager.api'; // Import the new API function
 import axios from 'axios';
 
 interface ProfileModalProps {
@@ -36,6 +37,7 @@ interface UserInfo {
 export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [editedInfo, setEditedInfo] = useState<UpdateAccountInfo | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -84,11 +86,45 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
 
   const openEditModal = () => {
     setIsEditing(true);
-    onClose(); // Close the main profile modal
+    if (userInfo) {
+      setEditedInfo({
+        $id: userInfo.accountId.toString(), // Assuming accountId is available
+        accountId: userInfo.accountId,
+        name: userInfo.name,
+        phoneNumber: userInfo.phoneNumber,
+        address: userInfo.address,
+        userName: userInfo.userName,
+        email: userInfo.email,
+        password: "", // You might want to handle this differently
+        roleId: userInfo.roleId
+      });
+    }
+    onClose();
   };
 
   const closeEditModal = () => {
     setIsEditing(false);
+    setEditedInfo(null);
+  };
+
+  const handleInputChange = (field: keyof UpdateAccountInfo, value: string | number) => {
+    if (editedInfo) {
+      setEditedInfo({ ...editedInfo, [field]: value });
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    if (editedInfo) {
+      try {
+        await updateAccountInfo(editedInfo.accountId, editedInfo);
+        console.log("Profile updated successfully");
+        fetchUserInfo(); // Refresh user info
+        closeEditModal();
+      } catch (error) {
+        console.error("Failed to update profile:", error);
+        // Handle error (e.g., show error message to user)
+      }
+    }
   };
 
   return (
@@ -213,46 +249,41 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
                   <Input
                     label="Full Name"
                     placeholder="Enter your full name"
-                    defaultValue="Saito Asuka"
+                    value={editedInfo?.name || ""}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
                   />
                   <Input
                     label="Username"
                     placeholder="Enter your username"
-                    defaultValue="saitoasuka"
+                    value={editedInfo?.userName || ""}
+                    onChange={(e) => handleInputChange("userName", e.target.value)}
                   />
                   <Input
                     label="Email"
                     placeholder="Enter your email"
-                    defaultValue="saito.asuka@example.com"
+                    value={editedInfo?.email || ""}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
                   />
                   <Input
                     label="Phone"
                     placeholder="Enter your phone number"
-                    defaultValue="+81 90-1234-5678"
+                    value={editedInfo?.phoneNumber || ""}
+                    onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
                   />
                   <Input
-                    label="Location"
-                    placeholder="Enter your location"
-                    defaultValue="Tokyo, Japan"
+                    label="Address"
+                    placeholder="Enter your address"
+                    value={editedInfo?.address || ""}
+                    onChange={(e) => handleInputChange("address", e.target.value)}
                   />
-                  <Input
-                    label="Website"
-                    placeholder="Enter your website"
-                    defaultValue=""
-                  />
+                  {/* You can add more fields as needed */}
                 </div>
-                <Textarea
-                  label="About"
-                  placeholder="Tell us about yourself"
-                  defaultValue=""
-                  className="mt-4"
-                />
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button color="danger" variant="light" onPress={closeEditModal}>
                   Cancel
                 </Button>
-                <Button color="primary" onPress={onClose}>
+                <Button color="primary" onPress={handleSaveChanges}>
                   Save Changes
                 </Button>
               </ModalFooter>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalContent,
@@ -7,29 +7,94 @@ import {
   ModalFooter,
   Button,
   Input,
-  Tabs,
-  Tab,
 } from "@nextui-org/react";
+import { updateAccountInfo, UpdateAccountInfo } from "@/apis/manager.api";
+import { getUserInfoApi } from "@/apis/user.api";
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+interface UserInfo {
+  accountId: number;
+  name: string;
+  phoneNumber: string;
+  address: string;
+  userName: string;
+  email: string;
+  password: string;
+  roleId: number;
+}
+
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [email, setEmail] = useState("");
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [error, setError] = useState("");
 
-  const handleChangePassword = () => {
-    // Implement password change logic here
-    console.log("Changing password");
+  useEffect(() => {
+    if (isOpen) {
+      fetchUserInfo();
+    }
+  }, [isOpen]);
+
+  const fetchUserInfo = async () => {
+    try {
+      const response = await getUserInfoApi();
+      if (response.data) {
+        if (Array.isArray(response.data.$values)) {
+          const loggedInUserEmail = localStorage.getItem('userEmail');
+          const user = response.data.$values.find((u: UserInfo) => u.email === loggedInUserEmail);
+          if (user) {
+            setUserInfo(user);
+          } else {
+            console.error('User not found in the response');
+          }
+        } else if (typeof response.data === 'object') {
+          setUserInfo(response.data);
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } else {
+        console.error('No data in response');
+      }
+    } catch (error) {
+      console.error("Failed to fetch user info:", error);
+    }
   };
 
-  const handleChangeEmail = () => {
-    // Implement email change logic here
-    console.log("Changing email");
+  const handleChangePassword = async () => {
+    if (!userInfo) return;
+    if (newPassword !== confirmPassword) {
+      setError("New passwords do not match");
+      return;
+    }
+    if (currentPassword !== userInfo.password) {
+      setError("Current password is incorrect");
+      return;
+    }
+    try {
+      const updatedInfo: UpdateAccountInfo = {
+        $id: userInfo.accountId.toString(),
+        accountId: userInfo.accountId,
+        name: userInfo.name,
+        phoneNumber: userInfo.phoneNumber,
+        address: userInfo.address,
+        userName: userInfo.userName,
+        email: userInfo.email,
+        password: newPassword,
+        roleId: userInfo.roleId
+      };
+      await updateAccountInfo(userInfo.accountId, updatedInfo);
+      console.log("Password changed successfully");
+      setError("");
+      onClose();
+    } catch (error) {
+      console.error("Failed to change password:", error);
+      setError("Failed to change password. Please try again.");
+    }
   };
 
   return (
@@ -45,52 +110,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       }}
     >
       <ModalContent>
-        <ModalHeader className="flex flex-col gap-1">Settings</ModalHeader>
+        <ModalHeader className="flex flex-col gap-1">Change Password</ModalHeader>
         <ModalBody>
-          <Tabs aria-label="Settings options">
-            <Tab key="password" title="Change Password">
-              <form onSubmit={(e) => { e.preventDefault(); handleChangePassword(); }}>
-                <Input
-                  label="Current Password"
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="mb-4"
-                />
-                <Input
-                  label="New Password"
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="mb-4"
-                />
-                <Input
-                  label="Confirm New Password"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="mb-4"
-                />
-                <Button color="secondary" type="submit">
-                  Change Password
-                </Button>
-              </form>
-            </Tab>
-            <Tab key="email" title="Change Email">
-              <form onSubmit={(e) => { e.preventDefault(); handleChangeEmail(); }}>
-                <Input
-                  label="New Email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mb-4"
-                />
-                <Button color="secondary" type="submit">
-                  Change Email
-                </Button>
-              </form>
-            </Tab>
-          </Tabs>
+          <form onSubmit={(e) => { e.preventDefault(); handleChangePassword(); }}>
+            <Input
+              label="Current Password"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="mb-4"
+            />
+            <Input
+              label="New Password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="mb-4"
+            />
+            <Input
+              label="Confirm New Password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="mb-4"
+            />
+            <Button color="secondary" type="submit">
+              Change Password
+            </Button>
+          </form>
+          {error && <p className="text-danger mt-2">{error}</p>}
         </ModalBody>
         <ModalFooter>
           <Button color="secondary" variant="light" onPress={onClose}>
