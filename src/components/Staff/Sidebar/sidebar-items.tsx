@@ -50,13 +50,8 @@ export const items: SidebarItem[] = [
         href: "/staff/contract-management",
         icon: "solar:document-linear",
         title: "Contract Management",
-    }, 
-    {
-        key: "settings",
-        href: "#",
-        icon: "solar:settings-outline",
-        title: "Settings",
-      },
+    },
+
 
 ];
 

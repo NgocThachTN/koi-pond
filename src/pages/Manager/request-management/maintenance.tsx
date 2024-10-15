@@ -1,7 +1,7 @@
 import React from 'react';
 import DefaultManagerLayout from '@/layouts/defaultmanager';
 
-const MaintenanceManagement: React.FC = () => {
+const Maintenance: React.FC = () => {
   return (
     <DefaultManagerLayout>
       <div>
@@ -13,4 +13,4 @@ const MaintenanceManagement: React.FC = () => {
   );
 };
 
-export default MaintenanceManagement;
+export default Maintenance;

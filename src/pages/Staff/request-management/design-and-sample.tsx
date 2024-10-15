@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import DefaultStaffLayout from '@/layouts/defaultstaff';
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Tooltip, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Pagination } from "@nextui-org/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Tooltip, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Pagination, Input } from "@nextui-org/react";
+import { SearchIcon } from '@nextui-org/shared-icons';
 import { getUserRequestsApi, UserRequest, createContractByRequestDesignApi, createContractBySampleDesignApi } from '@/apis/user.api';
 
-const DesignAndSampleStaff: React.FC = () => {
+const DesignAndSample: React.FC = () => {
   const [requests, setRequests] = useState<UserRequest[]>([]);
+  const [filteredRequests, setFilteredRequests] = useState<UserRequest[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [contractId, setContractId] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -15,6 +18,7 @@ const DesignAndSampleStaff: React.FC = () => {
       try {
         const data = await getUserRequestsApi('');
         setRequests(data);
+        setFilteredRequests(data);
       } catch (error) {
         console.error('Error fetching requests:', error);
       }
@@ -23,11 +27,23 @@ const DesignAndSampleStaff: React.FC = () => {
     fetchRequests();
   }, []);
 
+  useEffect(() => {
+    const lowercasedFilter = searchTerm.toLowerCase();
+    const filtered = requests.filter(request =>
+      request.users.$values.some(user =>
+        user.name.toLowerCase().includes(lowercasedFilter)
+      )
+    );
+    setFilteredRequests(filtered);
+    setCurrentPage(1);
+  }, [searchTerm, requests]);
+
   const columns = [
     { name: "CUSTOMER", uid: "user" },
     { name: "REQUEST NAME", uid: "requestName" },
     { name: "DESCRIPTION", uid: "description" },
-    { name: "TYPE", uid: "type" }, // New combined column
+    { name: "DESIGN", uid: "design" },
+    { name: "SAMPLE", uid: "sample" },
     { name: "ACTIONS", uid: "actions" },
   ];
 
@@ -91,14 +107,18 @@ const DesignAndSampleStaff: React.FC = () => {
             <span className="truncate max-w-xs">{request.description}</span>
           </Tooltip>
         );
-      case "type":
-        if (design) {
-          return <Chip color="primary" variant="flat">Design</Chip>;
-        } else if (sample) {
-          return <Chip color="secondary" variant="flat">Sample</Chip>;
-        } else {
-          return "N/A";
-        }
+      case "design":
+        return design ? (
+          <Chip color="primary" variant="flat">
+            {design.designName}
+          </Chip>
+        ) : "N/A";
+      case "sample":
+        return sample ? (
+          <Chip color="secondary" variant="flat">
+            {sample.sampleName}
+          </Chip>
+        ) : "N/A";
       case "actions":
         return (
           <Button color="primary" onClick={() => handleCreateContract(request)}>
@@ -110,15 +130,27 @@ const DesignAndSampleStaff: React.FC = () => {
     }
   };
 
-  const paginatedRequests = requests.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedRequests = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return filteredRequests.slice(start, end);
+  }, [currentPage, filteredRequests]);
 
   return (
     <DefaultStaffLayout>
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Design & Sample Management</h1>
+        <div className="flex justify-between items-center mb-4">
+          <Input
+            isClearable
+            className="w-full sm:max-w-[44%]"
+            placeholder="Search by customer name..."
+            startContent={<SearchIcon />}
+            value={searchTerm}
+            onClear={() => setSearchTerm("")}
+            onValueChange={setSearchTerm}
+          />
+        </div>
         <Table aria-label="User Requests Table">
           <TableHeader columns={columns}>
             {(column) => (
@@ -138,7 +170,7 @@ const DesignAndSampleStaff: React.FC = () => {
 
         <div className="flex justify-center mt-4">
           <Pagination
-            total={Math.ceil(requests.length / itemsPerPage)}
+            total={Math.ceil(filteredRequests.length / itemsPerPage)}
             page={currentPage}
             onChange={setCurrentPage}
           />
@@ -163,4 +195,4 @@ const DesignAndSampleStaff: React.FC = () => {
   );
 };
 
-export default DesignAndSampleStaff;
+export default DesignAndSample;

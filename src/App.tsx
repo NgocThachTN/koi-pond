@@ -32,11 +32,10 @@ import Dashboard from "@/pages/Manager/dashbroad/Dashbroad";
 import StaffManagement from "@/pages/Manager/user-management/staff";
 import CustomerManagement from "@/pages/Manager/user-management/customers";
 import DesignAndSample from "@/pages/Manager/request-management/design-and-sample";
-import MaintenanceManagement from "@/pages/Manager/request-management/maintenance";
+import Maintenance from "@/pages/Manager/request-management/maintenance";
 import FeedbackManagement from "@/pages/Manager/feedback-management/feedback-management";
 import ContractManagement from "@/pages/Manager/contract-management/contract-management";
-import Statistics from "@/pages/Manager/statistics/statistics";
-
+import MaintenanceManagement from "@/pages/Manager/maintenance-management/maintenance-management";
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { isAuthenticated, userRole } = useAuth();
   const location = useLocation();
@@ -193,10 +192,11 @@ function App() {
           isAuthenticated && userRole === 'Manager' ? <ContractManagement /> : <Navigate to="/manager/contract-management" />
         }
       />
+
       <Route
-        path="/manager/statistics"
+        path="/manager/maintenance-management"
         element={
-          isAuthenticated && userRole === 'Manager' ? <Statistics /> : <Navigate to="/manager/statistics" />
+          isAuthenticated && userRole === 'Manager' ? <MaintenanceManagement /> : <Navigate to="/manager/maintenance-management" />
         }
       />
 

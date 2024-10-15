@@ -1,16 +1,16 @@
 import React from 'react';
 import DefaultManagerLayout from "@/layouts/defaultmanager";
 
-const Statistics: React.FC = () => {
+const MaintenanceManagement: React.FC = () => {
   return (
     <DefaultManagerLayout>
       <div>
-        <h1>Statistics</h1>
-        <p>View overall statistics and reports here</p>
+        <h1>Maintenance Management</h1>
+        <p>View maintenance requests here</p>
         {/* Add various statistics, charts, and reports here */}
       </div>
     </DefaultManagerLayout>
   );
 };
 
-export default Statistics;
+export default MaintenanceManagement;

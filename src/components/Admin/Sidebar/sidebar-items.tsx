@@ -71,10 +71,10 @@ export const items: SidebarItem[] = [
     title: "Contract Management",
   },
   {
-    key: "statistics",
-    href: "/manager/statistics",
+    key: "maintenance-management",
+    href: "/manager/maintenance-management",
     icon: "solar:chart-2-linear",
-    title: "Statistics",
+    title: "Maintenance Management",
   },
 
 ];
