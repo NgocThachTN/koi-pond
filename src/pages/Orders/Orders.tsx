@@ -290,7 +290,7 @@ function OrdersPage() {
                         label="Full Name"
                         variant="flat"
                         isReadOnly
-
+                        value={selectedItem?.users.$values[0]?.name || ''}
                         startContent={<FaLeaf className="text-violet-500" />}
                       />
                       <Input
@@ -298,121 +298,41 @@ function OrdersPage() {
                         type="email"
                         variant="flat"
                         isReadOnly
-
+                        value={selectedItem?.users.$values[0]?.email || ''}
                         startContent={<FaEnvelope className="text-violet-500" />}
                       />
                       <Input
                         label="Phone Number"
                         variant="flat"
                         isReadOnly
-
+                        value={selectedItem?.users.$values[0]?.phoneNumber || ''}
                         startContent={<FaPhone className="text-violet-500" />}
                       />
                       <Input
                         label="Address"
                         variant="flat"
                         isReadOnly
-
+                        value={selectedItem?.users.$values[0]?.address || ''}
                         startContent={<FaMapMarkerAlt className="text-violet-500" />}
                       />
                     </div>
 
                     <Select
-                      label="Request Name"
+                      label="Services"
                       placeholder="Choose the type of Koi pond"
                       variant="faded"
                       startContent={<FaList className="text-violet-500" />}
 
                     >
-                      <SelectItem key="Landscape Design and Construction" value="Landscape Design and Construction">Landscape Design and Construction</SelectItem>
-                      <SelectItem key="Garden Design and Construction" value="Garden Design and Construction">Garden Design and Construction</SelectItem>
-                      <SelectItem key="Patio Design and Construction" value="Patio Design and Construction">Patio Design and Construction</SelectItem>
-                      <SelectItem key="Koi Pond Design and Construction" value="Koi Pond Design and Construction">Koi Pond Design and Construction</SelectItem>
-                      <SelectItem key="Vertical Garden Design and Construction" value="Vertical Garden Design and Construction">Vertical Garden Design and Construction</SelectItem>
+                      <SelectItem key="Pond Cleaning" value="Pond Cleaning">Pond Cleaning</SelectItem>
+                      <SelectItem key="Waterfall Inspection" value="Waterfall Inspection">Waterfall Inspection</SelectItem>
+                      <SelectItem key="Garden Pruning" value="Garden Pruning">Garden Pruning</SelectItem>
+                      <SelectItem key="Patio Repair" value="Patio Repair">Patio Repair</SelectItem>
+                      <SelectItem key="Bridge Repainting" value="Bridge Repainting">Bridge Repainting</SelectItem>
+                      <SelectItem key="Fountain Cleaning" value="Fountain Cleaning">Fountain Cleaning</SelectItem>
                       <SelectItem key="Other Services" value="other">Other Services</SelectItem>
                     </Select>
 
-
-                    <Select
-                      label="Type"
-                      placeholder="Choose the service you're interested in"
-                      variant="faded"
-                      startContent={<FaList className="text-violet-500" />}
-
-                    >
-                      <SelectItem key="sample" value="sample">Sample Projects</SelectItem>
-                      <SelectItem key="design" value="design">Custom Design</SelectItem>
-                    </Select>
-
-
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <Select
-                        label="Sample Name"
-                        placeholder="Choose the project type"
-                        variant="faded"
-                        startContent={<FaList className="text-violet-500" />}
-
-                      >
-                        <SelectItem key="Traditional Koi Pond" value="Traditional Koi Pond">Traditional Koi Pond</SelectItem>
-                        <SelectItem key="Modern Koi Pond" value="Modern Koi Pond">Modern Koi Pond</SelectItem>
-                        <SelectItem key="Natural Koi Pond" value="Natural Koi Pond">Natural Koi Pond</SelectItem>
-                        <SelectItem key="Indoor Koi Pond" value="Indoor Koi Pond">Indoor Koi Pond</SelectItem>
-                      </Select>
-
-                      <Select
-                        label="Sample Size"
-                        placeholder="Choose the project size"
-                        variant="faded"
-                        startContent={<FaRuler className="text-violet-500" />}
-
-                      >
-                        <SelectItem key="Small (up to 500 gallons)" value="Small (up to 500 gallons)">Small (up to 500 gallons)</SelectItem>
-                        <SelectItem key="Medium (500-1500 gallons)" value="Medium (500-1500 gallons)">Medium (500-1500 gallons)</SelectItem>
-                        <SelectItem key="Large (1500-5000 gallons)" value="Large (1500-5000 gallons)">Large (1500-5000 gallons)</SelectItem>
-                        <SelectItem key="Extra Large (5000+ gallons)" value="Extra Large (5000+ gallons)">Extra Large (5000+ gallons)</SelectItem>
-                      </Select>
-                    </div>
-
-
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <Select
-                        label="Design Name"
-                        placeholder="Choose the design type"
-                        variant="faded"
-                        startContent={<FaList className="text-violet-500" />}
-
-                      >
-                        <SelectItem key="Traditional Koi Pond" value="Traditional Koi Pond">Traditional Koi Pond</SelectItem>
-                        <SelectItem key="Modern Koi Pond" value="Modern Koi Pond">Modern Koi Pond</SelectItem>
-                        <SelectItem key="Natural Koi Pond" value="Natural Koi Pond">Natural Koi Pond</SelectItem>
-                        <SelectItem key="Zen-style Koi Pond" value="Zen-style Koi Pond">Zen-style Koi Pond</SelectItem>
-                        <SelectItem key="Raised Koi Pond" value="Raised Koi Pond">Raised Koi Pond</SelectItem>
-                      </Select>
-
-                      <Select
-                        label="Design Size"
-                        placeholder="Choose the design size"
-                        variant="faded"
-                        startContent={<FaRuler className="text-violet-500" />}
-
-                      >
-                        <SelectItem key="Small (up to 500 gallons)" value="Small (up to 500 gallons)">Small (up to 500 gallons)</SelectItem>
-                        <SelectItem key="Medium (500-1500 gallons)" value="Medium (500-1500 gallons)">Medium (500-1500 gallons)</SelectItem>
-                        <SelectItem key="Large (1500-5000 gallons)" value="Large (1500-5000 gallons)">Large (1500-5000 gallons)</SelectItem>
-                        <SelectItem key="Extra Large (5000+ gallons)" value="Extra Large (5000+ gallons)">Extra Large (5000+ gallons)</SelectItem>
-                      </Select>
-                    </div>
-
-                    <Textarea
-                      label="Request Details"
-                      placeholder="Describe your requirements in detail"
-                      variant="faded"
-                      minRows={3}
-                      startContent={<FaComments className="text-violet-500 mt-2" />}
-
-                    />
                     <Button
                       type="submit"
                       color="secondary"
