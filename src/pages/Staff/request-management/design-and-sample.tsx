@@ -17,8 +17,10 @@ const DesignAndSample: React.FC = () => {
     const fetchRequests = async () => {
       try {
         const data = await getUserRequestsApi('');
-        setRequests(data);
-        setFilteredRequests(data);
+        // Sắp xếp requests theo requestID giảm dần
+        const sortedData = data.sort((a, b) => parseInt(b.$id) - parseInt(a.$id));
+        setRequests(sortedData);
+        setFilteredRequests(sortedData);
       } catch (error) {
         console.error('Error fetching requests:', error);
       }
@@ -42,8 +44,7 @@ const DesignAndSample: React.FC = () => {
     { name: "CUSTOMER", uid: "user" },
     { name: "REQUEST NAME", uid: "requestName" },
     { name: "DESCRIPTION", uid: "description" },
-    { name: "DESIGN", uid: "design" },
-    { name: "SAMPLE", uid: "sample" },
+    { name: "TYPE", uid: "type" },
     { name: "ACTIONS", uid: "actions" },
   ];
 
@@ -107,18 +108,22 @@ const DesignAndSample: React.FC = () => {
             <span className="truncate max-w-xs">{request.description}</span>
           </Tooltip>
         );
-      case "design":
-        return design ? (
-          <Chip color="primary" variant="flat">
-            {design.designName}
-          </Chip>
-        ) : "N/A";
-      case "sample":
-        return sample ? (
-          <Chip color="secondary" variant="flat">
-            {sample.sampleName}
-          </Chip>
-        ) : "N/A";
+      case "type":
+        if (design) {
+          return (
+            <Chip color="primary" variant="flat">
+              Design
+            </Chip>
+          );
+        } else if (sample) {
+          return (
+            <Chip color="secondary" variant="flat">
+              Sample
+            </Chip>
+          );
+        } else {
+          return "N/A";
+        }
       case "actions":
         return (
           <Button color="primary" onClick={() => handleCreateContract(request)}>
