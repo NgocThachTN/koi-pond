@@ -359,3 +359,86 @@ export interface MaintenanceRequest {
 export const getMaintenanceRequestsApi = () => {
   return http.get<{ data: { $id: string, $values: MaintenanceRequest[] } }>('MaintenanceRequests');
 }
+
+interface UpdateContractByRequestDesignType {
+  requests: Array<{
+    users: Array<{
+      userId: number;
+      accountId: number;
+      name: string;
+      phoneNumber: string;
+      address: string;
+      userName: string;
+      email: string;
+      password: string;
+      roleId: number;
+    }>;
+    designs: Array<{
+      designId: number;
+      designName: string;
+      designSize: string;
+      designPrice: number;
+      designImage: string;
+    }>;
+    requestId: number;
+    requestName: string;
+    description: string;
+  }>;
+  contractId: number;
+  contractName: string;
+  contractStartDate: string;
+  contractEndDate: string;
+  status: string;
+  description: string;
+}
+
+interface UpdateContractResponseType {
+  success: boolean;
+  message: string;
+  // Add any other fields that the API might return
+}
+
+export const updateContractByRequestDesignApi = (contractData: UpdateContractByRequestDesignType) => {
+  return http.put<UpdateContractResponseType>(`Contracts/ByRequestDesign/${contractData.contractId}`, contractData);
+}
+
+interface UpdateContractBySampleType {
+  requests: Array<{
+    users: Array<{
+      userId: number;
+      accountId: number;
+      name: string;
+      phoneNumber: string;
+      address: string;
+      userName: string;
+      email: string;
+      password: string;
+      roleId: number;
+    }>;
+    samples: Array<{
+      sampleId: number;
+      sampleName: string;
+      sampleSize: string;
+      samplePrice: number;
+      sampleImage: string;
+    }>;
+    requestName: string;
+    description: string;
+  }>;
+  contractId: number;
+  contractName: string;
+  contractStartDate: string;
+  contractEndDate: string;
+  status: string;
+  description: string;
+}
+
+interface UpdateContractResponseType {
+  success: boolean;
+  message: string;
+  // Add any other fields that the API might return
+}
+
+export const updateContractBySampleApi = (contractData: UpdateContractBySampleType) => {
+  return http.put<UpdateContractResponseType>(`Contracts/ByRequestSample/${contractData.contractId}`, contractData);
+}
