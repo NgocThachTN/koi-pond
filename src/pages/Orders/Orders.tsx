@@ -123,14 +123,14 @@ function OrdersPage() {
           </Button>
         )
       case "maintenance":
-        return (
+        return item.contractStatus === 'Completed' ? (
           <Button size="sm" color="secondary" onClick={() => {
             setSelectedItem(item)
             onMaintenanceOpen()
           }}>
             Maintenance
           </Button>
-        )
+        ) : null
       default:
         return 'N/A'
     }
