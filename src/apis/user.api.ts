@@ -298,6 +298,70 @@ export const updateContractStatusApi = (updateData: UpdateContractStatusType) =>
   });
 }
 
+export interface MaintenanceRequest {
+  $id: string;
+  requests: {
+    $id: string;
+    $values: Array<{
+      $id: string;
+      users: {
+        $id: string;
+        $values: Array<{
+          $id: string;
+          userId: number;
+          accountId: number;
+          name: string;
+          phoneNumber: string;
+          address: string;
+          userName: string;
+          email: string;
+          password: string;
+          roleId: number;
+        }>;
+      };
+      designs: {
+        $id: string;
+        $values: Array<{
+          designId: number;
+          designName: string;
+          designSize: string;
+          designPrice: number;
+          designImage: string;
+        }>;
+      };
+      samples: {
+        $id: string;
+        $values: Array<{
+          sampleId: number;
+          sampleName: string;
+          sampleSize: string;
+          samplePrice: number;
+          sampleImage: string;
+        }>;
+      };
+      requestId: number;
+      requestName: string;
+      description: string;
+    }>;
+  };
+  maintenance: {
+    $id: string;
+    $values: Array<{
+      maintencaceName: string;
+    }>;
+  };
+  maintenanceRequestId: number;
+  maintenanceRequestStartDate: string;
+  maintenanceRequestEndDate: string;
+  status: string;
+}
+
+export const getMaintenanceRequestsApi = () => {
+  return http.get<{ data: { $id: string, $values: MaintenanceRequest[] } }>('MaintenanceRequests');
+}
+
+
+
 
 
 

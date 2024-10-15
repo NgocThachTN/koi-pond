@@ -1,10 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/defaultuser";
-import { Input, Select, Textarea, Button, Card, CardBody, CardHeader, Divider, Avatar, SelectItem, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/react";
-import { FaLeaf, FaPhone, FaEnvelope, FaMapMarkerAlt, FaRuler, FaList, FaComments, FaCheckCircle } from 'react-icons/fa';
-import { getUserInfoApi, sendSampleRequestApi, sendDesignRequestApi } from '@/apis/user.api';
-import { toast } from 'react-toastify';
+import {
+  Input,
+  Select,
+  Textarea,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Divider,
+  Avatar,
+  SelectItem,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+} from "@nextui-org/react";
+import {
+  FaLeaf,
+  FaPhone,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaRuler,
+  FaList,
+  FaComments,
+  FaCheckCircle,
+} from "react-icons/fa";
+import {
+  getUserInfoApi,
+  sendSampleRequestApi,
+  sendDesignRequestApi,
+} from "@/apis/user.api";
+import { toast } from "react-toastify";
 
 export default function DocsPageUser() {
   return (
@@ -12,7 +42,9 @@ export default function DocsPageUser() {
       <section className="flex flex-col items-center justify-center gap-8 py-12 md:py-16">
         <div className="text-center">
           <h1 className={title({ color: "violet" })}>Garden Design Services</h1>
-          <p className="mt-4 text-lg text-violet-600">We turn your ideas into reality</p>
+          <p className="mt-4 text-lg text-violet-600">
+            We turn your ideas into reality
+          </p>
         </div>
         <QuotationForm />
       </section>
@@ -26,10 +58,10 @@ function QuotationForm() {
   const [selectedSampleName, setSelectedSampleName] = useState("");
   const [selectedDesignName, setSelectedDesignName] = useState("");
   const [userInfo, setUserInfo] = useState({
-    name: '',
-    email: '',
-    phoneNumber: '',
-    address: ''
+    name: "",
+    email: "",
+    phoneNumber: "",
+    address: "",
   });
   const [isLoading, setIsLoading] = useState(true);
   const [description, setDescription] = useState("");
@@ -48,27 +80,29 @@ function QuotationForm() {
       const response = await getUserInfoApi();
       if (response.data) {
         if (Array.isArray(response.data.$values)) {
-          const loggedInUserEmail = localStorage.getItem('userEmail');
-          const user = response.data.$values.find((u: any) => u.email === loggedInUserEmail);
+          const loggedInUserEmail = localStorage.getItem("userEmail");
+          const user = response.data.$values.find(
+            (u: any) => u.email === loggedInUserEmail
+          );
           if (user) {
             setUserInfo({
-              name: user.name || '',
-              email: user.email || '',
-              phoneNumber: user.phoneNumber || '',
-              address: user.address || ''
+              name: user.name || "",
+              email: user.email || "",
+              phoneNumber: user.phoneNumber || "",
+              address: user.address || "",
             });
           }
-        } else if (typeof response.data === 'object') {
+        } else if (typeof response.data === "object") {
           setUserInfo({
-            name: response.data.name || '',
-            email: response.data.email || '',
-            phoneNumber: response.data.phoneNumber || '',
-            address: response.data.address || ''
+            name: response.data.name || "",
+            email: response.data.email || "",
+            phoneNumber: response.data.phoneNumber || "",
+            address: response.data.address || "",
           });
         }
       }
     } catch (error) {
-      console.error('Failed to fetch user info:', error);
+      console.error("Failed to fetch user info:", error);
     } finally {
       setIsLoading(false);
     }
@@ -134,7 +168,7 @@ function QuotationForm() {
         toast.error("Failed to submit request. Please try again.");
       }
     } catch (error) {
-      console.error('Error submitting request:', error);
+      console.error("Error submitting request:", error);
       toast.error("An error occurred. Please try again later.");
     }
   };
@@ -150,7 +184,9 @@ function QuotationForm() {
           <Avatar icon={<FaLeaf size={24} />} className="bg-violet-800" />
           <div className="flex flex-col">
             <p className="text-2xl font-bold">Request a Quote</p>
-            <p className="text-small text-white/60">Fill in the details and we'll get back to you</p>
+            <p className="text-small text-white/60">
+              Fill in the details and we'll get back to you
+            </p>
           </div>
         </CardHeader>
         <Divider />
@@ -195,12 +231,33 @@ function QuotationForm() {
               startContent={<FaList className="text-violet-500" />}
               onChange={(e) => setSelectedRequestType(e.target.value)}
             >
-              <SelectItem key="Landscape Design and Construction" value="Landscape Design and Construction">Landscape Design and Construction</SelectItem>
-              <SelectItem key="Garden Design and Construction" value="Garden Design and Construction">Garden Design and Construction</SelectItem>
-              <SelectItem key="Patio Design and Construction" value="Patio Design and Construction">Patio Design and Construction</SelectItem>
-              <SelectItem key="Koi Pond Design and Construction" value="Koi Pond Design and Construction">Koi Pond Design and Construction</SelectItem>
-              <SelectItem key="Vertical Garden Design and Construction" value="Vertical Garden Design and Construction">Vertical Garden Design and Construction</SelectItem>
-              <SelectItem key="Other Services" value="other">Other Services</SelectItem>
+              <SelectItem
+                key="Mini Koi Pond
+"
+                value="Mini Koi Pond
+"
+              >
+                Mini Koi Pond
+              </SelectItem>
+              <SelectItem
+                key="Koi Pond Garden
+"
+                value="Koi Pond Garden
+"
+              >
+                Koi Pond Garden
+              </SelectItem>
+              <SelectItem
+                key="Koi Pond Indoor
+"
+                value="Koi Pond Indoor
+"
+              >
+                Koi Pond Indoor
+              </SelectItem>
+              <SelectItem key="Other Services" value="other">
+                Other Services
+              </SelectItem>
             </Select>
 
             {selectedRequestType && (
@@ -211,8 +268,12 @@ function QuotationForm() {
                 startContent={<FaList className="text-violet-500" />}
                 onChange={(e) => setSelectedService(e.target.value)}
               >
-                <SelectItem key="sample" value="sample">Sample Projects</SelectItem>
-                <SelectItem key="design" value="design">Custom Design</SelectItem>
+                <SelectItem key="sample" value="sample">
+                  Sample Projects
+                </SelectItem>
+                <SelectItem key="design" value="design">
+                  Custom Design
+                </SelectItem>
               </Select>
             )}
 
@@ -225,10 +286,21 @@ function QuotationForm() {
                   startContent={<FaList className="text-violet-500" />}
                   onChange={(e) => setSelectedSampleName(e.target.value)}
                 >
-                  <SelectItem key="Traditional Koi Pond" value="Traditional Koi Pond">Traditional Koi Pond</SelectItem>
-                  <SelectItem key="Modern Koi Pond" value="Modern Koi Pond">Modern Koi Pond</SelectItem>
-                  <SelectItem key="Natural Koi Pond" value="Natural Koi Pond">Natural Koi Pond</SelectItem>
-                  <SelectItem key="Indoor Koi Pond" value="Indoor Koi Pond">Indoor Koi Pond</SelectItem>
+                  <SelectItem
+                    key="Traditional Koi Pond"
+                    value="Traditional Koi Pond"
+                  >
+                    Traditional Koi Pond
+                  </SelectItem>
+                  <SelectItem key="Modern Koi Pond" value="Modern Koi Pond">
+                    Modern Koi Pond
+                  </SelectItem>
+                  <SelectItem key="Natural Koi Pond" value="Natural Koi Pond">
+                    Natural Koi Pond
+                  </SelectItem>
+                  <SelectItem key="Indoor Koi Pond" value="Indoor Koi Pond">
+                    Indoor Koi Pond
+                  </SelectItem>
                 </Select>
 
                 <Select
@@ -238,10 +310,30 @@ function QuotationForm() {
                   startContent={<FaRuler className="text-violet-500" />}
                   onChange={(e) => setSize(e.target.value)}
                 >
-                  <SelectItem key="Small (up to 500 gallons)" value="Small (up to 500 gallons)">Small (up to 500 gallons)</SelectItem>
-                  <SelectItem key="Medium (500-1500 gallons)" value="Medium (500-1500 gallons)">Medium (500-1500 gallons)</SelectItem>
-                  <SelectItem key="Large (1500-5000 gallons)" value="Large (1500-5000 gallons)">Large (1500-5000 gallons)</SelectItem>
-                  <SelectItem key="Extra Large (5000+ gallons)" value="Extra Large (5000+ gallons)">Extra Large (5000+ gallons)</SelectItem>
+                  <SelectItem
+                    key="Small (up to 500 gallons)"
+                    value="Small (up to 500 gallons)"
+                  >
+                    Small (up to 500 gallons)
+                  </SelectItem>
+                  <SelectItem
+                    key="Medium (500-1500 gallons)"
+                    value="Medium (500-1500 gallons)"
+                  >
+                    Medium (500-1500 gallons)
+                  </SelectItem>
+                  <SelectItem
+                    key="Large (1500-5000 gallons)"
+                    value="Large (1500-5000 gallons)"
+                  >
+                    Large (1500-5000 gallons)
+                  </SelectItem>
+                  <SelectItem
+                    key="Extra Large (5000+ gallons)"
+                    value="Extra Large (5000+ gallons)"
+                  >
+                    Extra Large (5000+ gallons)
+                  </SelectItem>
                 </Select>
               </div>
             )}
@@ -255,11 +347,27 @@ function QuotationForm() {
                   startContent={<FaList className="text-violet-500" />}
                   onChange={(e) => setSelectedDesignName(e.target.value)}
                 >
-                  <SelectItem key="Traditional Koi Pond" value="Traditional Koi Pond">Traditional Koi Pond</SelectItem>
-                  <SelectItem key="Modern Koi Pond" value="Modern Koi Pond">Modern Koi Pond</SelectItem>
-                  <SelectItem key="Natural Koi Pond" value="Natural Koi Pond">Natural Koi Pond</SelectItem>
-                  <SelectItem key="Zen-style Koi Pond" value="Zen-style Koi Pond">Zen-style Koi Pond</SelectItem>
-                  <SelectItem key="Raised Koi Pond" value="Raised Koi Pond">Raised Koi Pond</SelectItem>
+                  <SelectItem
+                    key="Traditional Koi Pond"
+                    value="Traditional Koi Pond"
+                  >
+                    Traditional Koi Pond
+                  </SelectItem>
+                  <SelectItem key="Modern Koi Pond" value="Modern Koi Pond">
+                    Modern Koi Pond
+                  </SelectItem>
+                  <SelectItem key="Natural Koi Pond" value="Natural Koi Pond">
+                    Natural Koi Pond
+                  </SelectItem>
+                  <SelectItem
+                    key="Zen-style Koi Pond"
+                    value="Zen-style Koi Pond"
+                  >
+                    Zen-style Koi Pond
+                  </SelectItem>
+                  <SelectItem key="Raised Koi Pond" value="Raised Koi Pond">
+                    Raised Koi Pond
+                  </SelectItem>
                 </Select>
 
                 <Select
@@ -269,10 +377,30 @@ function QuotationForm() {
                   startContent={<FaRuler className="text-violet-500" />}
                   onChange={(e) => setSize(e.target.value)}
                 >
-                  <SelectItem key="Small (up to 500 gallons)" value="Small (up to 500 gallons)">Small (up to 500 gallons)</SelectItem>
-                  <SelectItem key="Medium (500-1500 gallons)" value="Medium (500-1500 gallons)">Medium (500-1500 gallons)</SelectItem>
-                  <SelectItem key="Large (1500-5000 gallons)" value="Large (1500-5000 gallons)">Large (1500-5000 gallons)</SelectItem>
-                  <SelectItem key="Extra Large (5000+ gallons)" value="Extra Large (5000+ gallons)">Extra Large (5000+ gallons)</SelectItem>
+                  <SelectItem
+                    key="Small (up to 500 gallons)"
+                    value="Small (up to 500 gallons)"
+                  >
+                    Small (up to 500 gallons)
+                  </SelectItem>
+                  <SelectItem
+                    key="Medium (500-1500 gallons)"
+                    value="Medium (500-1500 gallons)"
+                  >
+                    Medium (500-1500 gallons)
+                  </SelectItem>
+                  <SelectItem
+                    key="Large (1500-5000 gallons)"
+                    value="Large (1500-5000 gallons)"
+                  >
+                    Large (1500-5000 gallons)
+                  </SelectItem>
+                  <SelectItem
+                    key="Extra Large (5000+ gallons)"
+                    value="Extra Large (5000+ gallons)"
+                  >
+                    Extra Large (5000+ gallons)
+                  </SelectItem>
                 </Select>
               </div>
             )}
@@ -293,7 +421,9 @@ function QuotationForm() {
               Submit Quote Request
             </Button>
           </form>
-          <p className="text-sm text-violet-400 mt-6 text-center">*We typically respond within 24 business hours</p>
+          <p className="text-sm text-violet-400 mt-6 text-center">
+            *We typically respond within 24 business hours
+          </p>
         </CardBody>
       </Card>
 
@@ -305,13 +435,17 @@ function QuotationForm() {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">Request Submitted Successfully</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">
+                Request Submitted Successfully
+              </ModalHeader>
               <ModalBody>
                 <div className="flex items-center gap-4">
                   <FaCheckCircle className="text-green-500 text-4xl" />
                   <p>Your quote request has been submitted successfully!</p>
                 </div>
-                <p className="text-sm text-gray-500 mt-2">We'll get back to you within 24 business hours.</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  We'll get back to you within 24 business hours.
+                </p>
               </ModalBody>
               <ModalFooter>
                 <Button color="secondary" onPress={onClose}>
