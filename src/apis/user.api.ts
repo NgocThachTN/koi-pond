@@ -1,20 +1,18 @@
-import http from "@/utils/https"
-
+import http from "@/utils/https";
 
 interface LoginResType {
-  token: string,
-  role: string,
-  email: string,
-  userName: string, // Change this line from fullName to userName
+  token: string;
+  role: string;
+  email: string;
+  userName: string; // Change this line from fullName to userName
 }
 
 export const loginApi = (email: string, password: string) => {
-  return http.post<LoginResType>('Auth/login', {
+  return http.post<LoginResType>("Auth/login", {
     email: email,
     password: password,
-
-  })
-}
+  });
+};
 
 interface RegisterReqType {
   username: string;
@@ -33,8 +31,8 @@ interface RegisterResType {
 }
 
 export const registerApi = (userData: RegisterReqType) => {
-  return http.post<RegisterResType>('Auth/signup', userData);
-}
+  return http.post<RegisterResType>("Auth/signup", userData);
+};
 
 interface UserInfoType {
   accountId: number;
@@ -47,8 +45,8 @@ interface UserInfoType {
 }
 
 export const getUserInfoApi = () => {
-  return http.get<UserInfoType>('Accounts');
-}
+  return http.get<UserInfoType>("Accounts");
+};
 
 interface DesignRequestType {
   user: {
@@ -78,8 +76,8 @@ interface DesignRequestResType {
 }
 
 export const sendDesignRequestApi = (requestData: DesignRequestType) => {
-  return http.post<DesignRequestResType>('Requests/ByDesign', requestData);
-}
+  return http.post<DesignRequestResType>("Requests/ByDesign", requestData);
+};
 
 interface SampleRequestType {
   user: {
@@ -108,8 +106,8 @@ interface SampleRequestResType {
 }
 
 export const sendSampleRequestApi = (requestData: SampleRequestType) => {
-  return http.post<SampleRequestResType>('Requests/BySample', requestData);
-}
+  return http.post<SampleRequestResType>("Requests/BySample", requestData);
+};
 
 export interface UserRequest {
   $id: string;
@@ -151,12 +149,13 @@ export interface UserRequest {
 }
 
 export const getUserRequestsApi = (email: string): Promise<UserRequest[]> => {
-  return http.get<{ $id: string, $values: UserRequest[] }>(`Requests`)
-    .then(response => {
-      console.log('API response:', response.data); // Log the entire response
+  return http
+    .get<{ $id: string; $values: UserRequest[] }>(`Requests`)
+    .then((response) => {
+      console.log("API response:", response.data); // Log the entire response
       return response.data.$values || [];
     });
-}
+};
 
 interface ContractByRequestDesignType {
   requests: Array<{
@@ -193,9 +192,14 @@ interface ContractResponseType {
   // Add any other fields that the API might return
 }
 
-export const createContractByRequestDesignApi = (contractData: ContractByRequestDesignType) => {
-  return http.post<ContractResponseType>('Contracts/ByRequestDesign', contractData);
-}
+export const createContractByRequestDesignApi = (
+  contractData: ContractByRequestDesignType
+) => {
+  return http.post<ContractResponseType>(
+    "Contracts/ByRequestDesign",
+    contractData
+  );
+};
 
 interface ContractBySampleDesignType {
   requests: Array<{
@@ -239,9 +243,14 @@ interface ContractResponseType {
   // Add any other fields that the API might return
 }
 
-export const createContractBySampleDesignApi = (contractData: ContractBySampleDesignType) => {
-  return http.post<ContractResponseType>('Contracts/BySampleDesign', contractData);
-}
+export const createContractBySampleDesignApi = (
+  contractData: ContractBySampleDesignType
+) => {
+  return http.post<ContractResponseType>(
+    "Contracts/BySampleDesign",
+    contractData
+  );
+};
 
 export interface Contract {
   requests: {
@@ -288,8 +297,8 @@ export interface Contract {
 }
 
 export const getContractsApi = () => {
-  return http.get<Contract[]>('Contracts');
-}
+  return http.get<Contract[]>("Contracts");
+};
 
 interface UpdateContractStatusType {
   contractId: string;
@@ -301,11 +310,16 @@ interface UpdateContractStatusResponseType {
   message: string;
 }
 
-export const updateContractStatusApi = (updateData: UpdateContractStatusType) => {
-  return http.put<UpdateContractStatusResponseType>(`Contracts/${updateData.contractId}/status`, {
-    status: updateData.newStatus
-  });
-}
+export const updateContractStatusApi = (
+  updateData: UpdateContractStatusType
+) => {
+  return http.put<UpdateContractStatusResponseType>(
+    `Contracts/${updateData.contractId}/status`,
+    {
+      status: updateData.newStatus,
+    }
+  );
+};
 
 export interface MaintenanceRequest {
   $id: string;
@@ -366,8 +380,10 @@ export interface MaintenanceRequest {
 }
 
 export const getMaintenanceRequestsApi = () => {
-  return http.get<{ data: { $id: string, $values: MaintenanceRequest[] } }>('MaintenanceRequests');
-}
+  return http.get<{ data: { $id: string; $values: MaintenanceRequest[] } }>(
+    "MaintenanceRequests"
+  );
+};
 
 interface UpdateContractByRequestDesignType {
   requests: Array<{
@@ -407,9 +423,14 @@ interface UpdateContractResponseType {
   // Add any other fields that the API might return
 }
 
-export const updateContractByRequestDesignApi = (contractData: UpdateContractByRequestDesignType) => {
-  return http.put<UpdateContractResponseType>(`Contracts/ByRequestDesign/${contractData.contractId}`, contractData);
-}
+export const updateContractByRequestDesignApi = (
+  contractData: UpdateContractByRequestDesignType
+) => {
+  return http.put<UpdateContractResponseType>(
+    `Contracts/ByRequestDesign/${contractData.contractId}`,
+    contractData
+  );
+};
 
 interface UpdateContractBySampleType {
   requests: Array<{
@@ -448,9 +469,14 @@ interface UpdateContractResponseType {
   // Add any other fields that the API might return
 }
 
-export const updateContractBySampleApi = (contractData: UpdateContractBySampleType) => {
-  return http.put<UpdateContractResponseType>(`Contracts/ByRequestSample/${contractData.contractId}`, contractData);
-}
+export const updateContractBySampleApi = (
+  contractData: UpdateContractBySampleType
+) => {
+  return http.put<UpdateContractResponseType>(
+    `Contracts/ByRequestSample/${contractData.contractId}`,
+    contractData
+  );
+};
 
 interface MaintenanceRequestByDesignType {
   requests: Array<{
@@ -492,9 +518,14 @@ interface MaintenanceRequestResponseType {
   // Add any other fields that the API might return
 }
 
-export const createMaintenanceRequestByDesignApi = (requestData: MaintenanceRequestByDesignType) => {
-  return http.post<MaintenanceRequestResponseType>('MaintenanceRequests/ByMaintenanceRequestDesign', requestData);
-}
+export const createMaintenanceRequestByDesignApi = (
+  requestData: MaintenanceRequestByDesignType
+) => {
+  return http.post<MaintenanceRequestResponseType>(
+    "MaintenanceRequests/ByMaintenanceRequestDesign",
+    requestData
+  );
+};
 
 interface MaintenanceRequestBySampleType {
   requests: Array<{
@@ -536,9 +567,14 @@ interface MaintenanceRequestResponseType {
   // Add any other fields that the API might return
 }
 
-export const createMaintenanceRequestBySampleApi = (requestData: MaintenanceRequestBySampleType) => {
-  return http.post<MaintenanceRequestResponseType>('MaintenanceRequests/ByMaintenanceRequestSample', requestData);
-}
+export const createMaintenanceRequestBySampleApi = (
+  requestData: MaintenanceRequestBySampleType
+) => {
+  return http.post<MaintenanceRequestResponseType>(
+    "MaintenanceRequests/ByMaintenanceRequestSample",
+    requestData
+  );
+};
 
 interface UpdateMaintenanceRequestByDesignType {
   requests: Array<{
@@ -580,12 +616,14 @@ interface UpdateMaintenanceRequestResponseType {
   // Add any other fields that the API might return
 }
 
-export const updateMaintenanceRequestByDesignApi = (requestData: UpdateMaintenanceRequestByDesignType) => {
+export const updateMaintenanceRequestByDesignApi = (
+  requestData: UpdateMaintenanceRequestByDesignType
+) => {
   return http.put<UpdateMaintenanceRequestResponseType>(
     `MaintenanceRequests/ByMaintenanceRequestDesign/${requestData.maintenanceRequestId}`,
     requestData
   );
-}
+};
 
 interface UpdateMaintenanceRequestBySampleType {
   requests: Array<{
@@ -627,9 +665,11 @@ interface UpdateMaintenanceRequestResponseType {
   // Add any other fields that the API might return
 }
 
-export const updateMaintenanceRequestBySampleApi = (requestData: UpdateMaintenanceRequestBySampleType) => {
+export const updateMaintenanceRequestBySampleApi = (
+  requestData: UpdateMaintenanceRequestBySampleType
+) => {
   return http.put<UpdateMaintenanceRequestResponseType>(
     `MaintenanceRequests/ByMaintenanceRequestSample/${requestData.maintenanceRequestId}`,
     requestData
   );
-}
+};
