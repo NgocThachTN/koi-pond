@@ -232,30 +232,30 @@ function QuotationForm() {
               onChange={(e) => setSelectedRequestType(e.target.value)}
             >
               <SelectItem
-                key="Mini Koi Pond
+                key="Mini Koi Ponds
 "
-                value="Mini Koi Pond
+                value="Mini Koi Ponds
 "
               >
                 Mini Koi Pond
               </SelectItem>
               <SelectItem
-                key="Koi Pond Garden
+                key="Koi Pond Gardens
 "
-                value="Koi Pond Garden
+                value="Koi Pond Gardens
 "
               >
                 Koi Pond Garden
               </SelectItem>
               <SelectItem
-                key="Koi Pond Indoor
+                key="Koi Pond Indoors
 "
-                value="Koi Pond Indoor
+                value="Koi Pond Indoors
 "
               >
                 Koi Pond Indoor
               </SelectItem>
-              <SelectItem key="Other Services" value="other">
+              <SelectItem key="Other Services" value="others">
                 Other Services
               </SelectItem>
             </Select>
