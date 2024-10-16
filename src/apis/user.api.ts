@@ -244,38 +244,47 @@ export const createContractBySampleDesignApi = (contractData: ContractBySampleDe
 }
 
 export interface Contract {
-  requests: Array<{
-    users: Array<{
-      name: string;
-      phoneNumber: string;
-      address: string;
-      userName: string;
-      email: string;
-      password: string;
-      roleId: number;
+  requests: {
+    $values: Array<{
+      users: {
+        $values: Array<{
+          name: string;
+          phoneNumber: string;
+          address: string;
+          userName: string;
+          email: string;
+          password: string;
+          roleId: number;
+        }>;
+      };
+      designs: {
+        $values: Array<{
+          constructionTypeName: string;
+          designName: string;
+          designSize: string;
+          designPrice: number;
+          designImage: string;
+        }>;
+      };
+      samples: {
+        $values: Array<{
+          constructionTypeName: string;
+          sampleName: string;
+          sampleSize: string;
+          samplePrice: number;
+          sampleImage: string;
+        }>;
+      };
+      requestName: string;
+      description: string;
     }>;
-    designs: Array<{
-      constructionTypeName: string;
-      designName: string;
-      designSize: string;
-      designPrice: number;
-      designImage: string;
-    }>;
-    samples: Array<{
-      constructionTypeName: string;
-      sampleName: string;
-      sampleSize: string;
-      samplePrice: number;
-      sampleImage: string;
-    }>;
-    requestName: string;
-    description: string;
-  }>;
+  };
   contractName: string;
   contractStartDate: string;
   contractEndDate: string;
   status: string;
   description: string;
+  contractId: string;
 }
 
 export const getContractsApi = () => {
@@ -441,4 +450,186 @@ interface UpdateContractResponseType {
 
 export const updateContractBySampleApi = (contractData: UpdateContractBySampleType) => {
   return http.put<UpdateContractResponseType>(`Contracts/ByRequestSample/${contractData.contractId}`, contractData);
+}
+
+interface MaintenanceRequestByDesignType {
+  requests: Array<{
+    users: Array<{
+      userId: number;
+      accountId: number;
+      name: string;
+      phoneNumber: string;
+      address: string;
+      userName: string;
+      email: string;
+      password: string;
+      roleId: number;
+    }>;
+    designs: Array<{
+      designId: number;
+      designName: string;
+      designSize: string;
+      designPrice: number;
+      designImage: string;
+    }>;
+    requestId: number;
+    requestName: string;
+    description: string;
+  }>;
+  maintenance: Array<{
+    maintencaceName: string;
+  }>;
+  maintenanceRequestId: number;
+  maintenanceRequestStartDate: string;
+  maintenanceRequestEndDate: string;
+  status: string;
+}
+
+interface MaintenanceRequestResponseType {
+  success: boolean;
+  message: string;
+  maintenanceRequestId?: number;
+  // Add any other fields that the API might return
+}
+
+export const createMaintenanceRequestByDesignApi = (requestData: MaintenanceRequestByDesignType) => {
+  return http.post<MaintenanceRequestResponseType>('MaintenanceRequests/ByMaintenanceRequestDesign', requestData);
+}
+
+interface MaintenanceRequestBySampleType {
+  requests: Array<{
+    users: Array<{
+      userId: number;
+      accountId: number;
+      name: string;
+      phoneNumber: string;
+      address: string;
+      userName: string;
+      email: string;
+      password: string;
+      roleId: number;
+    }>;
+    samples: Array<{
+      sampleId: number;
+      sampleName: string;
+      sampleSize: string;
+      samplePrice: number;
+      sampleImage: string;
+    }>;
+    requestId: number;
+    requestName: string;
+    description: string;
+  }>;
+  maintenance: Array<{
+    maintencaceName: string;
+  }>;
+  maintenanceRequestId: number;
+  maintenanceRequestStartDate: string;
+  maintenanceRequestEndDate: string;
+  status: string;
+}
+
+interface MaintenanceRequestResponseType {
+  success: boolean;
+  message: string;
+  maintenanceRequestId?: number;
+  // Add any other fields that the API might return
+}
+
+export const createMaintenanceRequestBySampleApi = (requestData: MaintenanceRequestBySampleType) => {
+  return http.post<MaintenanceRequestResponseType>('MaintenanceRequests/ByMaintenanceRequestSample', requestData);
+}
+
+interface UpdateMaintenanceRequestByDesignType {
+  requests: Array<{
+    users: Array<{
+      userId: number;
+      accountId: number;
+      name: string;
+      phoneNumber: string;
+      address: string;
+      userName: string;
+      email: string;
+      password: string;
+      roleId: number;
+    }>;
+    designs: Array<{
+      designId: number;
+      designName: string;
+      designSize: string;
+      designPrice: number;
+      designImage: string;
+    }>;
+    requestId: number;
+    requestName: string;
+    description: string;
+  }>;
+  maintenance: Array<{
+    maintencaceName: string;
+  }>;
+  maintenanceRequestId: number;
+  maintenanceRequestStartDate: string;
+  maintenanceRequestEndDate: string;
+  status: string;
+}
+
+interface UpdateMaintenanceRequestResponseType {
+  success: boolean;
+  message: string;
+  maintenanceRequestId?: number;
+  // Add any other fields that the API might return
+}
+
+export const updateMaintenanceRequestByDesignApi = (requestData: UpdateMaintenanceRequestByDesignType) => {
+  return http.put<UpdateMaintenanceRequestResponseType>(
+    `MaintenanceRequests/ByMaintenanceRequestDesign/${requestData.maintenanceRequestId}`,
+    requestData
+  );
+}
+
+interface UpdateMaintenanceRequestBySampleType {
+  requests: Array<{
+    users: Array<{
+      userId: number;
+      accountId: number;
+      name: string;
+      phoneNumber: string;
+      address: string;
+      userName: string;
+      email: string;
+      password: string;
+      roleId: number;
+    }>;
+    samples: Array<{
+      sampleId: number;
+      sampleName: string;
+      sampleSize: string;
+      samplePrice: number;
+      sampleImage: string;
+    }>;
+    requestId: number;
+    requestName: string;
+    description: string;
+  }>;
+  maintenance: Array<{
+    maintencaceName: string;
+  }>;
+  maintenanceRequestId: number;
+  maintenanceRequestStartDate: string;
+  maintenanceRequestEndDate: string;
+  status: string;
+}
+
+interface UpdateMaintenanceRequestResponseType {
+  success: boolean;
+  message: string;
+  maintenanceRequestId?: number;
+  // Add any other fields that the API might return
+}
+
+export const updateMaintenanceRequestBySampleApi = (requestData: UpdateMaintenanceRequestBySampleType) => {
+  return http.put<UpdateMaintenanceRequestResponseType>(
+    `MaintenanceRequests/ByMaintenanceRequestSample/${requestData.maintenanceRequestId}`,
+    requestData
+  );
 }

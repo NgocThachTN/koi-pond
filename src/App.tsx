@@ -1,3 +1,4 @@
+crossOriginIsolated
 import React, { useEffect } from "react";
 import { Route, Routes, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from '@apis/authen'; // Đảm bảo đường dẫn này chính xác
