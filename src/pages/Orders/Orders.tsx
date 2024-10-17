@@ -93,6 +93,14 @@ function OrdersPage() {
   }, [])
 
   const allItems = React.useMemo(() => {
+    // Create a Set of requestIds that are associated with contracts
+    const contractRequestIds = new Set(
+      contracts.flatMap(contract =>
+        contract.requests.$values.map(request => request.requestId)
+      )
+    );
+
+    // Map contract items
     const contractItems = contracts.flatMap(contract =>
       contract.requests.$values.map(request => ({
         ...request,
@@ -102,22 +110,25 @@ function OrdersPage() {
         contractId: contract.contractId,
         contractStartDate: contract.contractStartDate,
         contractEndDate: contract.contractEndDate,
-        contractDescription: contract.description, // Add this line
+        contractDescription: contract.description,
       }))
     );
 
-    const standaloneRequests = requests.map(request => ({
-      ...request,
-      contractStatus: 'Pending',
-      hasContract: false,
-      contractName: 'N/A',
-      contractId: null,
-      contractStartDate: null,
-      contractEndDate: null,
-    }));
+    // Filter standalone requests to exclude those that now have contracts
+    const standaloneRequests = requests
+      .filter(request => !contractRequestIds.has(request.requestId))
+      .map(request => ({
+        ...request,
+        contractStatus: 'Pending',
+        hasContract: false,
+        contractName: 'N/A',
+        contractId: null,
+        contractStartDate: null,
+        contractEndDate: null,
+      }));
 
     return [...contractItems, ...standaloneRequests];
-  }, [contracts, requests])
+  }, [contracts, requests]);
 
   const pages = Math.ceil(allItems.length / rowsPerPage)
 
