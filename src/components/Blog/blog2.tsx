@@ -56,42 +56,42 @@ export default function Blog2Page() {
           </p>
         </CardBody>
         <CardBody>
-        <div className="grid grid-cols-2 grid-rows-2 gap-2 aspect-[4/3]">
-  <div className="row-span-2 col-span-1">
-    <Image
-      src={images[0].src}
-      alt={images[0].alt}
-      className="object-cover w-full h-full"
-      width={600}
-      height={800}
-    />
-  </div>
-  <div className="col-span-1">
-    <Image
-      src={images[1].src}
-      alt={images[1].alt}
-      className="object-cover w-full h-full"
-      width={600}
-      height={400}
-    />
-  </div>
-  <div className="col-span-1 grid grid-cols-2 gap-2">
-    <Image
-      src={images[2].src}
-      alt={images[2].alt}
-      className="object-cover w-full h-full"
-      width={300}
-      height={340}
-    />
-    <Image
-      src={images[3].src}
-      alt={images[3].alt}
-      className="object-cover w-full h-full"
-      width={300}
-      height={340}
-    />
-  </div>
-</div>
+          <div className="grid grid-cols-2 grid-rows-2 gap-2 aspect-[4/3]">
+            <div className="row-span-2 col-span-1">
+              <Image
+                src={images[0].src}
+                alt={images[0].alt}
+                className="object-cover w-full h-full"
+                width={600}
+                height={800}
+              />
+            </div>
+            <div className="col-span-1">
+              <Image
+                src={images[1].src}
+                alt={images[1].alt}
+                className="object-cover w-full h-full"
+                width={600}
+                height={400}
+              />
+            </div>
+            <div className="col-span-1 grid grid-cols-2 gap-2">
+              <Image
+                src={images[2].src}
+                alt={images[2].alt}
+                className="object-cover w-full h-full"
+                width={300}
+                height={340}
+              />
+              <Image
+                src={images[3].src}
+                alt={images[3].alt}
+                className="object-cover w-full h-full"
+                width={300}
+                height={340}
+              />
+            </div>
+          </div>
         </CardBody>
 
       </Card>

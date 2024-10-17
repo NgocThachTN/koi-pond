@@ -2,7 +2,7 @@ import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import { Card, CardBody, CardHeader, Image, Divider } from "@nextui-org/react";
 
-export default function Blog1PageUser() {
+export default function Blog1Page() {
   return (
     <DefaultLayout>
       <div className="max-w-[900px] mx-auto px-6">
@@ -25,7 +25,7 @@ export default function Blog1PageUser() {
             </CardHeader>
             <CardBody>
               <p>
-                Mini koi ponds are a compact version of traditional koi ponds, designed to fit in smaller spaces. 
+                Mini koi ponds are a compact version of traditional koi ponds, designed to fit in smaller spaces.
                 They offer a beautiful and tranquil addition to homes, featuring:
               </p>
               <ul className="list-disc list-inside my-2">
@@ -35,8 +35,8 @@ export default function Blog1PageUser() {
                 <li>A perfect blend of aesthetics and functionality</li>
               </ul>
               <p>
-                These miniature ponds are ideal for those who want to enjoy the beauty of koi fish without 
-                the need for a large outdoor space. They can be installed in various locations such as patios, 
+                These miniature ponds are ideal for those who want to enjoy the beauty of koi fish without
+                the need for a large outdoor space. They can be installed in various locations such as patios,
                 balconies, or even indoors, adding a unique and calming element to your living space.
               </p>
             </CardBody>
@@ -49,7 +49,7 @@ export default function Blog1PageUser() {
                     className="object-cover"
                     height={230}
                     width={398.5}
-                                      />
+                  />
                 </div>
                 <div className="col-span-1 relative h-1/2">
                   <Image
@@ -58,7 +58,7 @@ export default function Blog1PageUser() {
                     className="object-cover"
                     height={230}
                     width={398.5}
-                  
+
                   />
                 </div>
                 <div className="col-span-2 relative h-1/2">

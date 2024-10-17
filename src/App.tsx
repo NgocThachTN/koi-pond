@@ -36,6 +36,7 @@ import DesignAndSample from "@/pages/Manager/request-management/design-and-sampl
 import MaintenanceManagement from "@/pages/Manager/request-management/maintenance";
 import FeedbackManagement from "@/pages/Manager/feedback-management/feedback-management";
 import ContractManagement from "@/pages/Manager/contract-management/contract-management";
+import Blog3PageUser from "./components/Blog/blog3";
 
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { isAuthenticated, userRole } = useAuth();
@@ -141,6 +142,9 @@ function App() {
       <Route element={isAuthenticated ? <DocsPageUser /> : <Navigate to="/docsuser" />} path="/docsuser" />
       <Route element={isAuthenticated ? <OrdersPage /> : <Navigate to="/orders" />} path="/orders" />
       <Route element={isAuthenticated ? <PricingPageUser2 /> : <Navigate to="/pricinguser2" />} path="/pricinguser2" />
+      <Route element={isAuthenticated ? <Blog1Page /> : <Navigate to="/blog/blog1" />} path="/blog/blog1" />
+      <Route element={isAuthenticated ? <Blog2Page /> : <Navigate to="/blog/blog2" />} path="/blog/blog2" />
+      <Route element={isAuthenticated ? <Blog3Page /> : <Navigate to="/blog/blog3" />} path="/blog/blog3" />
 
       {/* Manager Pages */}
       <Route
