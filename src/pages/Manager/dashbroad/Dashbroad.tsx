@@ -92,36 +92,36 @@ const Dashboard = () => {
   };
 
   const renderCell = (request: UserRequest, columnKey: React.Key) => {
-    const user = request.users.$values[0];
-    const design = request.designs.$values[0];
-    const sample = request.samples.$values[0];
+    const user = request?.users?.$values?.[0] || {};
+    const design = request?.designs?.$values?.[0];
+    const sample = request?.samples?.$values?.[0];
 
     switch (columnKey) {
       case "user":
         return (
           <div>
-            <div className="font-semibold">{user.name}</div>
-            <div className="text-sm text-gray-500">{user.email}</div>
+            <div className="font-semibold">{user?.name || 'N/A'}</div>
+            <div className="text-sm text-gray-500">{user?.email || 'N/A'}</div>
           </div>
         );
       case "requestName":
-        return request.requestName;
+        return request?.requestName || 'N/A';
       case "description":
         return (
-          <Tooltip content={request.description}>
-            <span className="truncate max-w-xs">{request.description}</span>
+          <Tooltip content={request?.description || 'No description'}>
+            <span className="truncate max-w-xs">{request?.description || 'No description'}</span>
           </Tooltip>
         );
       case "design":
         return design ? (
           <Chip color="primary" variant="flat">
-            {design.designName}
+            {design.designName || 'Unnamed Design'}
           </Chip>
         ) : "N/A";
       case "sample":
         return sample ? (
           <Chip color="secondary" variant="flat">
-            {sample.sampleName}
+            {sample.sampleName || 'Unnamed Sample'}
           </Chip>
         ) : "N/A";
       default:

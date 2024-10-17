@@ -108,7 +108,7 @@ const DesignAndSample: React.FC = () => {
   };
 
   const renderCell = (request: UserRequest, columnKey: React.Key) => {
-    const user = request.users.$values[0];
+    const user = request.users.$values[0] || {};
     const design = request.designs.$values[0];
     const sample = request.samples.$values[0];
 
@@ -116,16 +116,16 @@ const DesignAndSample: React.FC = () => {
       case "user":
         return (
           <div>
-            <div className="font-semibold">{user.name}</div>
-            <div className="text-sm text-gray-500">{user.email}</div>
+            <div className="font-semibold">{user.name || 'N/A'}</div>
+            <div className="text-sm text-gray-500">{user.email || 'N/A'}</div>
           </div>
         );
       case "requestName":
-        return request.requestName;
+        return request.requestName || 'N/A';
       case "description":
         return (
-          <Tooltip content={request.description}>
-            <span className="truncate max-w-xs">{request.description}</span>
+          <Tooltip content={request.description || 'No description'}>
+            <span className="truncate max-w-xs">{request.description || 'N/A'}</span>
           </Tooltip>
         );
       case "type":
