@@ -43,7 +43,7 @@ export const sendOrderConfirmationEmail = async (orderData: OrderData, userInfo:
 
     const response = await emailjs.send(
       'service_7j8sfrj',//gmail
-      'template_5vui496', // order confirmation
+      'template_5vui496', // order confirmation template id
       templateParams,
       'FRgD0i9Ehba1JgB4F'
     );
@@ -72,7 +72,7 @@ export const sendOrderCompletionEmail = async (orderData: CompletedOrderData) =>
 
     const response = await emailjs.send(
       'service_7j8sfrj',
-      'template_ryonqq2',//order completion
+      'template_ryonqq2',//order completion template id
       templateParams,
       'FRgD0i9Ehba1JgB4F'
     );
