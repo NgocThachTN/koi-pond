@@ -39,12 +39,7 @@ export const items: SidebarItem[] = [
             },
         ],
     },
-    {
-        key: "feedback-management",
-        href: "/staff/feedback-management",
-        icon: "solar:chat-round-dots-linear",
-        title: "Feedback Management",
-    },
+
     {
         key: "contract-management",
         href: "/staff/contract-management",

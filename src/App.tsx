@@ -28,6 +28,7 @@ import DesignAndSampleStaff from "./pages/Staff/request-management/design-and-sa
 import MaintenanceStaffManagement from "./pages/Staff/request-management/maintenance";
 import ContractStaffManagement from "./pages/Staff/contract-management/contract-management";
 
+
 // Import các trang Manager
 import Dashboard from "@/pages/Manager/dashbroad/Dashbroad";
 import StaffManagement from "@/pages/Manager/user-management/staff";
@@ -35,8 +36,10 @@ import CustomerManagement from "@/pages/Manager/user-management/customers";
 import DesignAndSample from "@/pages/Manager/request-management/design-and-sample";
 import MaintenanceManagement from "@/pages/Manager/request-management/maintenance";
 import FeedbackManagement from "@/pages/Manager/feedback-management/feedback-management";
+import Blog1PageUser from "./components/BlogUser/blog1user";
 import ContractManagement from "@/pages/Manager/contract-management/contract-management";
-import Blog3PageUser from "./components/Blog/blog3";
+import Blog3PageUser from "./components/BlogUser/blog3user";
+import Blog2PageUser from "./components/BlogUser/blog2user";
 
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { isAuthenticated, userRole } = useAuth();
@@ -142,9 +145,9 @@ function App() {
       <Route element={isAuthenticated ? <DocsPageUser /> : <Navigate to="/docsuser" />} path="/docsuser" />
       <Route element={isAuthenticated ? <OrdersPage /> : <Navigate to="/orders" />} path="/orders" />
       <Route element={isAuthenticated ? <PricingPageUser2 /> : <Navigate to="/pricinguser2" />} path="/pricinguser2" />
-      <Route element={isAuthenticated ? <Blog1Page /> : <Navigate to="/blog/blog1" />} path="/blog/blog1" />
-      <Route element={isAuthenticated ? <Blog2Page /> : <Navigate to="/blog/blog2" />} path="/blog/blog2" />
-      <Route element={isAuthenticated ? <Blog3Page /> : <Navigate to="/blog/blog3" />} path="/blog/blog3" />
+      <Route element={isAuthenticated ? <Blog1PageUser /> : <Navigate to="/BlogUser/blog1user" />} path="/BlogUser/blog1user" />
+      <Route element={isAuthenticated ? <Blog2PageUser /> : <Navigate to="/BlogUser/blog2user" />} path="/BlogUser/blog2user" />
+      <Route element={isAuthenticated ? <Blog3PageUser /> : <Navigate to="/BlogUser/blog3user" />} path="/BlogUser/blog3user" />
 
       {/* Manager Pages */}
       <Route

@@ -36,6 +36,7 @@ const DesignAndSample: React.FC = () => {
         user.name.toLowerCase().includes(lowercasedFilter)
       )
     );
+    // Không cần sắp xếp lại ở đây vì requests đã được sắp xếp
     setFilteredRequests(filtered);
     setCurrentPage(1);
   }, [searchTerm, requests]);
@@ -66,29 +67,48 @@ const DesignAndSample: React.FC = () => {
 
     try {
       let response;
+      console.log('Attempting to create contract for:', request.requestName);
       if (request.designs.$values.length > 0) {
+        console.log('Creating contract by request design');
         response = await createContractByRequestDesignApi(contractData);
       } else if (request.samples.$values.length > 0) {
+        console.log('Creating contract by sample design');
         response = await createContractBySampleDesignApi(contractData);
       } else {
         throw new Error("Neither design nor sample found in the request");
       }
 
+      console.log('API Response:', response);
+
       if (response.status === 201) {
         setContractId(response.data.$id);
         setIsModalOpen(true);
-        // You might want to refresh the requests list or update the UI here
       } else {
+        console.error('Unexpected response status:', response.status);
         alert(`Failed to create contract: ${response.data.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error creating contract:', error);
-      alert('An error occurred while creating the contract');
+      let errorMessage = 'An unknown error occurred while creating the contract.';
+
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        console.error('Error status:', error.response.status);
+        console.error('Error headers:', error.response.headers);
+        errorMessage = `Server error (${error.response.status}): ${error.response.data.message || 'Unknown server error'}`;
+      } else if (error.request) {
+        console.error('Error request:', error.request);
+        errorMessage = 'No response received from the server. Please check your network connection.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      alert(`Failed to create contract: ${errorMessage}`);
     }
   };
 
   const renderCell = (request: UserRequest, columnKey: React.Key) => {
-    const user = request.users.$values[0];
+    const user = request.users.$values[0] || {};
     const design = request.designs.$values[0];
     const sample = request.samples.$values[0];
 
@@ -96,16 +116,16 @@ const DesignAndSample: React.FC = () => {
       case "user":
         return (
           <div>
-            <div className="font-semibold">{user.name}</div>
-            <div className="text-sm text-gray-500">{user.email}</div>
+            <div className="font-semibold">{user.name || 'N/A'}</div>
+            <div className="text-sm text-gray-500">{user.email || 'N/A'}</div>
           </div>
         );
       case "requestName":
-        return request.requestName;
+        return request.requestName || 'N/A';
       case "description":
         return (
-          <Tooltip content={request.description}>
-            <span className="truncate max-w-xs">{request.description}</span>
+          <Tooltip content={request.description || 'No description'}>
+            <span className="truncate max-w-xs">{request.description || 'N/A'}</span>
           </Tooltip>
         );
       case "type":

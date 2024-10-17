@@ -3,12 +3,12 @@ import { NavbarUser } from '@/components/Navbar/navbaruser'
 import { Card, CardBody, CardHeader, Button, Pagination, Avatar, Input, Select, SelectItem, Textarea } from "@nextui-org/react"
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react"
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/react"
-import { 
-  getContractsApi, 
-  getUserRequestsApi, 
-  Contract, 
-  UserRequest, 
-  createMaintenanceRequestBySampleApi, 
+import {
+  getContractsApi,
+  getUserRequestsApi,
+  Contract,
+  UserRequest,
+  createMaintenanceRequestBySampleApi,
   createMaintenanceRequestByDesignApi,
   MaintenanceRequestBySampleType,
   MaintenanceRequestByDesignType,
@@ -39,30 +39,28 @@ function OrdersPage() {
   const [submitSuccess, setSubmitSuccess] = React.useState(false)
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false)
   const [maintenanceRequests, setMaintenanceRequests] = useState<MaintenanceRequest[]>([])
-  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
       setError(null)
       try {
-        const email = localStorage.getItem('userEmail')
-        setUserEmail(email)
-        if (!email) {
+        const userEmail = localStorage.getItem('userEmail')
+        if (!userEmail) {
           setError('User email not found. Please log in again.')
           return
         }
 
         const [contractsResponse, requestsResponse, maintenanceResponse] = await Promise.all([
           getContractsApi(),
-          getUserRequestsApi(email),
+          getUserRequestsApi(userEmail),
           getMaintenanceRequestsApi()
         ])
 
         if (contractsResponse.data && contractsResponse.data.$values) {
           const userContracts = contractsResponse.data.$values.filter((contract: Contract) =>
             contract.requests.$values.some(request =>
-              request.users.$values.some(user => user.email === email)
+              request.users.$values.some(user => user.email === userEmail)
             )
           )
           setContracts(userContracts)
@@ -70,16 +68,13 @@ function OrdersPage() {
 
         if (requestsResponse) {
           const userRequests = requestsResponse.filter((request: UserRequest) =>
-            request.users.$values.some(user => user.email === email)
+            request.users.$values.some(user => user.email === userEmail)
           )
           setRequests(userRequests)
         }
 
         if (maintenanceResponse.data && maintenanceResponse.data.$values) {
-          console.log('Maintenance Requests:', maintenanceResponse.data.$values)
           setMaintenanceRequests(maintenanceResponse.data.$values)
-        } else {
-          console.log('No maintenance requests found or unexpected data structure')
         }
       } catch (error) {
         console.error('Failed to fetch data:', error)
@@ -367,58 +362,39 @@ function OrdersPage() {
                         )}
                       </CardBody>
                     </Card>
-                    {selectedItem && selectedItem.contractStatus === 'Completed' && (
+                    {selectedItem.contractStatus === 'Completed' && (
                       <Card>
                         <CardHeader>
                           <h3 className="text-xl font-semibold">Maintenance Information</h3>
                         </CardHeader>
                         <CardBody>
-                          {console.log('Selected Item:', selectedItem)}
-                          {console.log('Maintenance Requests:', maintenanceRequests)}
-                          {console.log('User Email:', userEmail)}
-                          {maintenanceRequests.length > 0 ? (
-                            <>
-                              {maintenanceRequests.map((mr, index) => {
-                                console.log(`Checking maintenance request ${index}:`, mr);
-                                const matchingRequest = mr.requests.$values.find(r => 
-                                  r.requestId === selectedItem.requestId ||
-                                  r.requestName === selectedItem.requestName
-                                );
-                                console.log('Matching request:', matchingRequest);
-                                const matchingUser = matchingRequest?.users.$values.find(u => u.email === userEmail);
-                                console.log('Matching user:', matchingUser);
-
-                                if (matchingRequest && matchingUser ) {
-                                  return (
-                                    <div key={index} className="mb-4">
-                                      <p><strong>Maintenance ID:</strong> {mr.maintenanceRequestId}</p>
-                                      <p><strong>Status:</strong> {mr.status}</p>
-                                      <p><strong>Start Date:</strong> {new Date(mr.maintenanceRequestStartDate).toLocaleDateString()}</p>
-                                      <p><strong>End Date:</strong> {new Date(mr.maintenanceRequestEndDate).toLocaleDateString()}</p>
-                                      <p><strong>Services:</strong></p>
-                                      <ul className="list-disc pl-5">
-                                        {mr.maintenance.$values.map((m, idx) => (
-                                          <li key={idx}>{m.maintencaceName}</li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  );
-                                }
-                                return null;
-                              })}
-                            </>
+                          {maintenanceRequests.some(mr =>
+                            mr.requests.$values.some(r =>
+                              r.requestId === selectedItem.requestId &&
+                              r.users.$values.some(u => u.email === localStorage.getItem('userEmail'))
+                            )
+                          ) ? (
+                            maintenanceRequests
+                              .filter(mr => mr.requests.$values.some(r =>
+                                r.requestId === selectedItem.requestId &&
+                                r.users.$values.some(u => u.email === localStorage.getItem('userEmail'))
+                              ))
+                              .map((mr, index) => (
+                                <div key={index} className="mb-4">
+                                  <p><strong>Maintenance ID:</strong> {mr.maintenanceRequestId}</p>
+                                  <p><strong>Start Date:</strong> {new Date(mr.maintenanceRequestStartDate).toLocaleDateString()}</p>
+                                  <p><strong>End Date:</strong> {new Date(mr.maintenanceRequestEndDate).toLocaleDateString()}</p>
+                                  <p><strong>Status:</strong> {mr.status}</p>
+                                  <p><strong>Services:</strong></p>
+                                  <ul className="list-disc pl-5">
+                                    {mr.maintenance.$values.map((m, idx) => (
+                                      <li key={idx}>{m.maintencaceName}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              ))
                           ) : (
-                            <p>No maintenance requests found.</p>
-                          )}
-                          {maintenanceRequests.length > 0 && 
-                           !maintenanceRequests.some(mr => 
-                             mr.requests.$values.some(r => 
-                               (r.requestId === selectedItem.requestId || r.requestName === selectedItem.requestName) && 
-                               r.users.$values.some(u => u.email === userEmail)
-                             ) &&
-                             mr.status === 'Completed'
-                           ) && (
-                            <p>No completed maintenance requests found for this specific item and user.</p>
+                            <p>No maintenance requests found for this item.</p>
                           )}
                         </CardBody>
                       </Card>
