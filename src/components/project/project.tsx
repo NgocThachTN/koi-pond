@@ -1,5 +1,6 @@
 import React from 'react'
-import { Card, CardHeader, CardBody, Image, Button } from "@nextui-org/react"
+import { Card, CardHeader, CardBody, Image } from "@nextui-org/react"
+import { motion } from "framer-motion"
 
 function Project() {
   // Mảng chứa thông tin về các dự án
@@ -19,12 +20,19 @@ function Project() {
       <CardHeader className="flex-col items-start px-4 pt-2 pb-0 space-y-2">
         <p className="text-tiny uppercase font-bold">OUR PROJECT</p>
         <h4 className="text-large font-bold">Dự án nổi bật</h4>
-        
       </CardHeader>
       <CardBody className="overflow-visible py-2">
         <div className="grid grid-cols-4 gap-4">
           {projects.map((project) => (
-            <div key={project.id} className="relative">
+            <motion.div 
+              key={project.id} 
+              className="relative"
+              whileHover={{ 
+                scale: 1.05, 
+                y: -10,
+                transition: { type: "spring", stiffness: 100 }
+              }}
+            >
               <Image
                 alt={`Dự án ${project.name}`}
                 className="object-cover rounded-xl w-full aspect-square"
@@ -33,7 +41,7 @@ function Project() {
               <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-xl opacity-0 hover:opacity-100 transition-opacity duration-300">
                 <p className="text-white text-lg font-bold">{project.name}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </CardBody>

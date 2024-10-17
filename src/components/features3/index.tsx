@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card } from "@nextui-org/react";
+import { Card, CardBody } from "@nextui-org/react";
 import { FaKiwiBird, FaWater, FaTools, FaLeaf } from 'react-icons/fa';
 
 const FeatureCard = ({ icon: Icon, title, description }: { icon: React.ElementType, title: string, description: string }) => {
@@ -9,12 +9,18 @@ const FeatureCard = ({ icon: Icon, title, description }: { icon: React.ElementTy
   }
   
   return (
-    <Card className="max-w-[400px] p-4">
-      <div className="flex items-center gap-3 mb-2">
-        <Icon className="text-default-500" size={24} />
-        <h3 className="text-lg font-semibold">{title}</h3>
-      </div>
-      <p>{description}</p>
+    <Card 
+      className="max-w-[400px] transition-transform duration-200 ease-in-out hover:-translate-y-2"
+      isPressable
+      isHoverable
+    >
+      <CardBody className="p-4">
+        <div className="flex items-center gap-3 mb-2">
+          <Icon className="text-default-500" size={24} />
+          <h3 className="text-lg font-semibold">{title}</h3>
+        </div>
+        <p>{description}</p>
+      </CardBody>
     </Card>
   )
 }

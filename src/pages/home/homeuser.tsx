@@ -1,17 +1,19 @@
+import React, { useEffect } from "react";
+import { motion, useAnimation } from "framer-motion";
 import { Link } from "@nextui-org/link";
-import { Card, CardBody, CardFooter } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";
-import { button as buttonStyles } from "@nextui-org/theme"; // trước khi dùng nhớ npm install --save-dev @iconify/react và npm install clsx tailwind-merge
-import Slider from "react-slick"; //npm install --save-dev @types/react-slick
+import { button as buttonStyles } from "@nextui-org/theme";
+import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";
 import DefaultLayout from "@/layouts/defaultuser";
 import TeamSection from "@/components/TeamSection/TeamSection";
 import Features3 from "@/components/features3/index";
 import Process from "@/components/Process/process";
 import Project from "@/components/project/project";
+import { useInView } from 'react-intersection-observer';
+
 export default function UserPage() {
   const settings = {
     dots: true,
@@ -32,11 +34,25 @@ export default function UserPage() {
   ];
 
   return (
-    <>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <DefaultLayout>
-        <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
+        <motion.section
+          className="flex flex-col items-center justify-center gap-4 py-8 md:py-10"
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
           <div className="w-full flex flex-col md:flex-row items-center">
-            <div className="w-full md:w-2/3">
+            <motion.div
+              className="w-full md:w-2/3"
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+            >
               <Slider {...settings}>
                 {images.map((image, index) => (
                   <div key={index}>
@@ -51,17 +67,39 @@ export default function UserPage() {
                   </div>
                 ))}
               </Slider>
-            </div>
-            <div className="w-full md:w-1/3 p-4 md:p-8">
+            </motion.div>
+            <motion.div
+              className="w-full md:w-1/3 p-4 md:p-8"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
               <div className="text-center md:text-left">
-                <span className={title()}>
+                <motion.span
+                  className={title()}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                >
                   Professional and high-class&nbsp;
-                </span>
-                <span className={title({ color: "violet" })}>
+                </motion.span>
+                <motion.span
+                  className={title({ color: "violet" })}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.6 }}
+                >
                   Koi pond&nbsp;
-                </span>
+                </motion.span>
                 <br />
-                <span className={title()}>design and construction.</span>
+                <motion.span
+                  className={title()}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.8 }}
+                >
+                  design and construction.
+                </motion.span>
                 <div className={subtitle({ class: "mt-4" })}>
                   Bring the beauty of nature into your living space.
                 </div>
@@ -89,15 +127,42 @@ export default function UserPage() {
                   Contact Us
                 </Link>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </section>
-        {/* Thêm Teamsection vào đây */}
-        <Features3 />
-        <Process />
-        <Project />
-        <TeamSection /> {/* Em để TeamSection trên cái components á. */}
+        </motion.section>
+
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <Features3 />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <Process />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <Project />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+        >
+          <TeamSection />
+        </motion.div>
       </DefaultLayout>
-    </>
+    </motion.div>
   );
 }

@@ -1,3 +1,5 @@
+import React, { useEffect, useState } from "react";
+import { motion, useAnimation } from "framer-motion";
 import { Link } from "@nextui-org/link";
 import { Card, CardBody, CardFooter } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";
@@ -13,6 +15,7 @@ import Features3 from "@/components/features3/index";
 import Process from "@/components/Process/process";
 import Project from "@/components/project/project";
 import { AuthProvider } from '@apis/authen';
+import { useInView } from 'react-intersection-observer';
 export default function IndexPage() {
   const settings = {
     dots: true,
@@ -32,11 +35,49 @@ export default function IndexPage() {
     "https://images.pexels.com/photos/27817439/pexels-photo-27817439/free-photo-of-golden-fish.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
   ];
 
+  const controls = useAnimation();
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1, // Adjust this value to control when the animation triggers
+  });
+
+  const [featuresRef, featuresInView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  const [processRef, processInView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  const [projectRef, projectInView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  const [teamRef, teamInView] = useInView({ triggerOnce: true, threshold: 0.1 });
+
+  useEffect(() => {
+    if (inView) {
+      controls.start("visible");
+    }
+  }, [controls, inView]);
+
+  useEffect(() => {
+    if (featuresInView) controls.start("visible");
+  }, [controls, featuresInView]);
+
+  useEffect(() => {
+    if (processInView) controls.start("visible");
+  }, [controls, processInView]);
+
+  useEffect(() => {
+    if (projectInView) controls.start("visible");
+  }, [controls, projectInView]);
+
+  useEffect(() => {
+    if (teamInView) controls.start("visible");
+  }, [controls, teamInView]);
+
   return (
     <DefaultLayout>
       <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
         <div className="w-full flex flex-col md:flex-row items-center">
-          <div className="w-full md:w-2/3">
+          <motion.div
+            className="w-full md:w-2/3"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             <Slider {...settings}>
               {images.map((image, index) => (
                 <div key={index}>
@@ -51,24 +92,55 @@ export default function IndexPage() {
                 </div>
               ))}
             </Slider>
-          </div>
-          <div className="w-full md:w-1/3 p-4 md:p-8">
+          </motion.div>
+          <motion.div
+            className="w-full md:w-1/3 p-4 md:p-8"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <div className="text-center md:text-left">
-              <span className={title()}>
+              <motion.span
+                className={title()}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
                 Professional and high-class&nbsp;
-              </span>
-              <span className={title({ color: "violet" })}>
-                
+              </motion.span>
+              <motion.span
+                className={title({ color: "violet" })}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+              >
                 Koi pond&nbsp;
-              </span>
+              </motion.span>
               <br />
-              <span className={title()}>design and construction.</span>
-              <div className={subtitle({ class: "mt-4" })}>
+              <motion.span
+                className={title()}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.8 }}
+              >
+                design and construction.
+              </motion.span>
+              <motion.div
+                className={subtitle({ class: "mt-4" })}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 1 }}
+              >
                 Bring the beauty of nature into your living space.
-              </div>
+              </motion.div>
             </div>
 
-            <div className="flex gap-3 justify-center md:justify-start mt-6">
+            <motion.div
+              className="flex gap-3 justify-center md:justify-start mt-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 1.2 }}
+            >
               <Link
                 className={buttonStyles({
                   color: "primary",
@@ -88,16 +160,62 @@ export default function IndexPage() {
               >
                 Contact Us
               </Link>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
       
-      {/* Thêm TeamSection vào đây */}
-      <Features3/>
-      <Process/>
-      <Project/>
-      <TeamSection />
+      <motion.div
+        ref={featuresRef}
+        animate={controls}
+        initial="hidden"
+        variants={{
+          visible: { opacity: 1, y: 0 },
+          hidden: { opacity: 0, y: 50 }
+        }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        <Features3 />
+      </motion.div>
+      
+      <motion.div
+        ref={processRef}
+        animate={controls}
+        initial="hidden"
+        variants={{
+          visible: { opacity: 1, y: 0 },
+          hidden: { opacity: 0, y: 50 }
+        }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        <Process />
+      </motion.div>
+
+      <motion.div
+        ref={projectRef}
+        animate={controls}
+        initial="hidden"
+        variants={{
+          visible: { opacity: 1, y: 0 },
+          hidden: { opacity: 0, y: 50 }
+        }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        <Project />
+      </motion.div>
+
+      <motion.div
+        ref={teamRef}
+        animate={controls}
+        initial="hidden"
+        variants={{
+          visible: { opacity: 1, y: 0 },
+          hidden: { opacity: 0, y: 50 }
+        }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        <TeamSection />
+      </motion.div>
     </DefaultLayout>
   );
 }

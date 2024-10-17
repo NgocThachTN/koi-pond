@@ -67,7 +67,10 @@ const MaintenanceManagement: React.FC = () => {
         return new Date(request.maintenanceRequestEndDate).toLocaleDateString();
       case "status":
         return (
-          <Chip color={request.status === 'Completed' ? 'success' : 'warning'} variant="flat">
+          <Chip
+            color={getStatusColor(request.status)}
+            variant="flat"
+          >
             {request.status}
           </Chip>
         );
@@ -168,7 +171,23 @@ const MaintenanceManagement: React.FC = () => {
     { value: 'Pending', label: 'Pending' },
     { value: 'Processing', label: 'Processing' },
     { value: 'Completed', label: 'Completed' },
+    { value: 'Cancelled', label: 'Cancelled' },
   ];
+
+  const getStatusColor = (status: string): ChipProps["color"] => {
+    switch (status) {
+      case 'Pending':
+        return 'warning';
+      case 'Processing':
+        return 'primary';
+      case 'Completed':
+        return 'success';
+      case 'Cancelled':
+        return 'danger';
+      default:
+        return 'default';
+    }
+  };
 
   if (loading) {
     return (

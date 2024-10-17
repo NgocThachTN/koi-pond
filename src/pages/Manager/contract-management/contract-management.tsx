@@ -8,6 +8,7 @@ import {
   TableRow,
   TableCell,
   Chip,
+  ChipProps,
   Tooltip,
   Pagination,
   Button,
@@ -21,6 +22,7 @@ import {
   Select,
   SelectItem
 } from "@nextui-org/react";
+import { SearchIcon } from '@nextui-org/shared-icons';
 import { getContractsApi, Contract, updateContractByRequestDesignApi, updateContractBySampleApi } from '@/apis/user.api';
 
 const ContractManagement: React.FC = () => {
@@ -31,6 +33,7 @@ const ContractManagement: React.FC = () => {
   const itemsPerPage = 10;
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchContracts();
@@ -88,10 +91,29 @@ const ContractManagement: React.FC = () => {
     }
   };
 
+  const getStatusColor = (status: string): ChipProps["color"] => {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return 'warning';
+      case 'processing':
+        return 'primary';
+      case 'completed':
+        return 'success';
+      case 'cancelled':
+        return 'danger';
+      default:
+        return 'default';
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
-  const paginatedContracts = contracts.slice(
+  const filteredContracts = contracts.filter(contract => 
+    getCustomerName(contract).toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const paginatedContracts = filteredContracts.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -100,6 +122,20 @@ const ContractManagement: React.FC = () => {
     <DefaultManagerLayout>
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Contract Management</h1>
+        
+        {/* Search Input */}
+        <div className="mb-4">
+          <Input
+            isClearable
+            className="w-full max-w-[300px]"
+            placeholder="Search by customer name..."
+            startContent={<SearchIcon />}
+            value={searchTerm}
+            onClear={() => setSearchTerm('')}
+            onValueChange={setSearchTerm}
+          />
+        </div>
+
         <Table aria-label="Contracts table">
           <TableHeader>
             <TableColumn>Contract Name</TableColumn>
@@ -118,7 +154,7 @@ const ContractManagement: React.FC = () => {
                 <TableCell>{new Date(contract.contractStartDate).toLocaleDateString()}</TableCell>
                 <TableCell>{new Date(contract.contractEndDate).toLocaleDateString()}</TableCell>
                 <TableCell>
-                  <Chip color={contract.status === "Active" ? "success" : "warning"} variant="flat">
+                  <Chip color={getStatusColor(contract.status)} variant="flat">
                     {contract.status}
                   </Chip>
                 </TableCell>
@@ -137,7 +173,7 @@ const ContractManagement: React.FC = () => {
 
         <div className="flex justify-center mt-4">
           <Pagination
-            total={Math.ceil(contracts.length / itemsPerPage)}
+            total={Math.ceil(filteredContracts.length / itemsPerPage)}
             page={currentPage}
             onChange={setCurrentPage}
           />
@@ -174,6 +210,7 @@ const ContractManagement: React.FC = () => {
                     <SelectItem key="Pending" value="Pending">Pending</SelectItem>
                     <SelectItem key="Processing" value="Processing">Processing</SelectItem>
                     <SelectItem key="Completed" value="Completed">Completed</SelectItem>
+                    <SelectItem key="Cancelled" value="Cancelled">Cancelled</SelectItem>
                   </Select>
                   <Textarea
                     label="Description"

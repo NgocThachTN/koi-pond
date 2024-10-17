@@ -672,4 +672,5 @@ export const updateMaintenanceRequestBySampleApi = (
     `MaintenanceRequests/ByMaintenanceRequestSample/${requestData.maintenanceRequestId}`,
     requestData
   );
-};
+}; 
+

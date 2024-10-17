@@ -51,7 +51,7 @@ const Dashboard = () => {
   const contractStatusCounts = {
     pending: 0,
     processing: 0,
-    complete: 0
+    completed: 0
   };
 
   contracts.forEach(contract => {
