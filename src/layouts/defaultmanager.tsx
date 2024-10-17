@@ -8,6 +8,7 @@ import { Icon } from "@iconify/react";
 import { AcmeIcon } from "@/components/AcmeIcon";
 import React, { useState, useEffect } from "react";
 import { getUserInfoApi } from '@/apis/user.api';
+import { useNavigate } from 'react-router-dom';
 
 interface UserInfo {
   name: string;
@@ -37,6 +38,7 @@ export default function DefaultManagerLayout({
   children: React.ReactNode;
 }) {
   const { logout } = useAuth();
+  const navigate = useNavigate();
   const [selectedKey, setSelectedKey] = useState("dashboard");
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
@@ -65,6 +67,7 @@ export default function DefaultManagerLayout({
 
   const handleLogout = () => {
     logout();
+    navigate('/login'); 
   };
 
   return (

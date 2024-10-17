@@ -24,6 +24,7 @@ import {
 } from "@nextui-org/react";
 import { SearchIcon } from '@nextui-org/shared-icons';
 import { getContractsApi, Contract, updateContractByRequestDesignApi, updateContractBySampleApi } from '@/apis/user.api';
+import { sendOrderCompletionEmail } from '@/apis/email.api';
 
 const ContractManagement: React.FC = () => {
   const [contracts, setContracts] = useState<Contract[]>([]);
@@ -66,15 +67,23 @@ const ContractManagement: React.FC = () => {
   };
 
   const handleEditSubmit = async () => {
-    if (!editingContract) return;
+    console.log("handleEditSubmit started");
+    if (!editingContract) {
+      console.log("No editing contract found");
+      return;
+    }
+
+    console.log("Starting contract update process");
 
     try {
       const updateFunction = editingContract.requests.$values[0].designs ?
         updateContractByRequestDesignApi : updateContractBySampleApi;
 
-      await updateFunction({
+      console.log("Update function selected:", updateFunction.name);
+
+      const updatedContract = await updateFunction({
         ...editingContract,
-        contractId: editingContract.contractId,
+        contractId: Number(editingContract.contractId),
         requests: [{
           ...editingContract.requests.$values[0],
           users: editingContract.requests.$values[0].users.$values,
@@ -83,11 +92,46 @@ const ContractManagement: React.FC = () => {
         }]
       });
 
+      console.log("Contract updated successfully:", updatedContract);
+
+      // Kiểm tra trạng thái và gửi email
+      if (editingContract.status === 'Completed') {
+        console.log("Contract status is Completed, preparing to send email");
+
+        const userEmail = editingContract.requests.$values[0].users.$values[0]?.email;
+        const userName = editingContract.requests.$values[0].users.$values[0]?.name;
+        
+        console.log("User email:", userEmail);
+        console.log("User name:", userName);
+
+        if (userEmail && userName) {
+          try {
+            console.log("Attempting to send email");
+            const emailResult = await sendOrderCompletionEmail({
+              requestName: editingContract.requests.$values[0].requestName,
+              contractName: editingContract.contractName,
+              contractEndDate: editingContract.contractEndDate,
+              userEmail: userEmail,
+              userName: userName
+            });
+            console.log('Email sent successfully:', emailResult);
+          } catch (emailError) {
+            console.error("Error sending email:", emailError);
+          }
+        } else {
+          console.warn('User email or name is missing');
+        }
+      } else {
+        console.log("Contract status is not Completed, skipping email");
+      }
+
       setEditModalOpen(false);
-      await fetchContracts(); // Refresh the contracts list
+      console.log("Modal closed");
+
+      await fetchContracts();
+      console.log("Contracts refreshed");
     } catch (err) {
-      console.error("Error updating contract:", err);
-      // Handle error (e.g., show error message to user)
+      console.error("Error in handleEditSubmit:", err);
     }
   };
 
@@ -205,7 +249,10 @@ const ContractManagement: React.FC = () => {
                   <Select
                     label="Status"
                     selectedKeys={[editingContract.status]}
-                    onChange={(e) => setEditingContract({ ...editingContract, status: e.target.value })}
+                    onChange={(e) => {
+                      console.log("Status changed to:", e.target.value);
+                      setEditingContract({ ...editingContract, status: e.target.value });
+                    }}
                   >
                     <SelectItem key="Pending" value="Pending">Pending</SelectItem>
                     <SelectItem key="Processing" value="Processing">Processing</SelectItem>

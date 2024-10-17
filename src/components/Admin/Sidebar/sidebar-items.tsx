@@ -58,23 +58,23 @@ export const items: SidebarItem[] = [
       },
     ],
   },
-  {
-    key: "feedback-management",
-    href: "/manager/feedback-management",
-    icon: "solar:chat-round-dots-linear",
-    title: "Feedback Management",
-  },
+  // {
+  //   key: "feedback-management",
+  //   href: "/manager/feedback-management",
+  //   icon: "solar:chat-round-dots-linear",
+  //   title: "Feedback Management",
+  // },
   {
     key: "contract-management",
     href: "/manager/contract-management",
     icon: "solar:document-linear",
     title: "Contract Management",
   },
-  {
-    key: "maintenance-management",
-    href: "/manager/maintenance-management",
-    icon: "solar:chart-2-linear",
-    title: "Maintenance Management",
-  },
+  // {
+  //   key: "maintenance-management",
+  //   href: "/manager/maintenance-management",
+  //   icon: "solar:chart-2-linear",
+  //   title: "Maintenance Management",
+  // },
 
 ];

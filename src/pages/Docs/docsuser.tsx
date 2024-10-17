@@ -35,6 +35,7 @@ import {
   sendDesignRequestApi,
 } from "@/apis/user.api";
 import { toast } from "react-toastify";
+import { sendOrderConfirmationEmail } from "@/apis/email.api";
 
 export default function DocsPageUser() {
   return (
@@ -125,8 +126,9 @@ function QuotationForm() {
 
     try {
       let response;
+      let orderData;
       if (selectedService === "sample") {
-        const sampleData = {
+        orderData = {
           ...commonData,
           isSampleSelected: true,
           sample: {
@@ -137,9 +139,9 @@ function QuotationForm() {
             sampleImage: "",
           },
         };
-        response = await sendSampleRequestApi(sampleData);
+        response = await sendSampleRequestApi(orderData);
       } else if (selectedService === "design") {
-        const designData = {
+        orderData = {
           ...commonData,
           isDesignSelected: true,
           design: {
@@ -151,11 +153,16 @@ function QuotationForm() {
           },
           designRequirements: designRequirements,
         };
-        response = await sendDesignRequestApi(designData);
+        response = await sendDesignRequestApi(orderData);
       }
 
       if (response && response.status === 201) {
         setIsSuccessModalOpen(true);
+        // Send confirmation email using the new API
+        await sendOrderConfirmationEmail(orderData, {
+          name: userInfo.name,
+          email: userInfo.email
+        });
         // Reset form fields
         setSelectedRequestType("");
         setSelectedService("");
