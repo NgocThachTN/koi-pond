@@ -74,8 +74,7 @@ const Dashboard = () => {
     },
     { 
       name: 'Completed', 
-      requests: requestStatusCounts.complete, 
-      contracts: contractStatusCounts.complete,
+      contracts: contractStatusCounts.completed,
     },
   ];
 
