@@ -3,6 +3,7 @@ import DefaultLayout from "@/layouts/defaultuser";
 import { Card, CardHeader, CardBody, CardFooter, Image, Link, Button } from "@nextui-org/react";
 import { motion } from "framer-motion";
 
+
 const posts = [
 
   { name: "Mini Koi Pond", href: "blog/blog1 ", src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcuzvYzDSx5ofrVNoq2WwOQtOq5KEdE9NRwg&s" },
@@ -44,7 +45,7 @@ export default function BlogPageUser() {
           >
             <h1 className={title()}>Blog</h1>
           </motion.div>
-          <motion.div 
+          <motion.div
             variants={container}
             initial="hidden"
             animate="visible"

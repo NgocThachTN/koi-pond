@@ -2,7 +2,7 @@ import React from "react";
 import { NextUIProvider, Card, CardBody, CardHeader, Image, Divider, Button } from "@nextui-org/react";
 import DefaultLayout from "@/layouts/default";
 
-export default function Blog3PageUser() {
+export default function Blog3Page() {
   return (
     <NextUIProvider>
       <DefaultLayout>
@@ -12,7 +12,7 @@ export default function Blog3PageUser() {
               <p className="text-md">What is Koi Pond Indoor?</p>
             </div>
           </CardHeader>
-          <Divider/>
+          <Divider />
           <CardBody>
             <Image
               alt="Hồ cá Koi trong nhà"
@@ -21,9 +21,9 @@ export default function Blog3PageUser() {
               width={800}
             />
             <p className="text-sm mb-4">
-              Koi fish is a high-end ornamental fish species, considered the "national fish" of the Land of the Rising Sun. 
+              Koi fish is a high-end ornamental fish species, considered the "national fish" of the Land of the Rising Sun.
               This species originates from carp but has been domesticated into an indoor ornamental fish with many eye-catching colors,
-               having feng shui significance symbolizing luck and prosperity.
+              having feng shui significance symbolizing luck and prosperity.
             </p>
             <p className="text-sm mb-4">
               An indoor Koi pond is a type of fish pond built within residential premises, smaller
