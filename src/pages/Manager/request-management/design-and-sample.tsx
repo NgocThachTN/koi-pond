@@ -85,12 +85,15 @@ const DesignAndSample: React.FC = () => {
     const addSection = (title: string, content: string[], startY: number) => {
       let y = startY;
       doc.setFontSize(12);
-      doc.setFont("helvetica", "bold");
+      doc.setFont('Roboto', 'bold');
       y += addText(title, 20, y);
-      doc.setFont("helvetica", "normal");
+      doc.setFont('Roboto', 'normal');
       doc.setFontSize(10);
       content.forEach(item => {
-        y += addText(item, 25, y);
+        const lines = doc.splitTextToSize(item, 170); // Split text to fit within 170 units width
+        lines.forEach(line => {
+          y += addText(line, 25, y);
+        });
       });
       return y + 5;
     };
