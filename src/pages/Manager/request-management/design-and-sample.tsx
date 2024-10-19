@@ -3,6 +3,9 @@ import DefaultManagerLayout from '@/layouts/defaultmanager';
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Tooltip, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Pagination, Input, Card, CardBody, CardHeader, Divider, Image, Tabs, Tab } from "@nextui-org/react";
 import { SearchIcon, EyeIcon } from '@nextui-org/shared-icons';
 import { getUserRequestsApi, UserRequest, createContractByRequestDesignApi, createContractBySampleDesignApi } from '@/apis/user.api';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import { saveAs } from 'file-saver';
 
 const DesignAndSample: React.FC = () => {
   const [requests, setRequests] = useState<UserRequest[]>([]);
@@ -69,6 +72,157 @@ const DesignAndSample: React.FC = () => {
     setIsCreateContractModalOpen(true);
   };
 
+  const generatePDF = (contractData: any, selectedRequest: UserRequest) => {
+    const doc = new jsPDF();
+    
+    // Company name as header
+    doc.setFontSize(24);
+    doc.setTextColor(0, 51, 102); // Dark blue
+    doc.text('Your Company Name', 105, 20, { align: 'center' });
+    
+    // Contract title
+    doc.setFontSize(22);
+    doc.text('CONTRACT AGREEMENT', 105, 40, { align: 'center' });
+    
+    // Add Koi Pond Construction Contract Agreement
+    doc.setFontSize(18);
+    doc.setTextColor(0, 102, 204); // Light blue
+    doc.text('KOI POND CONSTRUCTION', 105, 70, { align: 'center' });
+    doc.text('CONTRACT AGREEMENT', 105, 80, { align: 'center' });
+
+    // Basic contract information
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0); // Black
+    doc.text(`Contract ID: ${contractData.contractId}`, 20, 100);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 107);
+    
+    // Parties information
+    doc.setFontSize(14);
+    doc.setTextColor(0, 51, 102);
+    doc.text('PARTIES TO THE CONTRACT', 20, 120);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Company:', 20, 130);
+    doc.text('Your Company Name', 70, 130);
+    doc.text('Address:', 20, 137);
+    doc.text('Your Company Address', 70, 137);
+    
+    doc.text('Client:', 20, 147);
+    doc.text(selectedRequest.users.$values[0].name, 70, 147);
+    doc.text('Address:', 20, 154);
+    doc.text(selectedRequest.users.$values[0].address, 70, 154);
+    
+    // Contract details
+    doc.setFontSize(14);
+    doc.setTextColor(0, 51, 102);
+    doc.text('CONTRACT DETAILS', 20, 170);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Contract Name: ${contractData.contractName}`, 20, 180);
+    doc.text(`Start Date: ${contractData.contractStartDate}`, 20, 187);
+    doc.text(`End Date: ${contractData.contractEndDate}`, 20, 194);
+    
+    // Contract description
+    doc.setFontSize(14);
+    doc.setTextColor(0, 51, 102);
+    doc.text('DESCRIPTION', 20, 210);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    const descriptionLines = doc.splitTextToSize(contractData.description, 170);
+    doc.text(descriptionLines, 20, 220);
+    
+    // Product/Service details
+    doc.setFontSize(14);
+    doc.setTextColor(0, 51, 102);
+    doc.text('PRODUCT/SERVICE DETAILS', 20, 250);
+    
+    // Use autoTable for product/service information
+    const productData = [];
+    if (selectedRequest.designs.$values.length > 0) {
+      const design = selectedRequest.designs.$values[0];
+      productData.push(['Design Name', design.designName]);
+      productData.push(['Construction Type', design.constructionTypeName]);
+      productData.push(['Size', design.designSize]);
+      productData.push(['Price', `$${design.designPrice}`]);
+    } else if (selectedRequest.samples.$values.length > 0) {
+      const sample = selectedRequest.samples.$values[0];
+      productData.push(['Sample Name', sample.sampleName]);
+      productData.push(['Construction Type', sample.constructionTypeName]);
+      productData.push(['Size', sample.sampleSize]);
+      productData.push(['Price', `$${sample.samplePrice}`]);
+    }
+    
+    (doc as any).autoTable({
+      startY: 260,
+      head: [['Item', 'Details']],
+      body: productData,
+      theme: 'grid',
+      headStyles: { fillColor: [0, 51, 102], textColor: 255 },
+      alternateRowStyles: { fillColor: [240, 240, 240] },
+    });
+    
+    // Add new page for materials pricing
+    doc.addPage();
+    doc.setFontSize(14);
+    doc.setTextColor(0, 51, 102);
+    doc.text('KOI POND CONSTRUCTION MATERIALS PRICING', 105, 20, { align: 'center' });
+
+    const koiPondMaterials = [
+      { item: "Waterproof Concrete", unit: "m³", unitPrice: 150, quantity: 5, total: 750 },
+      { item: "Pond Tiles", unit: "m²", unitPrice: 25, quantity: 20, total: 500 },
+      { item: "PVC Pipes (50mm diameter)", unit: "m", unitPrice: 5, quantity: 30, total: 150 },
+      { item: "Water Pump", unit: "piece", unitPrice: 200, quantity: 1, total: 200 },
+      { item: "Underwater LED Lights", unit: "piece", unitPrice: 30, quantity: 5, total: 150 },
+      { item: "Filter Mesh", unit: "m²", unitPrice: 10, quantity: 10, total: 100 },
+      { item: "Skimmer", unit: "piece", unitPrice: 80, quantity: 1, total: 80 },
+      { item: "EPDM Liner", unit: "m²", unitPrice: 15, quantity: 25, total: 375 },
+      { item: "Decorative Gravel", unit: "kg", unitPrice: 2, quantity: 100, total: 200 },
+      { item: "Waterproof Silicone", unit: "tube", unitPrice: 10, quantity: 5, total: 50 },
+    ];
+
+    (doc as any).autoTable({
+      startY: 30,
+      head: [['Item', 'Unit', 'Unit Price ($)', 'Quantity', 'Total ($)']],
+      body: koiPondMaterials.map(item => [
+        item.item,
+        item.unit,
+        item.unitPrice.toFixed(2),
+        item.quantity,
+        item.total.toFixed(2)
+      ]),
+      foot: [['', '', '', 'Grand Total:', koiPondMaterials.reduce((sum, item) => sum + item.total, 0).toFixed(2)]],
+      theme: 'grid',
+      headStyles: { fillColor: [0, 51, 102], textColor: 255 },
+      footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+    });
+
+    // Add notes
+    const finalY = (doc as any).lastAutoTable.finalY || 30;
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Notes:', 14, finalY + 10);
+    doc.text('- Prices do not include VAT', 20, finalY + 20);
+    doc.text('- Prices may vary depending on market conditions and specific customer requirements', 20, finalY + 30);
+    doc.text('- This price list is for reference only', 20, finalY + 40);
+
+    // Signatures
+    doc.setFontSize(14);
+    doc.setTextColor(0, 51, 102);
+    doc.text('SIGNATURES', 105, finalY + 60, { align: 'center' });
+    
+    doc.line(20, finalY + 80, 90, finalY + 80); // Company signature line
+    doc.text('Company Representative', 55, finalY + 85, { align: 'center' });
+    
+    doc.line(120, finalY + 80, 190, finalY + 80); // Client signature line
+    doc.text('Client', 155, finalY + 85, { align: 'center' });
+
+    return doc;
+  };
+
   const handleCreateContract = async () => {
     if (!selectedRequest) return;
 
@@ -96,6 +250,16 @@ const DesignAndSample: React.FC = () => {
 
       if (response.status === 201) {
         setContractId(response.data.$id);
+        
+        // Generate PDF
+        const pdfDoc = generatePDF(contractData, selectedRequest);
+        
+        // Create Blob from PDF
+        const pdfBlob = pdfDoc.output('blob');
+        
+        // Automatically download PDF
+        saveAs(pdfBlob, `${contractData.contractName}.pdf`);
+        
         setIsCreateContractModalOpen(false);
         setIsModalOpen(true);
       } else {
