@@ -7,6 +7,9 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import { saveAs } from 'file-saver';
 import { format } from 'date-fns';
+import { storage } from '@/firebaseConfig';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import emailjs from '@emailjs/browser';
 
 const DesignAndSample: React.FC = () => {
   const [requests, setRequests] = useState<UserRequest[]>([]);
@@ -292,6 +295,36 @@ const DesignAndSample: React.FC = () => {
         // Create Blob from PDF
         const pdfBlob = pdfDoc.output('blob');
         
+        // Upload PDF to Firebase Storage
+        const storageRef = ref(storage, `contracts/${contractData.contractName}.pdf`);
+        await uploadBytes(storageRef, pdfBlob);
+
+        // Get the download URL
+        const downloadURL = await getDownloadURL(storageRef);
+
+        // Send email to customer
+        const customerEmail = selectedRequest.users.$values[0].email;
+        const customerName = selectedRequest.users.$values[0].name;
+
+        const emailParams = {
+          to_email: customerEmail,
+          to_name: customerName,
+          from_name: "Koi Pond Masters",
+          contract_name: contractData.contractName,
+          contract_link: downloadURL,
+        };
+
+        emailjs.send(
+          'service_bwbc9k9', // Replace with your EmailJS service ID
+          'template_imxotql', // Replace with your EmailJS template ID
+          emailParams,
+          '4w9Ngb751DSTr2_wp' // Replace with your EmailJS user ID
+        ).then((result) => {
+          console.log('Email sent successfully:', result.text);
+        }, (error) => {
+          console.error('Failed to send email:', error.text);
+        });
+
         // Automatically download PDF
         saveAs(pdfBlob, `${contractData.contractName}.pdf`);
         
