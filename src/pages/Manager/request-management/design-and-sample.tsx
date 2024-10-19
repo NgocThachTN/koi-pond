@@ -6,6 +6,7 @@ import { getUserRequestsApi, UserRequest, createContractByRequestDesignApi, crea
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import { saveAs } from 'file-saver';
+import { format } from 'date-fns';
 
 const DesignAndSample: React.FC = () => {
   const [requests, setRequests] = useState<UserRequest[]>([]);
@@ -75,116 +76,112 @@ const DesignAndSample: React.FC = () => {
   const generatePDF = (contractData: any, selectedRequest: UserRequest) => {
     const doc = new jsPDF();
     
-    // Company name as header
-    doc.setFontSize(24);
-    doc.setTextColor(0, 51, 102); // Dark blue
-    doc.text('Your Company Name', 105, 20, { align: 'center' });
-    
-    // Contract title
-    doc.setFontSize(22);
-    doc.text('CONTRACT AGREEMENT', 105, 40, { align: 'center' });
-    
-    // Add Koi Pond Construction Contract Agreement
-    doc.setFontSize(18);
-    doc.setTextColor(0, 102, 204); // Light blue
-    doc.text('KOI POND CONSTRUCTION', 105, 70, { align: 'center' });
-    doc.text('CONTRACT AGREEMENT', 105, 80, { align: 'center' });
+    // Helper functions
+    const addText = (text: string, x: number, y: number, options?: any) => {
+      doc.text(text, x, y, options);
+      return doc.getTextDimensions(text).h + 2;
+    };
 
-    // Basic contract information
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0); // Black
-    doc.text(`Contract ID: ${contractData.contractId}`, 20, 100);
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 107);
+    const addSection = (title: string, content: string[], startY: number) => {
+      let y = startY;
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      y += addText(title, 20, y);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      content.forEach(item => {
+        y += addText(item, 25, y);
+      });
+      return y + 5;
+    };
+
+    // Cover Page
+    doc.setFillColor(0, 51, 102);
+    doc.rect(0, 0, 210, 297, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
     
-    // Parties information
+    doc.setFontSize(36);
+    addText('KOI POND MASTERS', 105, 80, { align: 'center' });
+    
+    doc.setFontSize(24);
+    addText('KOI POND', 105, 110, { align: 'center' });
+    addText('CONSTRUCTION CONTRACT', 105, 120, { align: 'center' });
+    
     doc.setFontSize(14);
-    doc.setTextColor(0, 51, 102);
-    doc.text('PARTIES TO THE CONTRACT', 20, 120);
-    
+    addText(`Date: ${format(new Date(), 'MMMM d, yyyy')}`, 105, 150, { align: 'center' });
+    addText(`Contract ID: ${contractData.contractName}`, 105, 165, { align: 'center' });
+
+    const size = selectedRequest.designs.$values.length > 0 
+      ? selectedRequest.designs.$values[0].designSize 
+      : selectedRequest.samples.$values[0].sampleSize;
+    const type = selectedRequest.designs.$values.length > 0 ? 'Design' : 'Sample';
+    addText(`${type} Size: ${size}`, 105, 180, { align: 'center' });
+
     doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text('Company:', 20, 130);
-    doc.text('Your Company Name', 70, 130);
-    doc.text('Address:', 20, 137);
-    doc.text('Your Company Address', 70, 137);
-    
-    doc.text('Client:', 20, 147);
-    doc.text(selectedRequest.users.$values[0].name, 70, 147);
-    doc.text('Address:', 20, 154);
-    doc.text(selectedRequest.users.$values[0].address, 70, 154);
-    
-    // Contract details
-    doc.setFontSize(14);
-    doc.setTextColor(0, 51, 102);
-    doc.text('CONTRACT DETAILS', 20, 170);
-    
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Contract Name: ${contractData.contractName}`, 20, 180);
-    doc.text(`Start Date: ${contractData.contractStartDate}`, 20, 187);
-    doc.text(`End Date: ${contractData.contractEndDate}`, 20, 194);
-    
-    // Contract description
-    doc.setFontSize(14);
-    doc.setTextColor(0, 51, 102);
-    doc.text('DESCRIPTION', 20, 210);
-    
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    const descriptionLines = doc.splitTextToSize(contractData.description, 170);
-    doc.text(descriptionLines, 20, 220);
-    
-    // Product/Service details
-    doc.setFontSize(14);
-    doc.setTextColor(0, 51, 102);
-    doc.text('PRODUCT/SERVICE DETAILS', 20, 250);
-    
-    // Use autoTable for product/service information
-    const productData = [];
-    if (selectedRequest.designs.$values.length > 0) {
-      const design = selectedRequest.designs.$values[0];
-      productData.push(['Design Name', design.designName]);
-      productData.push(['Construction Type', design.constructionTypeName]);
-      productData.push(['Size', design.designSize]);
-      productData.push(['Price', `$${design.designPrice}`]);
-    } else if (selectedRequest.samples.$values.length > 0) {
-      const sample = selectedRequest.samples.$values[0];
-      productData.push(['Sample Name', sample.sampleName]);
-      productData.push(['Construction Type', sample.constructionTypeName]);
-      productData.push(['Size', sample.sampleSize]);
-      productData.push(['Price', `$${sample.samplePrice}`]);
-    }
-    
-    (doc as any).autoTable({
-      startY: 260,
-      head: [['Item', 'Details']],
-      body: productData,
-      theme: 'grid',
-      headStyles: { fillColor: [0, 51, 102], textColor: 255 },
-      alternateRowStyles: { fillColor: [240, 240, 240] },
-    });
-    
-    // Add new page for materials pricing
+    addText('CONFIDENTIAL', 105, 280, { align: 'center' });
+
+    // Contract Details
     doc.addPage();
+    let yPosition = 20;
+
+    doc.setFontSize(18);
+    doc.setTextColor(0, 51, 102);
+    yPosition += addText('KOI POND CONSTRUCTION AGREEMENT', 105, yPosition, { align: 'center' });
+    doc.setTextColor(0, 0, 0);
+
+    yPosition = addSection('1. PARTIES', [
+      `This agreement is made on ${format(new Date(contractData.contractStartDate), 'MMMM d, yyyy')} between:`,
+      'Contractor: KOI POND MASTERS',
+      'Address: 123 Pond Street, Aquaville, AQ 12345',
+      `Client: ${selectedRequest.users.$values[0].name}`,
+      `Address: ${selectedRequest.users.$values[0].address}`
+    ], yPosition + 10);
+
+    yPosition = addSection('2. PROJECT DETAILS', [
+      `Project: Construction of a ${size} koi pond`,
+      `${type} Size: ${size}`,
+      `Start Date: ${format(new Date(contractData.contractStartDate), 'MMMM d, yyyy')}`,
+      `Completion Date: ${format(new Date(contractData.contractEndDate), 'MMMM d, yyyy')}`,
+      `Description: ${contractData.description}`
+    ], yPosition);
+
+    yPosition = addSection('3. SCOPE OF WORK', [
+      `3.1. The Contractor agrees to construct a ${size} koi pond for the Client based on the approved ${type.toLowerCase()}.`,
+      '3.2. The work shall include:',
+      '   a) Site preparation and excavation',
+      '   b) Installation of pond liner and underlayment',
+      '   c) Construction of pond walls and bottom',
+      '   d) Installation of filtration and pumping systems',
+      '   e) Installation of plumbing and electrical systems',
+      '   f) Addition of rocks, gravel, and decorative elements',
+      '   g) Planting of aquatic vegetation',
+      '   h) Water quality testing and balancing'
+    ], yPosition);
+
+    // New page for materials and pricing
+    doc.addPage();
+    yPosition = 20;
+
     doc.setFontSize(14);
     doc.setTextColor(0, 51, 102);
-    doc.text('KOI POND CONSTRUCTION MATERIALS PRICING', 105, 20, { align: 'center' });
+    yPosition += addText('4. MATERIALS AND PRICING', 20, yPosition);
 
     const koiPondMaterials = [
-      { item: "Waterproof Concrete", unit: "m³", unitPrice: 150, quantity: 5, total: 750 },
-      { item: "Pond Tiles", unit: "m²", unitPrice: 25, quantity: 20, total: 500 },
-      { item: "PVC Pipes (50mm diameter)", unit: "m", unitPrice: 5, quantity: 30, total: 150 },
-      { item: "Water Pump", unit: "piece", unitPrice: 200, quantity: 1, total: 200 },
-      { item: "Underwater LED Lights", unit: "piece", unitPrice: 30, quantity: 5, total: 150 },
-      { item: "Filter Mesh", unit: "m²", unitPrice: 10, quantity: 10, total: 100 },
-      { item: "Skimmer", unit: "piece", unitPrice: 80, quantity: 1, total: 80 },
-      { item: "EPDM Liner", unit: "m²", unitPrice: 15, quantity: 25, total: 375 },
-      { item: "Decorative Gravel", unit: "kg", unitPrice: 2, quantity: 100, total: 200 },
-      { item: "Waterproof Silicone", unit: "tube", unitPrice: 10, quantity: 5, total: 50 },
+      { item: "EPDM Pond Liner", unit: "sq ft", unitPrice: 0.95, quantity: 500, total: 475 },
+      { item: "Underlayment", unit: "sq ft", unitPrice: 0.30, quantity: 500, total: 150 },
+      { item: "Filtration System", unit: "unit", unitPrice: 1200, quantity: 1, total: 1200 },
+      { item: "Pump", unit: "unit", unitPrice: 500, quantity: 1, total: 500 },
+      { item: "UV Clarifier", unit: "unit", unitPrice: 300, quantity: 1, total: 300 },
+      { item: "Skimmer", unit: "unit", unitPrice: 250, quantity: 1, total: 250 },
+      { item: "Plumbing Materials", unit: "set", unitPrice: 400, quantity: 1, total: 400 },
+      { item: "Rocks and Gravel", unit: "ton", unitPrice: 100, quantity: 3, total: 300 },
+      { item: "Aquatic Plants", unit: "set", unitPrice: 200, quantity: 1, total: 200 },
+      { item: "Electrical Components", unit: "set", unitPrice: 300, quantity: 1, total: 300 },
     ];
 
     (doc as any).autoTable({
-      startY: 30,
+      startY: yPosition,
       head: [['Item', 'Unit', 'Unit Price ($)', 'Quantity', 'Total ($)']],
       body: koiPondMaterials.map(item => [
         item.item,
@@ -193,32 +190,67 @@ const DesignAndSample: React.FC = () => {
         item.quantity,
         item.total.toFixed(2)
       ]),
-      foot: [['', '', '', 'Grand Total:', koiPondMaterials.reduce((sum, item) => sum + item.total, 0).toFixed(2)]],
+      foot: [['', '', '', 'Subtotal:', koiPondMaterials.reduce((sum, item) => sum + item.total, 0).toFixed(2)]],
       theme: 'grid',
       headStyles: { fillColor: [0, 51, 102], textColor: 255 },
       footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
       alternateRowStyles: { fillColor: [245, 245, 245] },
     });
 
-    // Add notes
-    const finalY = (doc as any).lastAutoTable.finalY || 30;
+    const laborCost = 5000;
+    const subtotal = koiPondMaterials.reduce((sum, item) => sum + item.total, 0) + laborCost;
+    const tax = subtotal * 0.08;
+    const total = subtotal + tax;
+
+    yPosition = (doc as any).lastAutoTable.finalY + 10;
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
-    doc.text('Notes:', 14, finalY + 10);
-    doc.text('- Prices do not include VAT', 20, finalY + 20);
-    doc.text('- Prices may vary depending on market conditions and specific customer requirements', 20, finalY + 30);
-    doc.text('- This price list is for reference only', 20, finalY + 40);
+    yPosition += addText(`Labor Cost: $${laborCost.toFixed(2)}`, 140, yPosition);
+    yPosition += addText(`Subtotal: $${subtotal.toFixed(2)}`, 140, yPosition);
+    yPosition += addText(`Tax (8%): $${tax.toFixed(2)}`, 140, yPosition);
+    doc.setFontSize(12);
+    doc.setTextColor(0, 51, 102);
+    yPosition += addText(`Total: $${total.toFixed(2)}`, 140, yPosition);
+
+    yPosition = addSection('5. PAYMENT TERMS', [
+      '5.1. The total contract price is payable as follows:',
+      '   a) 50% due upon contract signing',
+      '   b) 25% due at project midpoint',
+      '   c) 25% due upon project completion',
+      '5.2. Payments are due within 7 days of invoicing.',
+      '5.3. Late payments will incur a 1.5% monthly interest charge.'
+    ], yPosition + 10);
+
+    // Additional Terms
+    doc.addPage();
+    yPosition = 20;
+
+    yPosition = addSection('6. ADDITIONAL TERMS AND CONDITIONS', [
+      '6.1. Permits and Regulations: The Contractor shall obtain all necessary permits and comply with local regulations.',
+      '6.2. Site Access: The Client shall provide clear access to the work site.',
+      '6.3. Utilities: The Client shall provide access to water and electricity as needed for the project.',
+      '6.4. Changes: Any changes to the agreed design must be approved in writing and may affect cost and timeline.',
+      '6.5. Warranty: The Contractor provides a 2-year warranty on pond structure and 1-year on equipment.',
+      '6.6. Maintenance: The Contractor will provide basic training on koi pond maintenance upon completion.',
+      '6.7. Landscaping: Unless specified, surrounding landscaping is not included in this contract.',
+      '6.8. Delays: The Contractor will promptly communicate any expected delays.',
+      '6.9. Termination: Either party may terminate with 30 days written notice. The Client shall pay for work completed.',
+      '6.10. Liability: The Contractor shall maintain appropriate insurance coverage for the project.',
+      '6.11. Dispute Resolution: Any disputes shall be resolved through mediation before legal action.',
+      '6.12. Entire Agreement: This contract constitutes the entire agreement between the parties.'
+    ], yPosition);
 
     // Signatures
-    doc.setFontSize(14);
-    doc.setTextColor(0, 51, 102);
-    doc.text('SIGNATURES', 105, finalY + 60, { align: 'center' });
+    yPosition = addSection('7. SIGNATURES', [
+      'By signing below, both parties agree to the terms and conditions set forth in this contract.'
+    ], yPosition + 20);
     
-    doc.line(20, finalY + 80, 90, finalY + 80); // Company signature line
-    doc.text('Company Representative', 55, finalY + 85, { align: 'center' });
+    doc.line(20, yPosition, 90, yPosition);
+    yPosition += addText('Contractor Signature', 55, yPosition + 5, { align: 'center' });
+    yPosition += 20;
     
-    doc.line(120, finalY + 80, 190, finalY + 80); // Client signature line
-    doc.text('Client', 155, finalY + 85, { align: 'center' });
+    doc.line(120, yPosition - 25, 190, yPosition - 25);
+    addText('Client Signature', 155, yPosition - 20, { align: 'center' });
 
     return doc;
   };
@@ -382,7 +414,7 @@ const DesignAndSample: React.FC = () => {
             <ModalHeader className="flex flex-col gap-1">Contract Created Successfully</ModalHeader>
             <ModalBody>
               <p>Your contract has been created successfully.</p>
-              
+              <p>Contract ID: {contractId}</p>
             </ModalBody>
             <ModalFooter>
               <Button color="primary" onPress={() => setIsModalOpen(false)}>
