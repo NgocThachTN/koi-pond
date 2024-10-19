@@ -18,8 +18,8 @@ function Project() {
   return (
     <Card className="w-full mb-2 space-y-2 mt-16">
       <CardHeader className="flex-col items-start px-4 pt-2 pb-0 space-y-2">
-        <p className="text-tiny uppercase font-bold">OUR PROJECT</p>
-        <h4 className="text-large font-bold">Dự án nổi bật</h4>
+        <p className="text-tiny uppercase font-bold">OUR PROJECT</p> 
+        {/* <h4 className="text-large font-bold">Dự án nổi bật</h4> */}
       </CardHeader>
       <CardBody className="overflow-visible py-2">
         <div className="grid grid-cols-4 gap-4">

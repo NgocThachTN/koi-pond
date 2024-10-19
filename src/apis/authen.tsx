@@ -21,16 +21,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const role = localStorage.getItem('userRole');
     const email = localStorage.getItem('userEmail');
     console.log('Auth state on mount:', { token, role, email });
-    setIsAuthenticated(!!token);
-    setUserRole(role);
-    setUserEmail(email);
+    if (token) {
+      setIsAuthenticated(true);
+      setUserRole(role);
+      setUserEmail(email);
+    }
   }, []);
 
   const login = async (email: string, password: string) => {
     try {
       const response = await loginApi(email, password);
       const { token, role, email: userEmail } = response.data;
-      console.log('Login successful:', { token, role, userEmail });
+      console.log('Login response:', response.data); // Thêm log này
       localStorage.setItem('authToken', token);
       localStorage.setItem('userRole', role);
       localStorage.setItem('userEmail', userEmail);

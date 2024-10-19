@@ -4,7 +4,7 @@ interface LoginResType {
   token: string;
   role: string;
   email: string;
-  userName: string; // Change this line from fullName to userName
+  userName: string;
 }
 
 export const loginApi = (email: string, password: string) => {
@@ -673,4 +673,5 @@ export const updateMaintenanceRequestBySampleApi = (
     requestData
   );
 }; 
+
 

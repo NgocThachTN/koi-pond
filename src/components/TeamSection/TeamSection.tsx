@@ -14,7 +14,7 @@ const teamMembers = [
   {
     name: "Nguyễn Mạnh Bảo Tuấn",
     role: "BE Developer",
-    image: "/path/to/alex-smith-image.jpg",
+    image: "Images/baotuan.jpg",
     email: "https://twitter.com/alexsmith",
     linkedin: "https://linkedin.com/in/alexsmith",
     github: "https://github.com/alexsmith",
@@ -22,7 +22,7 @@ const teamMembers = [
   {
     name: "Trường Nguyễn Ngọc Thạch",
     role: "FE Developer",
-    image: "/path/to/alex-smith-image.jpg",
+    image: "Images/ngocthach.jpg",
     email: "https://twitter.com/alexsmith",
     facebook: "https://linkedin.com/in/alexsmith",
     github: "https://github.com/alexsmith",
