@@ -90,7 +90,7 @@ const DesignAndSample: React.FC = () => {
       doc.setFont('Roboto', 'normal');
       doc.setFontSize(10);
       content.forEach(item => {
-        const lines = doc.splitTextToSize(item, 170); // Split text to fit within 170 units width
+        const lines = doc.splitTextToSize(item, 170);
         lines.forEach(line => {
           y += addText(line, 25, y);
         });
@@ -142,7 +142,7 @@ const DesignAndSample: React.FC = () => {
     ], yPosition + 10);
 
     yPosition = addSection('2. PROJECT DETAILS', [
-      `Project: Construction of a ${size} koi pond`,
+      `Project: ${selectedRequest.requestName}`,
       `${type} Size: ${size}`,
       `Start Date: ${format(new Date(contractData.contractStartDate), 'MMMM d, yyyy')}`,
       `Completion Date: ${format(new Date(contractData.contractEndDate), 'MMMM d, yyyy')}`,
@@ -150,7 +150,7 @@ const DesignAndSample: React.FC = () => {
     ], yPosition);
 
     yPosition = addSection('3. SCOPE OF WORK', [
-      `3.1. The Contractor agrees to construct a ${size} koi pond for the Client based on the approved ${type.toLowerCase()}.`,
+      `3.1. The Contractor agrees to construct a koi pond as per the project "${selectedRequest.requestName}" based on the approved ${type.toLowerCase()}.`,
       '3.2. The work shall include:',
       '   a) Site preparation and excavation',
       '   b) Installation of pond liner and underlayment',
