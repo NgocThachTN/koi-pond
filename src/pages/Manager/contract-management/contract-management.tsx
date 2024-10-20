@@ -47,14 +47,20 @@ const ContractManagement: React.FC = () => {
     try {
       setLoading(true);
       const response = await getContractsApi();
-      const sortedContracts = response.data.$values.sort((a, b) =>
-        new Date(b.contractStartDate).getTime() - new Date(a.contractStartDate).getTime()
-      );
-      setContracts(sortedContracts);
-      setError(null);
+      console.log("API response:", response); // Add this line for debugging
+      if (response.data && Array.isArray(response.data.$values)) {
+        const sortedContracts = response.data.$values.sort((a, b) =>
+          new Date(b.contractStartDate).getTime() - new Date(a.contractStartDate).getTime()
+        );
+        setContracts(sortedContracts);
+        console.log("Sorted contracts:", sortedContracts); // Add this line for debugging
+      } else {
+        console.error("Unexpected API response structure:", response);
+        setError("Unexpected API response structure");
+      }
     } catch (err) {
-      setError("Failed to fetch contracts");
       console.error("Error fetching contracts:", err);
+      setError("Failed to fetch contracts");
     } finally {
       setLoading(false);
     }
@@ -263,6 +269,13 @@ const ContractManagement: React.FC = () => {
           />
         </div>
 
+        {/* Debug information */}
+        <div className="mb-4">
+          <p>Total contracts: {contracts.length}</p>
+          <p>Filtered contracts: {filteredContracts.length}</p>
+          <p>Current page: {currentPage}</p>
+        </div>
+
         <Table aria-label="Contracts table">
           <TableHeader>
             <TableColumn>Contract Name</TableColumn>
@@ -274,27 +287,33 @@ const ContractManagement: React.FC = () => {
             <TableColumn>Actions</TableColumn>
           </TableHeader>
           <TableBody>
-            {paginatedContracts.map((contract, index) => (
-              <TableRow key={index}>
-                <TableCell>{contract.contractName}</TableCell>
-                <TableCell>{getCustomerName(contract)}</TableCell>
-                <TableCell>{new Date(contract.contractStartDate).toLocaleDateString()}</TableCell>
-                <TableCell>{new Date(contract.contractEndDate).toLocaleDateString()}</TableCell>
-                <TableCell>
-                  <Chip color={getStatusColor(contract.status)} variant="flat">
-                    {contract.status}
-                  </Chip>
-                </TableCell>
-                <TableCell>
-                  <Tooltip content={contract.description}>
-                    <span>{truncateDescription(contract.description)}</span>
-                  </Tooltip>
-                </TableCell>
-                <TableCell>
-                  <Button onClick={() => handleEditClick(contract)}>Edit</Button>
-                </TableCell>
+            {paginatedContracts.length > 0 ? (
+              paginatedContracts.map((contract, index) => (
+                <TableRow key={index}>
+                  <TableCell>{contract.contractName}</TableCell>
+                  <TableCell>{getCustomerName(contract)}</TableCell>
+                  <TableCell>{new Date(contract.contractStartDate).toLocaleDateString()}</TableCell>
+                  <TableCell>{new Date(contract.contractEndDate).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <Chip color={getStatusColor(contract.status)} variant="flat">
+                      {contract.status}
+                    </Chip>
+                  </TableCell>
+                  <TableCell>
+                    <Tooltip content={contract.description}>
+                      <span>{truncateDescription(contract.description)}</span>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell>
+                    <Button onClick={() => handleEditClick(contract)}>Edit</Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7}>No contracts found</TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
 
