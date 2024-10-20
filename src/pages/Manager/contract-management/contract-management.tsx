@@ -80,7 +80,8 @@ const ContractManagement: React.FC = () => {
       let updatedDescription = editingContract.description;
 
       if (newProgressUpdate.trim()) {
-        const newUpdate = `[${currentDate}] ${newProgressUpdate}`;
+        const userRole = "Manager"; // Assuming the current user is always a Manager
+        const newUpdate = `[${currentDate}] ${userRole}: ${newProgressUpdate}`;
         updatedDescription = updatedDescription
           ? `${updatedDescription}\n\n${newUpdate}`
           : newUpdate;
@@ -189,14 +190,15 @@ const ContractManagement: React.FC = () => {
     };
 
     return lines.map((line, index) => {
-      const dateMatch = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/);
+      const dateMatch = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.*?): (.*)/);
       if (dateMatch) {
-        const date = new Date(dateMatch[1]);
+        const [, timestamp, role, content] = dateMatch;
+        const date = new Date(timestamp);
         const formattedDate = format(date, 'dd/MM/yyyy HH:mm:ss');
-        const content = line.substring(dateMatch[0].length).trim();
         return (
           <div key={index} className="mb-2">
             <span className="font-semibold">[{formattedDate}]</span>{' '}
+            <span className="font-medium">{role}:</span>{' '}
             {formatTextWithLinks(content)}
           </div>
         );

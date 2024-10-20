@@ -316,22 +316,23 @@ const DesignAndSample: React.FC = () => {
           contract_link: downloadURL,
         };
 
-        emailjs.send(
-          'service_bwbc9k9', // Replace with your EmailJS service ID
-          'template_imxotql', // Replace with your EmailJS template ID
+        await emailjs.send(
+          'service_bwbc9k9',
+          'template_imxotql',
           emailParams,
-          '4w9Ngb751DSTr2_wp' // Replace with your EmailJS user ID
-        ).then((result) => {
-          console.log('Email sent successfully:', result.text);
-        }, (error) => {
-          console.error('Failed to send email:', error.text);
-        });
+          '4w9Ngb751DSTr2_wp'
+        );
 
-        // Automatically download PDF
-        saveAs(pdfBlob, `${contractData.contractName}.pdf`);
+        console.log('Email sent successfully');
         
+        // Close the create contract modal
         setIsCreateContractModalOpen(false);
+        
+        // Open the success modal
         setIsModalOpen(true);
+        
+        // Open the PDF in a new tab
+        window.open(downloadURL, '_blank');
       } else {
         alert(`Failed to create contract: ${response.data.message || 'Unknown error'}`);
       }
