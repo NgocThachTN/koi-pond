@@ -154,23 +154,37 @@ const ContractManagement: React.FC = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-
-  const filteredContracts = contracts.filter(contract => 
-    getCustomerName(contract).toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const paginatedContracts = filteredContracts.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const shortenUrl = (url: string, maxLength: number = 30) => {
+    if (url.length <= maxLength) return url;
+    return url.substring(0, maxLength - 3) + '...';
+  };
 
   const formatProgressUpdates = (description: string) => {
     if (!description) return 'No progress updates yet.';
     
     const lines = description.split('\n');
     
+    const formatTextWithLinks = (text: string) => {
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      return text.split(urlRegex).map((part, index) => {
+        if (urlRegex.test(part)) {
+          const shortenedText = part.includes('firebasestorage.googleapis.com') ? 'contract_pdf' : 'link';
+          return (
+            <a 
+              key={index} 
+              href={part} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-blue-600 hover:underline"
+            >
+              {shortenedText}
+            </a>
+          );
+        }
+        return part;
+      });
+    };
+
     return lines.map((line, index) => {
       const dateMatch = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/);
       if (dateMatch) {
@@ -179,11 +193,12 @@ const ContractManagement: React.FC = () => {
         const content = line.substring(dateMatch[0].length).trim();
         return (
           <div key={index} className="mb-2">
-            <span className="font-semibold">[{formattedDate}]</span> {content}
+            <span className="font-semibold">[{formattedDate}]</span>{' '}
+            {formatTextWithLinks(content)}
           </div>
         );
       }
-      return <div key={index} className="mb-2">{line}</div>;
+      return <div key={index} className="mb-2">{formatTextWithLinks(line)}</div>;
     });
   };
 
@@ -217,6 +232,18 @@ const ContractManagement: React.FC = () => {
     const latestStatus = getLatestStatus(description);
     return latestStatus.length > maxLength ? `${latestStatus.slice(0, maxLength)}...` : latestStatus;
   };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  const filteredContracts = contracts.filter(contract => 
+    getCustomerName(contract).toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const paginatedContracts = filteredContracts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <DefaultManagerLayout>
