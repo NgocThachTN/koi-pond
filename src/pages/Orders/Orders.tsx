@@ -23,6 +23,7 @@ import { Progress } from "@nextui-org/react"
 import { Link } from "@nextui-org/react"
 import { format } from 'date-fns'
 import { Chip } from "@nextui-org/react";
+import { ScrollShadow } from "@nextui-org/react"
 
 const statusColorMap: Record<string, "warning" | "primary" | "success" | "danger"> = {
   pending: "warning",
@@ -31,7 +32,25 @@ const statusColorMap: Record<string, "warning" | "primary" | "success" | "danger
   cancelled: "danger",
 };
 
-function OrdersPage() {
+const formatMessageContent = (content: string) => {
+  const firebaseStorageRegex = /https:\/\/firebasestorage\.googleapis\.com\/.*?\.pdf(\?[^\s]+)?/g;
+  
+  return content.replace(firebaseStorageRegex, (match) => {
+    const fileName = decodeURIComponent(match.split('/').pop()?.split('?')[0] || 'contract.pdf');
+    return `<a href="${match}" target="_blank" rel="noopener noreferrer" class="text-white underline hover:text-blue-200">${fileName}</a>`;
+  });
+};
+
+const MessageContent: React.FC<{ content: string }> = ({ content }) => {
+  return (
+    <p
+      className="text-sm break-words"
+      dangerouslySetInnerHTML={{ __html: formatMessageContent(content) }}
+    />
+  );
+};
+
+const OrdersPage: React.FC = () => {
   const [contracts, setContracts] = useState<Contract[]>([])
   const [requests, setRequests] = useState<UserRequest[]>([])
   const [page, setPage] = React.useState(1)
@@ -50,6 +69,7 @@ function OrdersPage() {
   const [isEditContractOpen, setIsEditContractOpen] = useState(false);
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
   const [newProgressUpdate, setNewProgressUpdate] = useState('');
+  const [localDescription, setLocalDescription] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -274,46 +294,33 @@ function OrdersPage() {
   };
 
   const formatProgressUpdates = (description: string) => {
-    if (!description) return 'No progress updates yet.';
-
+    if (!description) return [];
+    
     const lines = description.split('\n');
-
-    const formatTextWithLinks = (text: string) => {
-      const urlRegex = /(https?:\/\/[^\s]+)/g;
-      return text.split(urlRegex).map((part, index) => {
-        if (urlRegex.test(part)) {
-          const shortenedText = part.includes('firebasestorage.googleapis.com') ? 'contract.pdf' : 'link';
-          return (
-            <Link
-              key={index}
-              href={part}
-              isExternal
-              showAnchorIcon
-              className="text-blue-600 hover:underline"
-            >
-              {shortenedText}
-            </Link>
-          );
-        }
-        return part;
-      });
-    };
-
+    
     return lines.map((line, index) => {
       const dateMatch = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.*?): (.*)/);
       if (dateMatch) {
         const [, timestamp, role, content] = dateMatch;
         const date = new Date(timestamp);
-        const formattedDate = format(date, 'HH:mm:ss dd/MM/yyyy');
-        return (
-          <div key={index} className="mb-2">
-            <span className="font-semibold">[{formattedDate}]</span>{' '}
-            <span className="font-medium">{role}:</span>{' '}
-            {formatTextWithLinks(content)}
-          </div>
-        );
+        const formattedDate = format(date, 'dd/MM/yyyy HH:mm:ss');
+        return {
+          id: index,
+          sender: role,
+          content: content,
+          timestamp: formattedDate
+        };
       }
-      return <div key={index} className="mb-2">{formatTextWithLinks(line)}</div>;
+      return null;
+    }).filter(Boolean);
+  };
+
+  const formatMessageContent = (content: string) => {
+    const firebaseStorageRegex = /https:\/\/firebasestorage\.googleapis\.com\/.*?\.pdf(\?[^\s]+)?/g;
+    
+    return content.replace(firebaseStorageRegex, (match) => {
+      const fileName = decodeURIComponent(match.split('/').pop()?.split('?')[0] || 'contract.pdf');
+      return `<a href="${match}" target="_blank" rel="noopener noreferrer" class="text-white underline hover:text-blue-200">${fileName}</a>`;
     });
   };
 
@@ -327,7 +334,6 @@ function OrdersPage() {
 
     try {
       const isDesignRequest = editingContract.designs && editingContract.designs.$values && editingContract.designs.$values.length > 0;
-
       const updateFunction = isDesignRequest ? updateContractByRequestDesignApi : updateContractBySampleApi;
 
       const currentDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
@@ -362,10 +368,26 @@ function OrdersPage() {
       const updatedContract = await updateFunction(updatePayload);
 
       console.log("Contract updated successfully:", updatedContract);
+      
+      // Update local state immediately
+      setLocalDescription(updatedDescription);
       setNewProgressUpdate('');
-      setIsEditContractOpen(false);
+      setEditingContract(prev => ({...prev!, contractDescription: updatedDescription}));
+      
+      // Update the contracts list
+      setContracts(prevContracts => 
+        prevContracts.map(contract => 
+          contract.contractId === editingContract.contractId 
+            ? {...contract, contractDescription: updatedDescription} 
+            : contract
+        )
+      );
 
-      await fetchContracts();
+      // Don't close the modal, allowing for continuous chat
+      // setIsEditContractOpen(false);
+
+      // No need to fetch contracts again
+      // await fetchContracts();
     } catch (err) {
       console.error("Error in handleEditContractSubmit:", err);
     }
@@ -433,6 +455,36 @@ function OrdersPage() {
       console.error('Failed to fetch contracts:', error);
     }
   };
+
+  const fetchLatestUpdates = async () => {
+    if (!editingContract) return;
+    
+    try {
+      const response = await getContractsApi();
+      const updatedContract = response.data.$values.find(
+        (c: Contract) => c.contractId === editingContract.contractId
+      );
+      
+      if (updatedContract && updatedContract.description !== editingContract.contractDescription) {
+        setEditingContract(prevContract => ({
+          ...prevContract!,
+          contractDescription: updatedContract.description || ''
+        }));
+      }
+    } catch (err) {
+      console.error("Error fetching latest updates:", err);
+    }
+  };
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    if (isEditContractOpen) {
+      intervalId = setInterval(fetchLatestUpdates, 5000); // Poll every 5 seconds
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isEditContractOpen, editingContract]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -791,118 +843,129 @@ function OrdersPage() {
         <Modal
           isOpen={isEditContractOpen}
           onClose={() => setIsEditContractOpen(false)}
-          size="3xl"
+          size="5xl"
         >
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className="flex flex-col gap-1">Contract Details</ModalHeader>
-                <ModalBody>
-                  {editingContract && (
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Input
-                          label="Contract Name"
-                          value={editingContract.contractName}
-                          isReadOnly
-                          className="mb-4"
-                        />
-                        <Input
-                          label="Start Date"
-                          type="date"
-                          value={format(new Date(editingContract.contractStartDate), 'yyyy-MM-dd')}
-                          isReadOnly
-                          className="mb-4"
-                        />
-                        <Input
-                          label="End Date"
-                          type="date"
-                          value={format(new Date(editingContract.contractEndDate), 'yyyy-MM-dd')}
-                          isReadOnly
-                          className="mb-4"
-                        />
-                        <Input
-                          label="Current Status"
-                          value={editingContract.contractStatus}
-                          isReadOnly
-                          className="mb-4"
-                        />
-                        {editingContract.contractStatus === "Pending" && (
-                          <div className="flex justify-between mb-4">
-                            <Button
-                              color="success"
-                              auto
-                              onPress={() => handleStatusChange("Processing")}
-                            >
-                              Agree
-                            </Button>
-                            <Button
-                              color="danger"
-                              auto
-                              onPress={() => handleStatusChange("Cancelled")}
-                            >
-                              Disagree
-                            </Button>
-                          </div>
-                        )}
-                        <Input
-                          label="Request Name"
-                          value={editingContract.requestName}
-                          isReadOnly
-                          className="mb-4"
-                        />
-                        <Textarea
-                          label="Request Description"
-                          value={editingContract.description}
-                          isReadOnly
-                          className="mb-4"
-                        />
+          <ModalContent className="max-w-[1200px]">
+            <ModalHeader className="flex flex-col gap-1">Edit Contract</ModalHeader>
+            <ModalBody>
+              {editingContract && (
+                <div className="grid grid-cols-5 gap-6">
+                  {/* Left column: Contract details */}
+                  <div className="col-span-2">
+                    <h3 className="text-lg font-semibold mb-4">Contract Details</h3>
+                    <Input
+                      label="Contract Name"
+                      value={editingContract.contractName}
+                      isReadOnly
+                      className="mb-4"
+                    />
+                    <Input
+                      label="Start Date"
+                      type="date"
+                      value={format(new Date(editingContract.contractStartDate), 'yyyy-MM-dd')}
+                      isReadOnly
+                      className="mb-4"
+                    />
+                    <Input
+                      label="End Date"
+                      type="date"
+                      value={format(new Date(editingContract.contractEndDate), 'yyyy-MM-dd')}
+                      isReadOnly
+                      className="mb-4"
+                    />
+                    <Input
+                      label="Current Status"
+                      value={editingContract.contractStatus}
+                      isReadOnly
+                      className="mb-4"
+                    />
+                    {editingContract.contractStatus === "Pending" && (
+                      <div className="flex justify-between mb-4">
+                        <Button
+                          color="success"
+                          auto
+                          onPress={() => handleStatusChange("Processing")}
+                        >
+                          Agree
+                        </Button>
+                        <Button
+                          color="danger"
+                          auto
+                          onPress={() => handleStatusChange("Cancelled")}
+                        >
+                          Disagree
+                        </Button>
                       </div>
-                      <div>
-                        <div className="mb-4">
-                          <h3 className="text-sm font-medium mb-2">Current Progress</h3>
-                          <div className="border p-2 rounded-md h-40 overflow-y-auto bg-gray-100 text-sm">
-                            {formatProgressUpdates(editingContract.contractDescription)}
+                    )}
+                    <Input
+                      label="Request Name"
+                      value={editingContract.requestName}
+                      isReadOnly
+                      className="mb-4"
+                    />
+                    <Textarea
+                      label="Request Description"
+                      value={editingContract.description}
+                      isReadOnly
+                      className="mb-4"
+                    />
+                  </div>
+                  {/* Right column: Progress updates */}
+                  <div className="col-span-3 flex flex-col h-[600px] bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold mb-4 dark:text-white">Progress Updates</h3>
+                    <ScrollShadow className="flex-grow mb-4">
+                      <div className="space-y-4">
+                        {formatProgressUpdates(editingContract.contractDescription || '').map((message, index) => (
+                          <div key={message.id} className={`flex ${message.sender === 'Customer' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`flex items-start gap-2 max-w-[80%] ${message.sender === 'Customer' ? 'flex-row-reverse' : ''}`}>
+                              <Avatar
+                                name={message.sender}
+                                size="sm"
+                                className={`${
+                                  message.sender === 'Customer' ? 'bg-blue-500' :
+                                  message.sender === 'Manager' ? 'bg-green-500' :
+                                  'bg-gray-500'
+                                } text-white`}
+                              />
+                              <div className={`p-3 rounded-lg ${
+                                message.sender === 'Customer' 
+                                  ? 'bg-blue-500 text-white' 
+                                  : 'bg-white text-black dark:bg-gray-700 dark:text-white'
+                              }`}>
+                                <p className="font-semibold text-sm">{message.sender}</p>
+                                <MessageContent content={message.content} />
+                                <p className="text-xs opacity-70 mt-1">{message.timestamp}</p>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                        <Textarea
-                          label="New Progress Update"
-                          placeholder="Enter new progress update..."
-                          value={newProgressUpdate}
-                          onChange={(e) => setNewProgressUpdate(e.target.value)}
-                          className="mb-4"
-                        />
-                        {editingContract.designs && editingContract.designs.$values && editingContract.designs.$values.length > 0 ? (
-                          <div>
-                            <h3 className="text-sm font-medium mb-2">Design Details</h3>
-                            <p>Name: {editingContract.designs.$values[0].designName}</p>
-                            <p>Size: {editingContract.designs.$values[0].designSize}</p>
-                            <p>Price: ${editingContract.designs.$values[0].designPrice}</p>
-                          </div>
-                        ) : editingContract.samples && editingContract.samples.$values && editingContract.samples.$values.length > 0 ? (
-                          <div>
-                            <h3 className="text-sm font-medium mb-2">Sample Details</h3>
-                            <p>Name: {editingContract.samples.$values[0].sampleName}</p>
-                            <p>Size: {editingContract.samples.$values[0].sampleSize}</p>
-                            <p>Price: ${editingContract.samples.$values[0].samplePrice}</p>
-                          </div>
-                        ) : null}
+                        ))}
                       </div>
+                    </ScrollShadow>
+                    <Divider className="my-4" />
+                    <div className="flex items-end gap-2">
+                      <Textarea
+                        label="New Message"
+                        placeholder="Type your message..."
+                        value={newProgressUpdate}
+                        onChange={(e) => setNewProgressUpdate(e.target.value)}
+                        className="flex-grow"
+                      />
+                      <Button color="primary" onPress={handleEditContractSubmit}>
+                        Send
+                      </Button>
                     </div>
-                  )}
-                </ModalBody>
-                <ModalFooter>
-                  <Button color="danger" variant="light" onPress={onClose}>
-                    Close
-                  </Button>
-                  {editingContract?.contractStatus !== "Pending" && (
-                    <Button color="primary" onPress={handleEditContractSubmit}>
-                      Save Changes
-                    </Button>
-                  )}
-                </ModalFooter>
-              </>
-            )}
+                  </div>
+                </div>
+              )}
+            </ModalBody>
+            <ModalFooter>
+              <Button color="danger" variant="light" onPress={() => setIsEditContractOpen(false)}>
+                Close
+              </Button>
+              <Button color="primary" onPress={handleEditContractSubmit}>
+                Save Changes
+              </Button>
+            </ModalFooter>
           </ModalContent>
         </Modal>
       </div>

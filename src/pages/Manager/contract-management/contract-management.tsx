@@ -20,7 +20,10 @@ import {
   Input,
   Textarea,
   Select,
-  SelectItem
+  SelectItem,
+  Avatar,
+  ScrollShadow,
+  Link
 } from "@nextui-org/react";
 import { SearchIcon } from '@nextui-org/shared-icons';
 import { getContractsApi, Contract, updateContractByRequestDesignApi, updateContractBySampleApi } from '@/apis/user.api';
@@ -38,10 +41,22 @@ const ContractManagement: React.FC = () => {
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [newProgressUpdate, setNewProgressUpdate] = useState('');
+  const [localDescription, setLocalDescription] = useState('');
+  const [isPolling, setIsPolling] = useState(false);
 
   useEffect(() => {
     fetchContracts();
   }, []);
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    if (editModalOpen) {
+      intervalId = setInterval(fetchLatestUpdates, 5000); // Poll every 5 seconds
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [editModalOpen, editingContract]);
 
   const fetchContracts = async () => {
     try {
@@ -66,7 +81,55 @@ const ContractManagement: React.FC = () => {
 
   const handleEditClick = (contract: Contract) => {
     setEditingContract(contract);
+    setLocalDescription(contract.description || '');
     setEditModalOpen(true);
+  };
+
+  const handleSendMessage = async () => {
+    if (!editingContract || !newProgressUpdate.trim()) return;
+
+    const currentDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
+    const newUpdate = `[${currentDate}] Manager: ${newProgressUpdate}`;
+    const updatedDescription = localDescription
+      ? `${localDescription}\n\n${newUpdate}`
+      : newUpdate;
+
+    try {
+      const updateFunction = editingContract.requests.$values[0].designs ?
+        updateContractByRequestDesignApi : updateContractBySampleApi;
+
+      const updatedContract = await updateFunction({
+        ...editingContract,
+        contractId: Number(editingContract.contractId),
+        description: updatedDescription,
+        requests: [{
+          ...editingContract.requests.$values[0],
+          users: editingContract.requests.$values[0].users.$values,
+          designs: editingContract.requests.$values[0].designs?.$values || [],
+          samples: editingContract.requests.$values[0].samples?.$values || [],
+        }]
+      });
+
+      console.log("Message sent and contract updated successfully:", updatedContract);
+      
+      // Update the local state
+      setLocalDescription(updatedDescription);
+      setNewProgressUpdate('');
+      
+      // Update the contract in the contracts list without fetching all contracts again
+      setContracts(prevContracts => 
+        prevContracts.map(contract => 
+          contract.contractId === editingContract.contractId ? {...contract, description: updatedDescription} : contract
+        )
+      );
+      
+      // Update the editingContract state
+      setEditingContract(prevContract => ({...prevContract!, description: updatedDescription}));
+
+    } catch (err) {
+      console.error("Error in handleSendMessage:", err);
+      // You might want to show an error message to the user here
+    }
   };
 
   const handleEditSubmit = async () => {
@@ -76,21 +139,10 @@ const ContractManagement: React.FC = () => {
       const updateFunction = editingContract.requests.$values[0].designs ?
         updateContractByRequestDesignApi : updateContractBySampleApi;
 
-      const currentDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
-      let updatedDescription = editingContract.description;
-
-      if (newProgressUpdate.trim()) {
-        const userRole = "Manager"; // Assuming the current user is always a Manager
-        const newUpdate = `[${currentDate}] ${userRole}: ${newProgressUpdate}`;
-        updatedDescription = updatedDescription
-          ? `${updatedDescription}\n\n${newUpdate}`
-          : newUpdate;
-      }
-
       const updatedContract = await updateFunction({
         ...editingContract,
         contractId: Number(editingContract.contractId),
-        description: updatedDescription,
+        description: localDescription,
         requests: [{
           ...editingContract.requests.$values[0],
           users: editingContract.requests.$values[0].users.$values,
@@ -132,7 +184,6 @@ const ContractManagement: React.FC = () => {
         console.log("Contract status is not Completed, skipping email");
       }
 
-      setNewProgressUpdate(''); // Clear the new progress update field
       setEditModalOpen(false);
       await fetchContracts();
     } catch (err) {
@@ -164,47 +215,25 @@ const ContractManagement: React.FC = () => {
   };
 
   const formatProgressUpdates = (description: string) => {
-    if (!description) return 'No progress updates yet.';
+    if (!description) return [];
     
     const lines = description.split('\n');
     
-    const formatTextWithLinks = (text: string) => {
-      const urlRegex = /(https?:\/\/[^\s]+)/g;
-      return text.split(urlRegex).map((part, index) => {
-        if (urlRegex.test(part)) {
-          const shortenedText = part.includes('firebasestorage.googleapis.com') ? 'contract_pdf' : 'link';
-          return (
-            <a 
-              key={index} 
-              href={part} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="text-blue-600 hover:underline"
-            >
-              {shortenedText}
-            </a>
-          );
-        }
-        return part;
-      });
-    };
-
     return lines.map((line, index) => {
       const dateMatch = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.*?): (.*)/);
       if (dateMatch) {
         const [, timestamp, role, content] = dateMatch;
         const date = new Date(timestamp);
         const formattedDate = format(date, 'dd/MM/yyyy HH:mm:ss');
-        return (
-          <div key={index} className="mb-2">
-            <span className="font-semibold">[{formattedDate}]</span>{' '}
-            <span className="font-medium">{role}:</span>{' '}
-            {formatTextWithLinks(content)}
-          </div>
-        );
+        return {
+          id: index,
+          sender: role,
+          content: content,
+          timestamp: formattedDate
+        };
       }
-      return <div key={index} className="mb-2">{formatTextWithLinks(line)}</div>;
-    });
+      return null;
+    }).filter(Boolean);
   };
 
   const getLatestStatus = (description: string): string => {
@@ -249,6 +278,44 @@ const ContractManagement: React.FC = () => {
 
   console.log('Filtered Contracts:', filteredContracts);
   console.log('Paginated Contracts:', paginatedContracts);
+
+  const formatMessageContent = (content: string) => {
+    // Giữ nguyên các ký tự xuống dòng
+    const firebaseStorageRegex = /https:\/\/firebasestorage\.googleapis\.com\/.*?\.pdf(\?[^\s]+)?/g;
+    
+    return content.replace(firebaseStorageRegex, (match) => {
+      const fileName = decodeURIComponent(match.split('/').pop()?.split('?')[0] || 'contract.pdf');
+      return `<a href="${match}" target="_blank" rel="noopener noreferrer">${fileName}</a>`;
+    });
+  };
+
+  // Trong phần render của tin nhắn
+  const MessageContent: React.FC<{ content: string }> = ({ content }) => {
+    return (
+      <p
+        className="text-sm dark:text-white"
+        dangerouslySetInnerHTML={{ __html: formatMessageContent(content) }}
+      />
+    );
+  };
+
+  const fetchLatestUpdates = async () => {
+    if (!editingContract) return;
+    
+    try {
+      const response = await getContractsApi();
+      const updatedContract = response.data.$values.find(
+        (c: Contract) => c.contractId === editingContract.contractId
+      );
+      
+      if (updatedContract && updatedContract.description !== localDescription) {
+        setLocalDescription(updatedContract.description || '');
+        setEditingContract(updatedContract);
+      }
+    } catch (err) {
+      console.error("Error fetching latest updates:", err);
+    }
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -321,15 +388,16 @@ const ContractManagement: React.FC = () => {
         <Modal 
           isOpen={editModalOpen} 
           onClose={() => setEditModalOpen(false)}
-          size="3xl"
+          size="5xl" // Increased modal size
         >
           <ModalContent>
             <ModalHeader className="flex flex-col gap-1">Edit Contract</ModalHeader>
             <ModalBody>
               {editingContract && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-6"> {/* Changed to 3 columns */}
                   {/* Left column: Contract details */}
-                  <div>
+                  <div className="col-span-1">
+                    <h3 className="text-lg font-semibold mb-4">Contract Details</h3>
                     <Input
                       label="Contract Name"
                       value={editingContract.contractName}
@@ -364,20 +432,45 @@ const ContractManagement: React.FC = () => {
                   </div>
                   
                   {/* Right column: Progress updates */}
-                  <div>
-                    <div className="mb-4">
-                      <h3 className="text-sm font-medium mb-2">Current Progress</h3>
-                      <div className="border p-2 rounded-md h-40 overflow-y-auto bg-gray-100 text-sm">
-                        {formatProgressUpdates(editingContract.description)}
+                  <div className="col-span-2 flex flex-col h-[600px] bg-gray-50 dark:bg-gray-800 rounded-lg p-4"> {/* Increased height and added background */}
+                    <h3 className="text-lg font-semibold mb-4 dark:text-white">Progress Updates</h3>
+                    <ScrollShadow className="flex-grow mb-4">
+                      <div className="space-y-4">
+                        {formatProgressUpdates(localDescription).map((message, index) => (
+                          <div key={message.id} className={`flex ${message.sender === 'Manager' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`flex items-start gap-2 max-w-[80%] ${message.sender === 'Manager' ? 'flex-row-reverse' : ''}`}>
+                              <Avatar
+                                name={message.sender}
+                                size="sm"
+                                className={message.sender === 'Manager' ? 'bg-primary text-white' : 'bg-default-300 dark:bg-gray-600'}
+                              />
+                              <div className={`p-3 rounded-lg shadow ${
+                                message.sender === 'Manager' 
+                                  ? 'bg-primary text-white dark:bg-blue-600' 
+                                  : 'bg-white text-black dark:bg-gray-700 dark:text-white'
+                              } max-w-full overflow-hidden`}>
+                                <p className="font-semibold text-sm">{message.sender}</p>
+                                <MessageContent content={message.content} />
+                                <p className="text-xs opacity-70 mt-1 dark:text-gray-300">{message.timestamp}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
+                    </ScrollShadow>
+                    <Divider className="my-4" />
+                    <div className="flex items-end gap-2">
+                      <Textarea
+                        label="New Message"
+                        placeholder="Type your message..."
+                        value={newProgressUpdate}
+                        onChange={(e) => setNewProgressUpdate(e.target.value)}
+                        className="flex-grow dark:bg-gray-700 dark:text-white"
+                      />
+                      <Button color="primary" onPress={handleSendMessage}>
+                        Send
+                      </Button>
                     </div>
-                    <Textarea
-                      label="New Progress Update"
-                      placeholder="Enter new progress update..."
-                      value={newProgressUpdate}
-                      onChange={(e) => setNewProgressUpdate(e.target.value)}
-                      className="mb-4"
-                    />
                   </div>
                 </div>
               )}
