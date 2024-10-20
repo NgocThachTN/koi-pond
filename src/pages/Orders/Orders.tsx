@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { NavbarUser } from '@/components/Navbar/navbaruser'
-import { Card, CardBody, CardHeader, Button, Pagination, Avatar, Input, Select, SelectItem, Textarea } from "@nextui-org/react"
+import { Card, CardBody, CardHeader, Button, Pagination, Avatar, Input, Select, SelectItem, Textarea, Tabs, Tab } from "@nextui-org/react"
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react"
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/react"
 import { 
@@ -13,10 +13,15 @@ import {
   MaintenanceRequestBySampleType,
   MaintenanceRequestByDesignType,
   getMaintenanceRequestsApi,
-  MaintenanceRequest
+  MaintenanceRequest,
+  updateContractByRequestDesignApi,
+  updateContractBySampleApi
 } from '@/apis/user.api'
 import { Divider } from "@nextui-org/react"
-import { FaCheckCircle, FaComments, FaEnve, FaMapMarkerAltlope, FaLeaf, FaPhone, FaList, FaRuler, FaMapMarkerAlt, FaEnvelope } from 'react-icons/fa'
+import { FaCheckCircle, FaComments, FaEnve, FaMapMarkerAltlope, FaLeaf, FaPhone, FaList, FaRuler, FaMapMarkerAlt, FaEnvelope, FaUser, FaFileContract, FaTools, FaHardHat, FaEdit } from 'react-icons/fa'
+import { Progress } from "@nextui-org/react"
+import { Link } from "@nextui-org/react"
+import { format } from 'date-fns'
 
 const statusColorMap: Record<string, "warning" | "primary" | "success"> = {
   pending: "warning",
@@ -40,6 +45,9 @@ function OrdersPage() {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false)
   const [maintenanceRequests, setMaintenanceRequests] = useState<MaintenanceRequest[]>([])
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [isEditContractOpen, setIsEditContractOpen] = useState(false);
+  const [editingContract, setEditingContract] = useState<Contract | null>(null);
+  const [newProgressUpdate, setNewProgressUpdate] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -249,6 +257,171 @@ function OrdersPage() {
     }
   }
 
+  const shortenUrl = (url: string, maxLength: number = 30) => {
+    if (url.length <= maxLength) return url;
+    return url.substring(0, maxLength - 3) + '...';
+  };
+
+  const formatProgressUpdates = (description: string) => {
+    if (!description) return 'No progress updates yet.';
+    
+    const lines = description.split('\n');
+    
+    const formatTextWithLinks = (text: string) => {
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      return text.split(urlRegex).map((part, index) => {
+        if (urlRegex.test(part)) {
+          const shortenedText = part.includes('firebasestorage.googleapis.com') ? 'contract.pdf' : 'link';
+          return (
+            <Link 
+              key={index} 
+              href={part} 
+              isExternal
+              showAnchorIcon
+              className="text-blue-600 hover:underline"
+            >
+              {shortenedText}
+            </Link>
+          );
+        }
+        return part;
+      });
+    };
+
+    return lines.map((line, index) => {
+      const dateMatch = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/);
+      if (dateMatch) {
+        const date = new Date(dateMatch[1]);
+        const formattedDate = date.toLocaleString();
+        const content = line.substring(dateMatch[0].length).trim();
+        return (
+          <div key={index} className="mb-2">
+            <span className="font-semibold">[{formattedDate}]</span>{' '}
+            {formatTextWithLinks(content)}
+          </div>
+        );
+      }
+      return <div key={index} className="mb-2">{formatTextWithLinks(line)}</div>;
+    });
+  };
+
+  const handleEditContractClick = (contract: Contract) => {
+    setEditingContract(contract);
+    setIsEditContractOpen(true);
+  };
+
+  const handleEditContractSubmit = async () => {
+    if (!editingContract) return;
+
+    try {
+      const isDesignRequest = editingContract.designs && editingContract.designs.$values && editingContract.designs.$values.length > 0;
+      
+      const updateFunction = isDesignRequest ? updateContractByRequestDesignApi : updateContractBySampleApi;
+
+      const currentDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
+      let updatedDescription = editingContract.contractDescription || '';
+
+      if (newProgressUpdate.trim()) {
+        const newUpdate = `[${currentDate}] ${newProgressUpdate}`;
+        updatedDescription = updatedDescription
+          ? `${updatedDescription}\n\n${newUpdate}`
+          : newUpdate;
+      }
+
+      const updatePayload = {
+        contractId: Number(editingContract.contractId),
+        contractName: editingContract.contractName,
+        contractStartDate: editingContract.contractStartDate,
+        contractEndDate: editingContract.contractEndDate,
+        status: editingContract.contractStatus,
+        description: updatedDescription,
+        requests: [{
+          requestId: editingContract.requestId,
+          requestName: editingContract.requestName,
+          description: editingContract.description,
+          users: editingContract.users.$values,
+          designs: isDesignRequest ? editingContract.designs.$values : [],
+          samples: !isDesignRequest ? editingContract.samples.$values : [],
+        }]
+      };
+
+      console.log("Update payload:", updatePayload);
+
+      const updatedContract = await updateFunction(updatePayload);
+
+      console.log("Contract updated successfully:", updatedContract);
+      setNewProgressUpdate('');
+      setIsEditContractOpen(false);
+      
+      await fetchContracts();
+    } catch (err) {
+      console.error("Error in handleEditContractSubmit:", err);
+    }
+  };
+
+  const handleStatusChange = async (newStatus: string) => {
+    if (!editingContract) {
+      console.error("No contract is being edited");
+      return;
+    }
+
+    try {
+      const isDesignRequest = editingContract.designs && editingContract.designs.$values && editingContract.designs.$values.length > 0;
+      
+      const updateFunction = isDesignRequest ? updateContractByRequestDesignApi : updateContractBySampleApi;
+
+      const updatePayload = {
+        contractId: Number(editingContract.contractId),
+        contractName: editingContract.contractName,
+        contractStartDate: editingContract.contractStartDate,
+        contractEndDate: editingContract.contractEndDate,
+        status: newStatus,
+        description: editingContract.contractDescription || '',
+        requests: [{
+          requestId: editingContract.requestId,
+          requestName: editingContract.requestName,
+          description: editingContract.description,
+          users: editingContract.users.$values,
+          designs: isDesignRequest ? editingContract.designs.$values : [],
+          samples: !isDesignRequest ? editingContract.samples.$values : [],
+        }]
+      };
+
+      console.log("Update payload:", updatePayload);
+
+      const updatedContract = await updateFunction(updatePayload);
+
+      console.log("Contract updated successfully:", updatedContract);
+      setIsEditContractOpen(false);
+      
+      await fetchContracts();
+    } catch (err) {
+      console.error("Error in handleStatusChange:", err);
+      // Hiển thị thông báo lỗi cho người dùng
+      // Ví dụ: setError("Failed to update contract status. Please try again.");
+    }
+  };
+
+  // Add this function to fetch contracts
+  const fetchContracts = async () => {
+    try {
+      const email = localStorage.getItem('userEmail');
+      if (email) {
+        const contractsResponse = await getContractsApi();
+        if (contractsResponse.data && contractsResponse.data.$values) {
+          const userContracts = contractsResponse.data.$values.filter((contract: Contract) =>
+            contract.requests.$values.some(request =>
+              request.users.$values.some(user => user.email === email)
+            )
+          );
+          setContracts(userContracts);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch contracts:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <NavbarUser />
@@ -301,265 +474,427 @@ function OrdersPage() {
             )}
           </CardBody>
         </Card>
-      </div>
 
-      <Modal
-        isOpen={isDetailsOpen}
-        onClose={onDetailsClose}
-        size="5xl"
-        scrollBehavior="inside"
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                <h2 className="text-2xl font-bold">Request Details</h2>
-              </ModalHeader>
-              <ModalBody>
-                {selectedItem && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Card>
-                      <CardHeader>
-                        <h3 className="text-xl font-semibold">Request Information</h3>
-                      </CardHeader>
-                      <CardBody>
-                        <p><strong>Name:</strong> {selectedItem.requestName}</p>
-                        <p><strong>Status:</strong> {selectedItem.contractStatus}</p>
-                        <p><strong>Description:</strong> {selectedItem.description}</p>
-                        {selectedItem.hasContract && (
-                          <>
-                            <p><strong>Contract Name:</strong> {selectedItem.contractName}</p>
-                            <p><strong>Start Date:</strong> {selectedItem.contractStartDate}</p>
-                            <p><strong>End Date:</strong> {selectedItem.contractEndDate}</p>
-                            <p><strong>Construction progress:</strong> {selectedItem.contractDescription}</p>
-                          </>
-                        )}
-                      </CardBody>
-                    </Card>
-                    <Card>
-                      <CardHeader>
-                        <h3 className="text-xl font-semibold">Details</h3>
-                      </CardHeader>
-                      <CardBody className="overflow-y-auto max-h-[60vh]">
-                        <h5 className="text-md font-semibold mt-2">User:</h5>
-                        {selectedItem.users.$values.map((user, userIndex) => (
-                          <div key={userIndex} className="ml-2">
-                            <p><strong>Name:</strong> {user.name}</p>
-                            <p><strong>Email:</strong> {user.email}</p>
-                            <p><strong>Phone:</strong> {user.phoneNumber}</p>
-                            <p><strong>Address:</strong> {user.address}</p>
+        <Modal
+          isOpen={isDetailsOpen}
+          onClose={onDetailsClose}
+          size="5xl"
+          scrollBehavior="inside"
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  <h2 className="text-2xl font-bold">Request Details</h2>
+                </ModalHeader>
+                <ModalBody>
+                  {selectedItem && (
+                    <Tabs aria-label="Request Details" color="primary" variant="underlined">
+                      <Tab
+                        key="overview"
+                        title={
+                          <div className="flex items-center space-x-2">
+                            <FaUser />
+                            <span>Overview</span>
                           </div>
-                        ))}
-                        {selectedItem.designs.$values.length > 0 && (
-                          <>
-                            <Divider className="my-2" />
-                            <h5 className="text-md font-semibold mt-2">Design:</h5>
-                            {selectedItem.designs.$values.map((design, designIndex) => (
-                              <div key={designIndex} className="ml-2">
-                                <p><strong>Name:</strong> {design.designName}</p>
-                                <p><strong>Size:</strong> {design.designSize}</p>
-                                <p><strong>Price:</strong> ${design.designPrice}</p>
+                        }
+                      >
+                        <Card>
+                          <CardBody>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <h3 className="text-lg font-semibold mb-2">Request Information</h3>
+                                <p><strong>Name:</strong> {selectedItem.requestName}</p>
+                                <p><strong>Type:</strong> {selectedItem.designs.$values.length > 0 ? 'Design' : 'Sample'}</p>
+                                <p><strong>Size:</strong> {selectedItem.designs.$values[0]?.designSize || selectedItem.samples.$values[0]?.sampleSize}</p>
+                                <p><strong>Price:</strong> ${selectedItem.designs.$values[0]?.designPrice || selectedItem.samples.$values[0]?.samplePrice}</p>
+                                <p><strong>Description:</strong> {selectedItem.description}</p>
                               </div>
-                            ))}
-                          </>
-                        )}
-                        {selectedItem.samples.$values.length > 0 && (
-                          <>
-                            <Divider className="my-2" />
-                            <h5 className="text-md font-semibold mt-2">Sample:</h5>
-                            {selectedItem.samples.$values.map((sample, sampleIndex) => (
-                              <div key={sampleIndex} className="ml-2">
-                                <p><strong>Name:</strong> {sample.sampleName}</p>
-                                <p><strong>Size:</strong> {sample.sampleSize}</p>
-                                <p><strong>Price:</strong> ${sample.samplePrice}</p>
-                              </div>
-                            ))}
-                          </>
-                        )}
-                      </CardBody>
-                    </Card>
-                    {selectedItem && selectedItem.contractStatus === 'Completed' && (
-                      <Card>
-                        <CardHeader>
-                          <h3 className="text-xl font-semibold">Maintenance Information</h3>
-                        </CardHeader>
-                        <CardBody>
-                          {console.log('Selected Item:', selectedItem)}
-                          {console.log('Maintenance Requests:', maintenanceRequests)}
-                          {console.log('User Email:', userEmail)}
-                          {maintenanceRequests.length > 0 ? (
-                            <>
-                              {maintenanceRequests.map((mr, index) => {
-                                console.log(`Checking maintenance request ${index}:`, mr);
-                                const matchingRequest = mr.requests.$values.find(r => 
-                                  r.requestId === selectedItem.requestId ||
-                                  r.requestName === selectedItem.requestName
-                                );
-                                console.log('Matching request:', matchingRequest);
-                                const matchingUser = matchingRequest?.users.$values.find(u => u.email === userEmail);
-                                console.log('Matching user:', matchingUser);
-
-                                if (matchingRequest && matchingUser ) {
-                                  return (
-                                    <div key={index} className="mb-4">
-                                      <p><strong>Maintenance ID:</strong> {mr.maintenanceRequestId}</p>
-                                      <p><strong>Status:</strong> {mr.status}</p>
-                                      <p><strong>Start Date:</strong> {new Date(mr.maintenanceRequestStartDate).toLocaleDateString()}</p>
-                                      <p><strong>End Date:</strong> {new Date(mr.maintenanceRequestEndDate).toLocaleDateString()}</p>
-                                      <p><strong>Services:</strong></p>
-                                      <ul className="list-disc pl-5">
-                                        {mr.maintenance.$values.map((m, idx) => (
-                                          <li key={idx}>{m.maintencaceName}</li>
-                                        ))}
-                                      </ul>
+                              <div>
+                                <h3 className="text-lg font-semibold mb-2">User Information</h3>
+                                {selectedItem.users.$values.map((user, userIndex) => (
+                                  <div key={userIndex} className="flex items-start space-x-4">
+                                    <Avatar name={user.name} size="lg" />
+                                    <div>
+                                      <p><strong>Name:</strong> {user.name}</p>
+                                      <p><strong>Email:</strong> {user.email}</p>
+                                      <p><strong>Phone:</strong> {user.phoneNumber}</p>
+                                      <p><strong>Address:</strong> {user.address}</p>
                                     </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </CardBody>
+                        </Card>
+                      </Tab>
+                      {selectedItem.hasContract && (
+                        <Tab
+                          key="contract"
+                          title={
+                            <div className="flex items-center space-x-2">
+                              <FaFileContract />
+                              <span>Contract</span>
+                            </div>
+                          }
+                        >
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Card>
+                              <CardHeader>
+                                <h3 className="text-lg font-semibold">Contract Details</h3>
+                              </CardHeader>
+                              <CardBody>
+                                <div className="space-y-2">
+                                  <p><strong>Contract Name:</strong> {selectedItem.contractName}</p>
+                                  <p><strong>Status:</strong> {selectedItem.contractStatus}</p>
+                                  <p><strong>Start Date:</strong> {new Date(selectedItem.contractStartDate).toLocaleDateString()}</p>
+                                  <p><strong>End Date:</strong> {new Date(selectedItem.contractEndDate).toLocaleDateString()}</p>
+                                  <Divider className="my-2" />
+                                  <p><strong>Duration:</strong> {
+                                    Math.ceil((new Date(selectedItem.contractEndDate).getTime() - new Date(selectedItem.contractStartDate).getTime()) / (1000 * 3600 * 24))
+                                  } days</p>
+                                </div>
+                              </CardBody>
+                            </Card>
+
+                            <Card>
+                              <CardHeader className="flex justify-between items-center">
+                                <h3 className="text-lg font-semibold">Construction Progress</h3>
+                                <div className="flex items-center space-x-2">
+                                  <FaHardHat className="text-yellow-500" />
+                                  <span className="text-sm font-medium">{selectedItem.contractStatus}</span>
+                                </div>
+                              </CardHeader>
+                              <CardBody>
+                                <Progress 
+                                  value={selectedItem.contractStatus === 'Completed' ? 100 : 50} 
+                                  color={selectedItem.contractStatus === 'Completed' ? "success" : "primary"}
+                                  className="mb-4"
+                                />
+                                <div className="text-sm">
+                                  {formatProgressUpdates(selectedItem.contractDescription)}
+                                </div>
+                                <Divider className="my-4" />
+                                <Button 
+                                  color="primary" 
+                                  onClick={() => handleEditContractClick(selectedItem)}
+                                  className="w-full"
+                                >
+                                  Edit Contract
+                                </Button>
+                              </CardBody>
+                            </Card>
+                          </div>
+                        </Tab>
+                      )}
+                      {selectedItem.contractStatus === 'Completed' && (
+                        <Tab
+                          key="maintenance"
+                          title={
+                            <div className="flex items-center space-x-2">
+                              <FaTools />
+                              <span>Maintenance</span>
+                            </div>
+                          }
+                        >
+                          <Card>
+                            <CardBody>
+                              <h3 className="text-lg font-semibold mb-4">Maintenance Information</h3>
+                              {maintenanceRequests.length > 0 ? (
+                                maintenanceRequests.map((mr, index) => {
+                                  const matchingRequest = mr.requests.$values.find(r => 
+                                    r.requestId === selectedItem.requestId ||
+                                    r.requestName === selectedItem.requestName
                                   );
-                                }
-                                return null;
-                              })}
-                            </>
-                          ) : (
-                            <p>No maintenance requests found.</p>
-                          )}
-                          {maintenanceRequests.length > 0 && 
-                           !maintenanceRequests.some(mr => 
-                             mr.requests.$values.some(r => 
-                               (r.requestId === selectedItem.requestId || r.requestName === selectedItem.requestName) && 
-                               r.users.$values.some(u => u.email === userEmail)
-                             ) &&
-                             mr.status === 'Completed'
-                           ) && (
-                            <p>No completed maintenance requests found for this specific item and user.</p>
-                          )}
-                        </CardBody>
-                      </Card>
-                    )}
-                  </div>
-                )}
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Close
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+                                  const matchingUser = matchingRequest?.users.$values.find(u => u.email === userEmail);
 
-      </Modal>
+                                  if (matchingRequest && matchingUser) {
+                                    return (
+                                      <Card key={index} className="mb-4">
+                                        <CardHeader>
+                                          <h4 className="text-md font-semibold">Maintenance Request #{mr.maintenanceRequestId}</h4>
+                                        </CardHeader>
+                                        <CardBody>
+                                          <div className="grid grid-cols-2 gap-4">
+                                            <p><strong>Status:</strong> {mr.status}</p>
+                                            <p><strong>Start Date:</strong> {new Date(mr.maintenanceRequestStartDate).toLocaleDateString()}</p>
+                                            <p><strong>End Date:</strong> {new Date(mr.maintenanceRequestEndDate).toLocaleDateString()}</p>
+                                          </div>
+                                          <Divider className="my-4" />
+                                          <h5 className="text-md font-semibold mb-2">Services:</h5>
+                                          <ul className="list-disc pl-5">
+                                            {mr.maintenance.$values.map((m, idx) => (
+                                              <li key={idx}>{m.maintencaceName}</li>
+                                            ))}
+                                          </ul>
+                                        </CardBody>
+                                      </Card>
+                                    );
+                                  }
+                                  return null;
+                                })
+                              ) : (
+                                <p>No maintenance requests found.</p>
+                              )}
+                              {maintenanceRequests.length > 0 && 
+                               !maintenanceRequests.some(mr => 
+                                 mr.requests.$values.some(r => 
+                                   (r.requestId === selectedItem.requestId || r.requestName === selectedItem.requestName) && 
+                                   r.users.$values.some(u => u.email === userEmail)
+                                 ) &&
+                                 mr.status === 'Completed'
+                               ) && (
+                                <p>No completed maintenance requests found for this specific item and user.</p>
+                              )}
+                            </CardBody>
+                          </Card>
+                        </Tab>
+                      )}
+                    </Tabs>
+                  )}
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="danger" variant="light" onPress={onClose}>
+                    Close
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
 
-      <Modal
-        isOpen={isMaintenanceOpen}
-        onClose={onMaintenanceClose}
-        size="5xl"
-        scrollBehavior="inside"
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <Card>
-                <CardHeader className="flex gap-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white p-6">
-                  <Avatar icon={<FaLeaf size={24} />} className="bg-violet-800" />
-                  <div className="flex flex-col">
-                    <p className="text-2xl font-bold">Request a Quote</p>
-                    <p className="text-small text-white/60">Fill in the details and we'll get back to you</p>
-                  </div>
-                </CardHeader>
-                <Divider />
-                <CardBody className="p-8">
-                  <form className="space-y-8" onSubmit={handleMaintenanceSubmit}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <Input
-                        label="Full Name"
-                        variant="flat"
-                        isReadOnly
-                        value={selectedItem?.users.$values[0]?.name || ''}
-                        startContent={<FaLeaf className="text-violet-500" />}
-                      />
-                      <Input
-                        label="Email"
-                        type="email"
-                        variant="flat"
-                        isReadOnly
-                        value={selectedItem?.users.$values[0]?.email || ''}
-                        startContent={<FaEnvelope className="text-violet-500" />}
-                      />
-                      <Input
-                        label="Phone Number"
-                        variant="flat"
-                        isReadOnly
-                        value={selectedItem?.users.$values[0]?.phoneNumber || ''}
-                        startContent={<FaPhone className="text-violet-500" />}
-                      />
-                      <Input
-                        label="Address"
-                        variant="flat"
-                        isReadOnly
-                        value={selectedItem?.users.$values[0]?.address || ''}
-                        startContent={<FaMapMarkerAlt className="text-violet-500" />}
-                      />
+        <Modal
+          isOpen={isMaintenanceOpen}
+          onClose={onMaintenanceClose}
+          size="5xl"
+          scrollBehavior="inside"
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <Card>
+                  <CardHeader className="flex gap-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white p-6">
+                    <Avatar icon={<FaLeaf size={24} />} className="bg-violet-800" />
+                    <div className="flex flex-col">
+                      <p className="text-2xl font-bold">Request a Quote</p>
+                      <p className="text-small text-white/60">Fill in the details and we'll get back to you</p>
                     </div>
+                  </CardHeader>
+                  <Divider />
+                  <CardBody className="p-8">
+                    <form className="space-y-8" onSubmit={handleMaintenanceSubmit}>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Input
+                          label="Full Name"
+                          variant="flat"
+                          isReadOnly
+                          value={selectedItem?.users.$values[0]?.name || ''}
+                          startContent={<FaLeaf className="text-violet-500" />}
+                        />
+                        <Input
+                          label="Email"
+                          type="email"
+                          variant="flat"
+                          isReadOnly
+                          value={selectedItem?.users.$values[0]?.email || ''}
+                          startContent={<FaEnvelope className="text-violet-500" />}
+                        />
+                        <Input
+                          label="Phone Number"
+                          variant="flat"
+                          isReadOnly
+                          value={selectedItem?.users.$values[0]?.phoneNumber || ''}
+                          startContent={<FaPhone className="text-violet-500" />}
+                        />
+                        <Input
+                          label="Address"
+                          variant="flat"
+                          isReadOnly
+                          value={selectedItem?.users.$values[0]?.address || ''}
+                          startContent={<FaMapMarkerAlt className="text-violet-500" />}
+                        />
+                      </div>
 
-                    <Select
-                      label="Services"
-                      placeholder="Choose the type of service"
-                      variant="faded"
-                      startContent={<FaList className="text-violet-500" />}
-                      value={selectedService}
-                      onChange={(e) => setSelectedService(e.target.value)}
-                      required
-                    >
-                      <SelectItem key="Pond Cleaning" value="Pond Cleaning">Pond Cleaning</SelectItem>
-                      <SelectItem key="Waterfall Inspection" value="Waterfall Inspection">Waterfall Inspection</SelectItem>
-                      <SelectItem key="Garden Pruning" value="Garden Pruning">Garden Pruning</SelectItem>
-                      <SelectItem key="Patio Repair" value="Patio Repair">Patio Repair</SelectItem>
-                      <SelectItem key="Bridge Repainting" value="Bridge Repainting">Bridge Repainting</SelectItem>
-                      <SelectItem key="Fountain Cleaning" value="Fountain Cleaning">Fountain Cleaning</SelectItem>
-                      <SelectItem key="Other Services" value="Other Services">Other Services</SelectItem>
-                    </Select>
+                      <Select
+                        label="Services"
+                        placeholder="Choose the type of service"
+                        variant="faded"
+                        startContent={<FaList className="text-violet-500" />}
+                        value={selectedService}
+                        onChange={(e) => setSelectedService(e.target.value)}
+                        required
+                      >
+                        <SelectItem key="Pond Cleaning" value="Pond Cleaning">Pond Cleaning</SelectItem>
+                        <SelectItem key="Waterfall Inspection" value="Waterfall Inspection">Waterfall Inspection</SelectItem>
+                        <SelectItem key="Garden Pruning" value="Garden Pruning">Garden Pruning</SelectItem>
+                        <SelectItem key="Patio Repair" value="Patio Repair">Patio Repair</SelectItem>
+                        <SelectItem key="Bridge Repainting" value="Bridge Repainting">Bridge Repainting</SelectItem>
+                        <SelectItem key="Fountain Cleaning" value="Fountain Cleaning">Fountain Cleaning</SelectItem>
+                        <SelectItem key="Other Services" value="Other Services">Other Services</SelectItem>
+                      </Select>
 
-                    <Button
-                      type="submit"
-                      color="secondary"
-                      className="w-full text-lg font-semibold py-6 bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-                      isLoading={isSubmitting}
-                    >
-                      Submit Quote Request
+                      <Button
+                        type="submit"
+                        color="secondary"
+                        className="w-full text-lg font-semibold py-6 bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                        isLoading={isSubmitting}
+                      >
+                        Submit Quote Request
+                      </Button>
+                    </form>
+                    <p className="text-sm text-violet-400 mt-6 text-center">*We typically respond within 24 business hours</p>
+                  </CardBody>
+                </Card>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+
+        {/* Success Modal */}
+        <Modal isOpen={isSuccessModalOpen} onClose={() => setIsSuccessModalOpen(false)}>
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">Request Submitted Successfully</ModalHeader>
+                <ModalBody>
+                  <div className="flex items-center gap-4">
+                    <FaCheckCircle className="text-green-500 text-4xl" />
+                    <p>Your maintenance request has been submitted successfully!</p>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-2">We'll get back to you within 24 business hours.</p>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="secondary" onPress={() => {
+                    onClose()
+                    setIsSuccessModalOpen(false)
+                  }}>
+                    Close
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+
+        {/* Edit Contract Modal */}
+        <Modal
+          isOpen={isEditContractOpen}
+          onClose={() => setIsEditContractOpen(false)}
+          size="3xl"
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">Contract Details</ModalHeader>
+                <ModalBody>
+                  {editingContract && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Input
+                          label="Contract Name"
+                          value={editingContract.contractName}
+                          isReadOnly
+                          className="mb-4"
+                        />
+                        <Input
+                          label="Start Date"
+                          type="date"
+                          value={format(new Date(editingContract.contractStartDate), 'yyyy-MM-dd')}
+                          isReadOnly
+                          className="mb-4"
+                        />
+                        <Input
+                          label="End Date"
+                          type="date"
+                          value={format(new Date(editingContract.contractEndDate), 'yyyy-MM-dd')}
+                          isReadOnly
+                          className="mb-4"
+                        />
+                        <Input
+                          label="Current Status"
+                          value={editingContract.contractStatus}
+                          isReadOnly
+                          className="mb-4"
+                        />
+                        {editingContract.contractStatus === "Pending" && (
+                          <div className="flex justify-between mb-4">
+                            <Button 
+                              color="success" 
+                              auto 
+                              onPress={() => handleStatusChange("Processing")}
+                            >
+                              Agree
+                            </Button>
+                            <Button 
+                              color="danger" 
+                              auto 
+                              onPress={() => handleStatusChange("Cancelled")}
+                            >
+                              Disagree
+                            </Button>
+                          </div>
+                        )}
+                        <Input
+                          label="Request Name"
+                          value={editingContract.requestName}
+                          isReadOnly
+                          className="mb-4"
+                        />
+                        <Textarea
+                          label="Request Description"
+                          value={editingContract.description}
+                          isReadOnly
+                          className="mb-4"
+                        />
+                      </div>
+                      <div>
+                        <div className="mb-4">
+                          <h3 className="text-sm font-medium mb-2">Current Progress</h3>
+                          <div className="border p-2 rounded-md h-40 overflow-y-auto bg-gray-100 text-sm">
+                            {formatProgressUpdates(editingContract.contractDescription)}
+                          </div>
+                        </div>
+                        <Textarea
+                          label="New Progress Update"
+                          placeholder="Enter new progress update..."
+                          value={newProgressUpdate}
+                          onChange={(e) => setNewProgressUpdate(e.target.value)}
+                          className="mb-4"
+                        />
+                        {editingContract.designs && editingContract.designs.$values && editingContract.designs.$values.length > 0 ? (
+                          <div>
+                            <h3 className="text-sm font-medium mb-2">Design Details</h3>
+                            <p>Name: {editingContract.designs.$values[0].designName}</p>
+                            <p>Size: {editingContract.designs.$values[0].designSize}</p>
+                            <p>Price: ${editingContract.designs.$values[0].designPrice}</p>
+                          </div>
+                        ) : editingContract.samples && editingContract.samples.$values && editingContract.samples.$values.length > 0 ? (
+                          <div>
+                            <h3 className="text-sm font-medium mb-2">Sample Details</h3>
+                            <p>Name: {editingContract.samples.$values[0].sampleName}</p>
+                            <p>Size: {editingContract.samples.$values[0].sampleSize}</p>
+                            <p>Price: ${editingContract.samples.$values[0].samplePrice}</p>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  )}
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="danger" variant="light" onPress={onClose}>
+                    Close
+                  </Button>
+                  {editingContract?.contractStatus !== "Pending" && (
+                    <Button color="primary" onPress={handleEditContractSubmit}>
+                      Save Changes
                     </Button>
-                  </form>
-                  <p className="text-sm text-violet-400 mt-6 text-center">*We typically respond within 24 business hours</p>
-                </CardBody>
-              </Card>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-
-      {/* Success Modal */}
-      <Modal isOpen={isSuccessModalOpen} onClose={() => setIsSuccessModalOpen(false)}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Request Submitted Successfully</ModalHeader>
-              <ModalBody>
-                <div className="flex items-center gap-4">
-                  <FaCheckCircle className="text-green-500 text-4xl" />
-                  <p>Your maintenance request has been submitted successfully!</p>
-                </div>
-                <p className="text-sm text-gray-500 mt-2">We'll get back to you within 24 business hours.</p>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="secondary" onPress={() => {
-                  onClose()
-                  setIsSuccessModalOpen(false)
-                }}>
-                  Close
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+                  )}
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+      </div>
     </div>
   )
 }
