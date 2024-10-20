@@ -22,12 +22,14 @@ import { FaCheckCircle, FaComments, FaEnve, FaMapMarkerAltlope, FaLeaf, FaPhone,
 import { Progress } from "@nextui-org/react"
 import { Link } from "@nextui-org/react"
 import { format } from 'date-fns'
+import { Chip } from "@nextui-org/react";
 
-const statusColorMap: Record<string, "warning" | "primary" | "success"> = {
+const statusColorMap: Record<string, "warning" | "primary" | "success" | "danger"> = {
   pending: "warning",
   processing: "primary",
   completed: "success",
-}
+  cancelled: "danger",
+};
 
 function OrdersPage() {
   const [contracts, setContracts] = useState<Contract[]>([])
@@ -160,7 +162,16 @@ function OrdersPage() {
           return 'N/A'
         }
       case "status":
-        return item.hasContract ? item.contractStatus : 'Pending'
+        const status = item.hasContract ? item.contractStatus.toLowerCase() : 'pending';
+        return (
+          <Chip
+            color={statusColorMap[status]}
+            variant="flat"
+            size="sm"
+          >
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </Chip>
+        );
       case "description":
         return item.description || 'N/A'
       case "details":
