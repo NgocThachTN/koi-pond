@@ -138,10 +138,12 @@ const DesignAndSample: React.FC = () => {
 
     yPosition = addSection('1. PARTIES', [
       `This agreement is made on ${format(new Date(contractData.contractStartDate), 'MMMM d, yyyy')} between:`,
-      'Contractor: KOI POND MASTERS',
-      'Address: 123 Pond Street, Aquaville, AQ 12345',
-      `Client: ${selectedRequest.users.$values[0].name}`,
-      `Address: ${selectedRequest.users.$values[0].address}`
+      'Contractor: KOI POND CONTRUCTIONS',
+      'Address: Koi Pond Contructions Coop, Ho Chi Minh City, VietNam',
+      `Customer Name: ${selectedRequest.users.$values[0].name}`,
+      `Address: ${selectedRequest.users.$values[0].address}`,
+      `Phone: ${selectedRequest.users.$values[0].phoneNumber}` // Thêm số điện thoại của khách hàng
+      
     ], yPosition + 10);
 
     yPosition = addSection('2. PROJECT DETAILS', [
