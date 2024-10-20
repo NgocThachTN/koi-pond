@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { NavbarUser } from '@/components/Navbar/navbaruser'
-import { Card, CardBody, CardHeader, Button, Pagination, Avatar, Input, Select, SelectItem, Textarea } from "@nextui-org/react"
+import { Card, CardBody, CardHeader, Button, Pagination, Avatar, Input, Select, SelectItem, Textarea, Tabs, Tab } from "@nextui-org/react"
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react"
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/react"
-import { 
-  getContractsApi, 
-  getUserRequestsApi, 
-  Contract, 
-  UserRequest, 
-  createMaintenanceRequestBySampleApi, 
+import {
+  getContractsApi,
+  getUserRequestsApi,
+  Contract,
+  UserRequest,
+  createMaintenanceRequestBySampleApi,
   createMaintenanceRequestByDesignApi,
   MaintenanceRequestBySampleType,
   MaintenanceRequestByDesignType,
   getMaintenanceRequestsApi,
-  MaintenanceRequest
+  MaintenanceRequest,
+  updateContractStatusApi
 } from '@/apis/user.api'
 import { Divider } from "@nextui-org/react"
 import { FaCheckCircle, FaComments, FaEnve, FaMapMarkerAltlope, FaLeaf, FaPhone, FaList, FaRuler, FaMapMarkerAlt, FaEnvelope } from 'react-icons/fa'
@@ -40,6 +41,14 @@ function OrdersPage() {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false)
   const [maintenanceRequests, setMaintenanceRequests] = useState<MaintenanceRequest[]>([])
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<UserRequest | null>(null);
+  const [contractData, setContractData] = useState({
+    contractName: '',
+    contractStartDate: '',
+    contractEndDate: '',
+    description: ''
+  });
+  const [isCreateContractModalOpen, setIsCreateContractModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -249,6 +258,54 @@ function OrdersPage() {
     }
   }
 
+  const handleAcceptContract = async (request: UserRequest) => {
+    if (request.contractId) {
+      try {
+        await updateContractStatusApi(request.contractId, 'Processing')
+        // Update the local state
+        setContracts(prevContracts =>
+          prevContracts.map(contract =>
+            contract.contractId === request.contractId
+              ? { ...contract, status: 'Processing' }
+              : contract
+          )
+        )
+        // Update the selectedItem to reflect the new status
+        setSelectedItem(prevItem =>
+          prevItem ? { ...prevItem, contractStatus: 'Processing' } : null
+        )
+        // Optionally, show a success message
+        // You might want to add a toast notification here
+      } catch (error) {
+        console.error('Failed to update contract status:', error)
+        // Optionally, show an error message
+      }
+    }
+  }
+
+  const handleCancelContract = async () => {
+    if (selectedItem && selectedItem.contractId) {
+      try {
+        await updateContractStatusApi(selectedItem.contractId, 'Cancelled')
+        // Update the local state
+        setContracts(prevContracts =>
+          prevContracts.map(contract =>
+            contract.contractId === selectedItem.contractId
+              ? { ...contract, status: 'Cancelled' }
+              : contract
+          )
+        )
+        // Close the modal
+        onDetailsClose()
+        // Optionally, show a success message
+        // You might want to add a toast notification here
+      } catch (error) {
+        console.error('Failed to update contract status:', error)
+        // Optionally, show an error message
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <NavbarUser />
@@ -317,130 +374,117 @@ function OrdersPage() {
               </ModalHeader>
               <ModalBody>
                 {selectedItem && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Card>
-                      <CardHeader>
-                        <h3 className="text-xl font-semibold">Request Information</h3>
-                      </CardHeader>
-                      <CardBody>
-                        <p><strong>Name:</strong> {selectedItem.requestName}</p>
-                        <p><strong>Status:</strong> {selectedItem.contractStatus}</p>
-                        <p><strong>Description:</strong> {selectedItem.description}</p>
-                        {selectedItem.hasContract && (
-                          <>
-                            <p><strong>Contract Name:</strong> {selectedItem.contractName}</p>
-                            <p><strong>Start Date:</strong> {selectedItem.contractStartDate}</p>
-                            <p><strong>End Date:</strong> {selectedItem.contractEndDate}</p>
-                            <p><strong>Construction progress:</strong> {selectedItem.contractDescription}</p>
-                          </>
-                        )}
-                      </CardBody>
-                    </Card>
-                    <Card>
-                      <CardHeader>
-                        <h3 className="text-xl font-semibold">Details</h3>
-                      </CardHeader>
-                      <CardBody className="overflow-y-auto max-h-[60vh]">
-                        <h5 className="text-md font-semibold mt-2">User:</h5>
-                        {selectedItem.users.$values.map((user, userIndex) => (
-                          <div key={userIndex} className="ml-2">
-                            <p><strong>Name:</strong> {user.name}</p>
-                            <p><strong>Email:</strong> {user.email}</p>
-                            <p><strong>Phone:</strong> {user.phoneNumber}</p>
-                            <p><strong>Address:</strong> {user.address}</p>
-                          </div>
-                        ))}
-                        {selectedItem.designs.$values.length > 0 && (
-                          <>
-                            <Divider className="my-2" />
-                            <h5 className="text-md font-semibold mt-2">Design:</h5>
-                            {selectedItem.designs.$values.map((design, designIndex) => (
-                              <div key={designIndex} className="ml-2">
-                                <p><strong>Name:</strong> {design.designName}</p>
-                                <p><strong>Size:</strong> {design.designSize}</p>
-                                <p><strong>Price:</strong> ${design.designPrice}</p>
-                              </div>
-                            ))}
-                          </>
-                        )}
-                        {selectedItem.samples.$values.length > 0 && (
-                          <>
-                            <Divider className="my-2" />
-                            <h5 className="text-md font-semibold mt-2">Sample:</h5>
-                            {selectedItem.samples.$values.map((sample, sampleIndex) => (
-                              <div key={sampleIndex} className="ml-2">
-                                <p><strong>Name:</strong> {sample.sampleName}</p>
-                                <p><strong>Size:</strong> {sample.sampleSize}</p>
-                                <p><strong>Price:</strong> ${sample.samplePrice}</p>
-                              </div>
-                            ))}
-                          </>
-                        )}
-                      </CardBody>
-                    </Card>
-                    {selectedItem && selectedItem.contractStatus === 'Completed' && (
+                  <Tabs aria-label="Request Details">
+                    <Tab key="overview" title="Overview">
                       <Card>
-                        <CardHeader>
-                          <h3 className="text-xl font-semibold">Maintenance Information</h3>
-                        </CardHeader>
                         <CardBody>
-                          {console.log('Selected Item:', selectedItem)}
-                          {console.log('Maintenance Requests:', maintenanceRequests)}
-                          {console.log('User Email:', userEmail)}
-                          {maintenanceRequests.length > 0 ? (
-                            <>
-                              {maintenanceRequests.map((mr, index) => {
-                                console.log(`Checking maintenance request ${index}:`, mr);
-                                const matchingRequest = mr.requests.$values.find(r => 
-                                  r.requestId === selectedItem.requestId ||
-                                  r.requestName === selectedItem.requestName
-                                );
-                                console.log('Matching request:', matchingRequest);
-                                const matchingUser = matchingRequest?.users.$values.find(u => u.email === userEmail);
-                                console.log('Matching user:', matchingUser);
-
-                                if (matchingRequest && matchingUser ) {
-                                  return (
-                                    <div key={index} className="mb-4">
-                                      <p><strong>Maintenance ID:</strong> {mr.maintenanceRequestId}</p>
-                                      <p><strong>Status:</strong> {mr.status}</p>
-                                      <p><strong>Start Date:</strong> {new Date(mr.maintenanceRequestStartDate).toLocaleDateString()}</p>
-                                      <p><strong>End Date:</strong> {new Date(mr.maintenanceRequestEndDate).toLocaleDateString()}</p>
-                                      <p><strong>Services:</strong></p>
-                                      <ul className="list-disc pl-5">
-                                        {mr.maintenance.$values.map((m, idx) => (
-                                          <li key={idx}>{m.maintencaceName}</li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  );
-                                }
-                                return null;
-                              })}
-                            </>
-                          ) : (
-                            <p>No maintenance requests found.</p>
-                          )}
-                          {maintenanceRequests.length > 0 && 
-                           !maintenanceRequests.some(mr => 
-                             mr.requests.$values.some(r => 
-                               (r.requestId === selectedItem.requestId || r.requestName === selectedItem.requestName) && 
-                               r.users.$values.some(u => u.email === userEmail)
-                             ) &&
-                             mr.status === 'Completed'
-                           ) && (
-                            <p>No completed maintenance requests found for this specific item and user.</p>
-                          )}
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-small text-default-500">Request Name</p>
+                              <p className="text-medium font-semibold">{selectedItem.requestName}</p>
+                            </div>
+                            <div>
+                              <p className="text-small text-default-500">Type</p>
+                              <p className="text-medium font-semibold">
+                                {selectedItem.designs.$values.length > 0 ? 'Design' : 'Sample'}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-small text-default-500">Size</p>
+                              <p className="text-medium font-semibold">
+                                {selectedItem.designs.$values.length > 0
+                                  ? selectedItem.designs.$values[0].designSize
+                                  : selectedItem.samples.$values[0].sampleSize}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-small text-default-500">Price</p>
+                              <p className="text-medium font-semibold">
+                                ${selectedItem.designs.$values.length > 0
+                                  ? selectedItem.designs.$values[0].designPrice
+                                  : selectedItem.samples.$values[0].samplePrice}
+                              </p>
+                            </div>
+                          </div>
+                          <Divider className="my-4" />
+                          <p className="text-small text-default-500">Description</p>
+                          <p className="text-medium">{selectedItem.description}</p>
                         </CardBody>
                       </Card>
-                    )}
-                  </div>
+                    </Tab>
+                    <Tab key="contractDetails" title="Contract Details">
+                      <div className="p-4">
+                        {selectedItem.hasContract ? (
+                          <Card>
+                            <CardHeader>
+                              <h3 className="text-xl font-semibold">Contract Information</h3>
+                            </CardHeader>
+                            <CardBody>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <div className="grid grid-cols-1 gap-4">
+                                    <div>
+                                      <p className="text-sm text-default-500">Contract Name</p>
+                                      <p className="font-semibold">{selectedItem.contractName}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm text-default-500">Contract ID</p>
+                                      <p className="font-semibold">{selectedItem.contractId}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm text-default-500">Start Date</p>
+                                      <p className="font-semibold">{new Date(selectedItem.contractStartDate).toLocaleDateString()}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm text-default-500">End Date</p>
+                                      <p className="font-semibold">{new Date(selectedItem.contractEndDate).toLocaleDateString()}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm text-default-500">Status</p>
+                                      <p className="font-semibold">{selectedItem.contractStatus}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-default-500">Description</p>
+                                  <div className="whitespace-pre-line mt-2 max-h-[300px] overflow-y-auto">
+                                    {selectedItem.contractDescription.split('\n').map((line, index) => (
+                                      <div key={index} className="mb-1">{line}</div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </CardBody>
+                          </Card>
+                        ) : (
+                          <p className="text-center text-default-500">No contract associated with this request.</p>
+                        )}
+                      </div>
+                    </Tab>
+                  </Tabs>
                 )}
               </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Close
-                </Button>
+              <ModalFooter className="flex justify-between items-center">
+                {selectedItem && selectedItem.contractStatus === 'Pending' && (
+                  <div>
+                    <p className="mb-4 text-default-600">Are you sure you want to sign this contract?</p>
+                    <Button
+                      color="success"
+                      variant="solid"
+                      onPress={() => handleAcceptContract(selectedItem as UserRequest)}
+                    >
+                      Yes, Sign
+                    </Button>
+                    <Button color="danger" variant="light" onPress={handleCancelContract}>
+                      No, Cancel
+                    </Button>
+                  </div>
+                )}
+                <div>
+                  <Button color="primary" variant="light" onPress={onClose}>
+                    Close
+                  </Button>
+                </div>
               </ModalFooter>
             </>
           )}
