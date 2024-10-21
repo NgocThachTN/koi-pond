@@ -8,27 +8,28 @@ import { Icon } from "@iconify/react";
 import { AcmeIcon } from "@/components/AcmeIcon";
 import React, { useState, useEffect } from "react";
 import { getUserInfoApi } from '@/apis/user.api';
+import { useNavigate } from "react-router-dom";
 
 interface UserInfo {
-  name: string;
-  phoneNumber: string;
-  address: string;
-  userName: string;
-  email: string;
-  roleId: number;
+    name: string;
+    phoneNumber: string;
+    address: string;
+    userName: string;
+    email: string;
+    roleId: number;
 }
 
 const getRoleName = (roleId: number | undefined) => {
-  switch (roleId) {
-    case 1:
-      return "Customer";
-    case 2:
-      return "Manager";
-    case 3:
-      return "Staff";
-    default:
-      return "Unknown Role";
-  }
+    switch (roleId) {
+        case 1:
+            return "Customer";
+        case 2:
+            return "Manager";
+        case 3:
+            return "Staff";
+        default:
+            return "Unknown Role";
+    }
 };
 
 export default function DefaultStaffLayout({
@@ -37,6 +38,7 @@ export default function DefaultStaffLayout({
     children: React.ReactNode;
 }) {
     const { logout } = useAuth();
+    const navigate = useNavigate();
     const [selectedKey, setSelectedKey] = useState("dashboard");
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
@@ -65,6 +67,7 @@ export default function DefaultStaffLayout({
 
     const handleLogout = () => {
         logout();
+        navigate('/login');
     };
 
     return (
