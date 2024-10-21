@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import DefaultStaffLayout from '@/layouts/defaultstaff';
 import {
   Table,
@@ -42,6 +42,8 @@ const ContractManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [newProgressUpdate, setNewProgressUpdate] = useState('');
   const [localDescription, setLocalDescription] = useState('');
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [pollingInterval, setPollingInterval] = useState(5000); // Start with 5 seconds
 
   useEffect(() => {
     fetchContracts();
@@ -78,7 +80,9 @@ const ContractManagement: React.FC = () => {
   const handleEditClick = (contract: Contract) => {
     setEditingContract(contract);
     setLocalDescription(contract.description || '');
+    setChatMessages(formatProgressUpdates(contract.description || ''));
     setEditModalOpen(true);
+    fetchLatestUpdates(contract);
   };
 
   const handleSendMessage = async () => {
@@ -94,7 +98,7 @@ const ContractManagement: React.FC = () => {
       const updateFunction = editingContract.requests.$values[0].designs ?
         updateContractByRequestDesignApi : updateContractBySampleApi;
 
-      await updateFunction({
+      const updatedContract = await updateFunction({
         ...editingContract,
         contractId: Number(editingContract.contractId),
         description: updatedDescription,
@@ -106,10 +110,22 @@ const ContractManagement: React.FC = () => {
         }]
       });
 
-      // Cập nhật state ngay lập tức
+      console.log("Message sent and contract updated successfully:", updatedContract);
+      
+      // Update the local state
       setLocalDescription(updatedDescription);
       setNewProgressUpdate('');
+      
+      // Update the contract in the contracts list without fetching all contracts again
+      setContracts(prevContracts => 
+        prevContracts.map(contract => 
+          contract.contractId === editingContract.contractId ? {...contract, description: updatedDescription} : contract
+        )
+      );
+      
+      // Update the editingContract state and chatMessages
       setEditingContract(prevContract => ({...prevContract!, description: updatedDescription}));
+      setChatMessages(formatProgressUpdates(updatedDescription));
 
     } catch (err) {
       console.error("Error in handleSendMessage:", err);
@@ -282,23 +298,43 @@ const ContractManagement: React.FC = () => {
   console.log('Filtered Contracts:', filteredContracts);
   console.log('Paginated Contracts:', paginatedContracts);
 
-  const fetchLatestUpdates = async () => {
-    if (!editingContract) return;
+  const fetchLatestUpdates = useCallback(async (contract: Contract) => {
+    if (!contract) return;
     
     try {
       const response = await getContractsApi();
       const updatedContract = response.data.$values.find(
-        (c: Contract) => c.contractId === editingContract.contractId
+        (c: Contract) => c.contractId === contract.contractId
       );
       
-      if (updatedContract && updatedContract.description !== localDescription) {
+      if (updatedContract && updatedContract.description !== contract.description) {
+        const formattedMessages = formatProgressUpdates(updatedContract.description || '');
+        setChatMessages(formattedMessages);
+        setEditingContract(prevContract => ({
+          ...prevContract!,
+          description: updatedContract.description
+        }));
         setLocalDescription(updatedContract.description || '');
-        setEditingContract(updatedContract);
+        // Reset polling interval if there are new messages
+        setPollingInterval(5000);
+      } else {
+        // Increase polling interval if no new messages, up to 1 minute
+        setPollingInterval(prev => Math.min(prev * 1.5, 60000));
       }
     } catch (err) {
       console.error("Error fetching latest updates:", err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    if (editModalOpen && editingContract) {
+      intervalId = setInterval(() => fetchLatestUpdates(editingContract), pollingInterval);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [editModalOpen, editingContract, pollingInterval, fetchLatestUpdates]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -419,7 +455,7 @@ const ContractManagement: React.FC = () => {
                     <h3 className="text-lg font-semibold mb-4 dark:text-white">Progress Updates</h3>
                     <ScrollShadow className="flex-grow mb-4">
                       <div className="space-y-4">
-                        {formatProgressUpdates(localDescription).map((message, index) => (
+                        {chatMessages.map((message, index) => (
                           <div key={message.id} className={`flex ${message.sender === 'Staff' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`flex items-start gap-2 max-w-[80%] ${message.sender === 'Staff' ? 'flex-row-reverse' : ''}`}>
                               <Avatar

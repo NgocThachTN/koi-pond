@@ -42,10 +42,10 @@ export const sendOrderConfirmationEmail = async (orderData: OrderData, userInfo:
     console.log('Sending email to:', templateParams.to_email); 
 
     const response = await emailjs.send(
-      'service_7j8sfrj',//gmail
-      'template_5vui496', // order confirmation template id
+      'service_h3akevw',//gmail
+      'template_7fexlon', // order request confirmation template id
       templateParams,
-      'FRgD0i9Ehba1JgB4F'
+      '40sTqab7Amz79_f3m'
     );
 
     console.log('Email sent successfully:', response);
@@ -71,10 +71,10 @@ export const sendOrderCompletionEmail = async (orderData: CompletedOrderData) =>
     console.log('Sending email with params:', templateParams);
 
     const response = await emailjs.send(
-      'service_7j8sfrj',
-      'template_ryonqq2',//order completion template id
+      'service_h3akevw',
+      'template_437yj1g',//order completion template id
       templateParams,
-      'FRgD0i9Ehba1JgB4F'
+      '40sTqab7Amz79_f3m'
     );
 
     console.log('Email sent successfully:', response);

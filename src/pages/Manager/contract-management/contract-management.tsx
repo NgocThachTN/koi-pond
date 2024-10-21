@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import DefaultManagerLayout from '@/layouts/defaultmanager';
 import {
   Table,
@@ -43,6 +43,8 @@ const ContractManagement: React.FC = () => {
   const [newProgressUpdate, setNewProgressUpdate] = useState('');
   const [localDescription, setLocalDescription] = useState('');
   const [isPolling, setIsPolling] = useState(false);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [pollingInterval, setPollingInterval] = useState(5000); // Start with 5 seconds
 
   useEffect(() => {
     fetchContracts();
@@ -82,7 +84,9 @@ const ContractManagement: React.FC = () => {
   const handleEditClick = (contract: Contract) => {
     setEditingContract(contract);
     setLocalDescription(contract.description || '');
+    setChatMessages(formatProgressUpdates(contract.description || ''));
     setEditModalOpen(true);
+    fetchLatestUpdates(contract);
   };
 
   const handleSendMessage = async () => {
@@ -123,8 +127,9 @@ const ContractManagement: React.FC = () => {
         )
       );
       
-      // Update the editingContract state
+      // Update the editingContract state and chatMessages
       setEditingContract(prevContract => ({...prevContract!, description: updatedDescription}));
+      setChatMessages(formatProgressUpdates(updatedDescription));
 
     } catch (err) {
       console.error("Error in handleSendMessage:", err);
@@ -207,7 +212,7 @@ const ContractManagement: React.FC = () => {
         return "default";
     }
   };
-
+ //rút gọn url 
   const shortenUrl = (url: string, maxLength: number = 30) => {
     if (!url) return 'N/A';
     if (url.length <= maxLength) return url;
@@ -299,23 +304,43 @@ const ContractManagement: React.FC = () => {
     );
   };
 
-  const fetchLatestUpdates = async () => {
-    if (!editingContract) return;
+  const fetchLatestUpdates = useCallback(async (contract: Contract) => {
+    if (!contract) return;
     
     try {
       const response = await getContractsApi();
       const updatedContract = response.data.$values.find(
-        (c: Contract) => c.contractId === editingContract.contractId
+        (c: Contract) => c.contractId === contract.contractId
       );
       
-      if (updatedContract && updatedContract.description !== localDescription) {
+      if (updatedContract && updatedContract.description !== contract.description) {
+        const formattedMessages = formatProgressUpdates(updatedContract.description);
+        setChatMessages(formattedMessages);
+        setEditingContract(prevContract => ({
+          ...prevContract!,
+          description: updatedContract.description
+        }));
         setLocalDescription(updatedContract.description || '');
-        setEditingContract(updatedContract);
+        // Reset polling interval if there are new messages
+        setPollingInterval(5000);
+      } else {
+        // Increase polling interval if no new messages, up to 1 minute
+        setPollingInterval(prev => Math.min(prev * 1.5, 60000));
       }
     } catch (err) {
       console.error("Error fetching latest updates:", err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    if (editModalOpen && editingContract) {
+      intervalId = setInterval(() => fetchLatestUpdates(editingContract), pollingInterval);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [editModalOpen, editingContract, pollingInterval, fetchLatestUpdates]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -388,13 +413,13 @@ const ContractManagement: React.FC = () => {
         <Modal 
           isOpen={editModalOpen} 
           onClose={() => setEditModalOpen(false)}
-          size="5xl" // Increased modal size
+          size="5xl"
         >
           <ModalContent>
             <ModalHeader className="flex flex-col gap-1">Edit Contract</ModalHeader>
             <ModalBody>
               {editingContract && (
-                <div className="grid grid-cols-3 gap-6"> {/* Changed to 3 columns */}
+                <div className="grid grid-cols-3 gap-6">
                   {/* Left column: Contract details */}
                   <div className="col-span-1">
                     <h3 className="text-lg font-semibold mb-4">Contract Details</h3>
@@ -431,12 +456,12 @@ const ContractManagement: React.FC = () => {
                     </Select>
                   </div>
                   
-                  {/* Right column: Progress updates */}
-                  <div className="col-span-2 flex flex-col h-[600px] bg-gray-50 dark:bg-gray-800 rounded-lg p-4"> {/* Increased height and added background */}
+                  {/* Right column: Progress updates, calling chat bubble */}
+                  <div className="col-span-2 flex flex-col h-[600px] bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                     <h3 className="text-lg font-semibold mb-4 dark:text-white">Progress Updates</h3>
                     <ScrollShadow className="flex-grow mb-4">
                       <div className="space-y-4">
-                        {formatProgressUpdates(localDescription).map((message, index) => (
+                        {chatMessages.map((message, index) => (
                           <div key={message.id} className={`flex ${message.sender === 'Manager' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`flex items-start gap-2 max-w-[80%] ${message.sender === 'Manager' ? 'flex-row-reverse' : ''}`}>
                               <Avatar
@@ -458,6 +483,7 @@ const ContractManagement: React.FC = () => {
                         ))}
                       </div>
                     </ScrollShadow>
+                    {/* {text modal chat} */}
                     <Divider className="my-4" />
                     <div className="flex items-end gap-2">
                       <Textarea

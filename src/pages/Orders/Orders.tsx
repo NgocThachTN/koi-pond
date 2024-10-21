@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { NavbarUser } from '@/components/Navbar/navbaruser'
 import { Card, CardBody, CardHeader, Button, Pagination, Avatar, Input, Select, SelectItem, Textarea, Tabs, Tab } from "@nextui-org/react"
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react"
@@ -70,6 +70,8 @@ const OrdersPage: React.FC = () => {
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
   const [newProgressUpdate, setNewProgressUpdate] = useState('');
   const [localDescription, setLocalDescription] = useState('');
+  const [chatMessages, setChatMessages] = useState<{ [key: number]: any[] }>({});
+  const [pollingInterval, setPollingInterval] = useState(5000); // Start with 5 seconds
 
   useEffect(() => {
     const fetchData = async () => {
@@ -315,18 +317,53 @@ const OrdersPage: React.FC = () => {
     }).filter(Boolean);
   };
 
-  const formatMessageContent = (content: string) => {
-    const firebaseStorageRegex = /https:\/\/firebasestorage\.googleapis\.com\/.*?\.pdf(\?[^\s]+)?/g;
+  const fetchLatestUpdates = useCallback(async (contract: Contract) => {
+    if (!contract) return;
     
-    return content.replace(firebaseStorageRegex, (match) => {
-      const fileName = decodeURIComponent(match.split('/').pop()?.split('?')[0] || 'contract.pdf');
-      return `<a href="${match}" target="_blank" rel="noopener noreferrer" class="text-white underline hover:text-blue-200">${fileName}</a>`;
-    });
-  };
+    try {
+      const response = await getContractsApi();
+      const updatedContract = response.data.$values.find(
+        (c: Contract) => c.contractId === contract.contractId
+      );
+      
+      if (updatedContract && updatedContract.description !== contract.description) {
+        const formattedMessages = formatProgressUpdates(updatedContract.description || '');
+        setChatMessages(prev => ({
+          ...prev,
+          [contract.contractId]: formattedMessages
+        }));
+        setEditingContract(prevContract => ({
+          ...prevContract!,
+          contractDescription: updatedContract.description
+        }));
+        setPollingInterval(5000);
+      } else {
+        setPollingInterval(prev => Math.min(prev * 1.5, 60000));
+      }
+    } catch (err) {
+      console.error("Error fetching latest updates:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    if (isEditContractOpen && editingContract) {
+      intervalId = setInterval(() => fetchLatestUpdates(editingContract), pollingInterval);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isEditContractOpen, editingContract, pollingInterval, fetchLatestUpdates]);
 
   const handleEditContractClick = (contract: Contract) => {
     setEditingContract(contract);
+    const formattedMessages = formatProgressUpdates(contract.description || '');
+    setChatMessages(prev => ({
+      ...prev,
+      [contract.contractId]: formattedMessages
+    }));
     setIsEditContractOpen(true);
+    fetchLatestUpdates(contract);
   };
 
   const handleEditContractSubmit = async () => {
@@ -369,25 +406,25 @@ const OrdersPage: React.FC = () => {
 
       console.log("Contract updated successfully:", updatedContract);
       
-      // Update local state immediately
-      setLocalDescription(updatedDescription);
       setNewProgressUpdate('');
       setEditingContract(prev => ({...prev!, contractDescription: updatedDescription}));
       
+      // Update the chat messages for this specific contract
+      const formattedMessages = formatProgressUpdates(updatedDescription);
+      setChatMessages(prev => ({
+        ...prev,
+        [editingContract.contractId]: formattedMessages
+      }));
+
       // Update the contracts list
       setContracts(prevContracts => 
         prevContracts.map(contract => 
           contract.contractId === editingContract.contractId 
-            ? {...contract, contractDescription: updatedDescription} 
+            ? {...contract, description: updatedDescription} 
             : contract
         )
       );
 
-      // Don't close the modal, allowing for continuous chat
-      // setIsEditContractOpen(false);
-
-      // No need to fetch contracts again
-      // await fetchContracts();
     } catch (err) {
       console.error("Error in handleEditContractSubmit:", err);
     }
@@ -455,36 +492,6 @@ const OrdersPage: React.FC = () => {
       console.error('Failed to fetch contracts:', error);
     }
   };
-
-  const fetchLatestUpdates = async () => {
-    if (!editingContract) return;
-    
-    try {
-      const response = await getContractsApi();
-      const updatedContract = response.data.$values.find(
-        (c: Contract) => c.contractId === editingContract.contractId
-      );
-      
-      if (updatedContract && updatedContract.description !== editingContract.contractDescription) {
-        setEditingContract(prevContract => ({
-          ...prevContract!,
-          contractDescription: updatedContract.description || ''
-        }));
-      }
-    } catch (err) {
-      console.error("Error fetching latest updates:", err);
-    }
-  };
-
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-    if (isEditContractOpen) {
-      intervalId = setInterval(fetchLatestUpdates, 5000); // Poll every 5 seconds
-    }
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [isEditContractOpen, editingContract]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -915,7 +922,7 @@ const OrdersPage: React.FC = () => {
                     <h3 className="text-lg font-semibold mb-4 dark:text-white">Progress Updates</h3>
                     <ScrollShadow className="flex-grow mb-4">
                       <div className="space-y-4">
-                        {formatProgressUpdates(editingContract.contractDescription || '').map((message, index) => (
+                        {chatMessages[editingContract.contractId]?.map((message, index) => (
                           <div key={message.id} className={`flex ${message.sender === 'Customer' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`flex items-start gap-2 max-w-[80%] ${message.sender === 'Customer' ? 'flex-row-reverse' : ''}`}>
                               <Avatar
