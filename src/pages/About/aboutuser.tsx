@@ -7,6 +7,7 @@ import { Image } from "@nextui-org/image";
 import { Divider } from "@nextui-org/divider";
 import { Button } from "@nextui-org/button";
 import { CheckIcon } from '@heroicons/react/24/solid';
+import { TitleManager } from '@/components/TitleManager';
 
 export default function AboutPageUser() {
   const reasons = [
@@ -41,6 +42,7 @@ export default function AboutPageUser() {
       <Head>
         <title>About - Elite Koi Pond Construction</title>
       </Head>
+      <TitleManager title="Koi Pond Construction | About Us" />
       <DefaultLayout>
         <section className="flex flex-col items-center justify-center gap-8 py-8 md:py-10">
           <div className="text-center max-w-3xl">

@@ -34,6 +34,7 @@
     "@types/gapi": "^0.0.47",
     "@types/gapi.auth2": "^0.0.61",
     "@types/gapi.client.drive": "^3.0.15",
+    "@types/google-one-tap": "^1.2.6",
     "assert": "^2.1.0",
     "axios": "^1.7.7",
     "browserify-zlib": "^0.2.0",

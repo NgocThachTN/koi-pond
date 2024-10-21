@@ -1,7 +1,7 @@
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/defaultuser";
 import { Button, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@nextui-org/react";
-
+import { TitleManager } from '@/components/TitleManager';
 export default function PricingUser2() {
   const pricingData = [
     { size: "8-10m3", starter: "10.000.000", premium: "12.000.000", unlimited: "15.500.000" },
@@ -12,7 +12,9 @@ export default function PricingUser2() {
   ];
 
   return (
+    
     <DefaultLayout>
+      <TitleManager title="Koi Pond Construction | Custom Design Pricing" />
       <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
         <div className="inline-block max-w-lg text-center justify-center">
           <h1 className={title({ color: "violet" })}>Pricing</h1>

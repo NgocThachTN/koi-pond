@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/defaultuser";
+import { TitleManager } from '@/components/TitleManager'; // Import TitleManager
 import {
   Input,
   Select,
@@ -39,17 +40,20 @@ import { sendOrderConfirmationEmail } from "@/apis/email.api";
 
 export default function DocsPageUser() {
   return (
-    <DefaultLayout>
-      <section className="flex flex-col items-center justify-center gap-8 py-12 md:py-16">
-        <div className="text-center">
-          <h1 className={title({ color: "violet" })}>Garden Design Services</h1>
-          <p className="mt-4 text-lg text-violet-600">
-            We turn your ideas into reality
-          </p>
-        </div>
-        <QuotationForm />
-      </section>
-    </DefaultLayout>
+    <>
+      <TitleManager title="Koi Pond Construction | Request a Quote" /> {/* Add this line */}
+      <DefaultLayout>
+        <section className="flex flex-col items-center justify-center gap-8 py-12 md:py-16">
+          <div className="text-center">
+            <h1 className={title({ color: "violet" })}>Garden Design Services</h1>
+            <p className="mt-4 text-lg text-violet-600">
+              We turn your ideas into reality
+            </p>
+          </div>
+          <QuotationForm />
+        </section>
+      </DefaultLayout>
+    </>
   );
 }
 

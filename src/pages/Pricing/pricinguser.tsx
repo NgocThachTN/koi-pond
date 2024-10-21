@@ -3,7 +3,7 @@ import DefaultLayout from "@/layouts/defaultuser";
 import { Button, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, Image, Card, CardHeader, CardBody, Divider } from "@nextui-org/react";
 import { Tabs, Tab } from "@nextui-org/tabs";
 import { CheckIcon } from '@heroicons/react/24/solid';
-
+import { TitleManager } from '@/components/TitleManager';
 export default function PricingPage() {
   // Mảng chứa các URL hình ảnh cụ thể
   const imageUrls = [
@@ -44,6 +44,7 @@ export default function PricingPage() {
 
   return (
     <DefaultLayout>
+      <TitleManager title="Koi Pond Construction | Sample Pricing" />
       <section className="flex flex-col items-center justify-center gap-8 py-12 md:py-16 px-4">
         <div className="text-center">
           <h1 className={title({ color: "violet" })}>Koi Pond Contruction Plans</h1>

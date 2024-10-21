@@ -6,7 +6,7 @@ import { Icon } from "@iconify/react";
 import { AcmeIcon } from "@/components/AcmeIcon";
 import { registerApi } from "@/apis/user.api";
 import { useNavigate } from "react-router-dom";
-
+import { TitleManager } from '@/components/TitleManager';
 export default function SignUpPage() {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -71,7 +71,9 @@ export default function SignUpPage() {
   };
 
   return (
+    
     <div className="relative flex h-screen w-screen">
+      <TitleManager title="Koi Pond Construction | Sign Up" />
       {/* Brand Logo */}
       <div className="absolute left-2 top-5 lg:left-5">
         <div className="flex items-center">

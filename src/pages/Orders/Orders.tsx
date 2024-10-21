@@ -24,6 +24,7 @@ import { Link } from "@nextui-org/react"
 import { format } from 'date-fns'
 import { Chip } from "@nextui-org/react";
 import { ScrollShadow } from "@nextui-org/react"
+import { TitleManager } from '@/components/TitleManager'; // Add this import at the top of the file
 
 const statusColorMap: Record<string, "warning" | "primary" | "success" | "danger"> = {
   pending: "warning",
@@ -495,6 +496,7 @@ const OrdersPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <TitleManager title="Koi Pond Construction | Orders" />
       <NavbarUser />
       <div className="container mx-auto py-8">
         <Card className="mb-8">

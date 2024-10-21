@@ -2,12 +2,13 @@ import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import { Button, Card, CardBody, CardHeader, Divider, } from "@nextui-org/react";
 import { CheckIcon } from "@heroicons/react/24/solid";
-
+import { TitleManager } from '@/components/TitleManager';
 export default function PricingPage() {
 
 
   return (
     <DefaultLayout>
+      <TitleManager title="Koi Pond Construction | Our Services" />
       <section className="relative flex flex-col items-center justify-center gap-4 py-8 md:py-10 min-h-screen">
         {/* Background image with blur effect */}
         <div

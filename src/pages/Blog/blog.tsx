@@ -2,7 +2,7 @@ import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import { Card, CardHeader, CardBody, CardFooter, Image, Link, Button } from "@nextui-org/react";
 import { motion } from "framer-motion";
-
+import { TitleManager } from '@/components/TitleManager';
 const posts = [
 
   { name: "Mini Koi Pond", href: "/blog/blog1 ", src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcuzvYzDSx5ofrVNoq2WwOQtOq5KEdE9NRwg&s" },
@@ -34,6 +34,7 @@ const item = {
 export default function BlogPage() {
   return (
     <DefaultLayout>
+      <TitleManager title="Koi Pond Construction | Blog" />
       <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
         <motion.div
           initial={{ opacity: 0, y: -20 }}

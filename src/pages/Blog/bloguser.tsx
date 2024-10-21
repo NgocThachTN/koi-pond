@@ -2,7 +2,7 @@ import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/defaultuser";
 import { Card, CardHeader, CardBody, CardFooter, Image, Link, Button } from "@nextui-org/react";
 import { motion } from "framer-motion";
-
+import { TitleManager } from '@/components/TitleManager'; // Import TitleManager
 
 const posts = [
 
@@ -35,6 +35,7 @@ const item = {
 export default function BlogPageUser() {
   return (
     <>
+      <TitleManager title="Koi Pond Construction | Blog" /> {/* Add this */}
       <DefaultLayout>
         <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
           <motion.div

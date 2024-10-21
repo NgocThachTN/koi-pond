@@ -7,7 +7,7 @@ import { Image } from "@nextui-org/image";
 import { Divider } from "@nextui-org/divider";
 import { Button } from "@nextui-org/button";
 import { CheckIcon } from '@heroicons/react/24/solid';
-
+import { TitleManager } from '@/components/TitleManager';
 export default function AboutPage() {
   const reasons = [
     {
@@ -38,10 +38,8 @@ export default function AboutPage() {
 
   return (
     <>
-      <Head>
-        <title>About - Koi Pond Construction</title>
-      </Head>
       <DefaultLayout>
+        <TitleManager title="Koi Pond Construction | About" />
         <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
           <div className="text-center max-w-3xl">
             <h1 className={title({ color: "violet" })}>Crafting Aquatic Masterpieces</h1>
