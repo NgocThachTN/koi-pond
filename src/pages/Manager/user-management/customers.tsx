@@ -17,11 +17,16 @@ import {
   ModalBody,
   ModalFooter,
   Input,
-  useDisclosure
+  useDisclosure,
+  Select,
+  SelectItem
 } from "@nextui-org/react";
 import { EyeIcon, EditIcon, DeleteIcon, SearchIcon } from "@nextui-org/shared-icons";
 import { FaPlus } from 'react-icons/fa';
 import { getAccountInfo, AccountInfo, updateAccountInfo, deleteAccountInfo, createAccountInfo, CreateAccountInfo } from '@/apis/manager.api';
+
+// Add this type definition
+type ExtendedAccountInfo = AccountInfo & { status: string };
 
 const columns = [
   { name: "NO", uid: "no" },
@@ -30,16 +35,16 @@ const columns = [
   { name: "ADDRESS", uid: "address" },
   { name: "EMAIL", uid: "email" },
   { name: "ROLE", uid: "roleId" },
-  { name: "ACCOUNT COUNT", uid: "accountCount" },
+  { name: "STATUS", uid: "status" },
   { name: "ACTIONS", uid: "actions" },
 ];
 
 const CustomerManagement: React.FC = () => {
-  const [users, setUsers] = useState<(AccountInfo & { accountCount: number })[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<(AccountInfo & { accountCount: number })[]>([]);
+  const [users, setUsers] = useState<ExtendedAccountInfo[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<ExtendedAccountInfo[]>([]);
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedUser, setSelectedUser] = useState<AccountInfo | null>(null);
+  const [selectedUser, setSelectedUser] = useState<AccountInfo & { status: string } | null>(null);
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
   const { isOpen: isCreateOpen, onOpen: onCreateOpen, onClose: onCreateClose } = useDisclosure();
@@ -60,19 +65,8 @@ const CustomerManagement: React.FC = () => {
       try {
         const data = await getAccountInfo();
         const customers = data.filter(user => user.roleId === 1);
-        
-        const uniqueCustomers = customers.reduce((acc, user) => {
-          if (!acc[user.email]) {
-            acc[user.email] = { ...user, accountCount: 1 };
-          } else {
-            acc[user.email].accountCount += 1;
-          }
-          return acc;
-        }, {} as Record<string, AccountInfo & { accountCount: number }>);
-
-        const customersArray = Object.values(uniqueCustomers);
-        setUsers(customersArray);
-        setFilteredUsers(customersArray);
+        setUsers(customers);
+        setFilteredUsers(customers);
       } catch (error) {
         console.error("Failed to fetch users:", error);
       }
@@ -117,7 +111,7 @@ const CustomerManagement: React.FC = () => {
       try {
         await updateAccountInfo(selectedUser.accountId, selectedUser);
         const updatedUsers = users.map(user => 
-          user.accountId === selectedUser.accountId ? selectedUser : user
+          user.accountId === selectedUser.accountId ? {...user, ...selectedUser} : user
         );
         setUsers(updatedUsers);
         onEditClose();
@@ -164,8 +158,8 @@ const CustomerManagement: React.FC = () => {
     }
   };
 
-  const renderCell = React.useCallback((user: AccountInfo & { accountCount: number, no: number }, columnKey: React.Key) => {
-    const cellValue = user[columnKey as keyof (AccountInfo & { accountCount: number, no: number })];
+  const renderCell = React.useCallback((user: ExtendedAccountInfo & { no: number }, columnKey: React.Key) => {
+    const cellValue = user[columnKey as keyof (ExtendedAccountInfo & { no: number })];
 
     switch (columnKey) {
       case "no":
@@ -176,10 +170,10 @@ const CustomerManagement: React.FC = () => {
             Customer
           </Chip>
         );
-      case "accountCount":
+      case "status":
         return (
-          <Chip color={user.accountCount > 1 ? "warning" : "success"} size="sm" variant="flat">
-            {user.accountCount}
+          <Chip color={user.status === "Active" ? "success" : "danger"} size="sm" variant="flat">
+            {user.status}
           </Chip>
         );
       case "actions":
@@ -285,6 +279,14 @@ const CustomerManagement: React.FC = () => {
                     value={selectedUser.email}
                     onChange={(e) => setSelectedUser({...selectedUser, email: e.target.value})}
                   />
+                  <Select
+                    label="Status"
+                    selectedKeys={[selectedUser.status]}
+                    onChange={(e) => setSelectedUser({...selectedUser, status: e.target.value})}
+                  >
+                    <SelectItem key="Active" value="Active">Active</SelectItem>
+                    <SelectItem key="Inactive" value="Inactive">Inactive</SelectItem>
+                  </Select>
                 </>
               )}
             </ModalBody>

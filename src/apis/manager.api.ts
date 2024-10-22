@@ -38,6 +38,7 @@ export interface UpdateAccountInfo {
   email: string;
   password: string;
   roleId: number;
+  status: string;
 }
 
 export const updateAccountInfo = async (id: number, accountInfo: UpdateAccountInfo): Promise<void> => {
