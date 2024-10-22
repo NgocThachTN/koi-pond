@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Button, Input, Card, CardBody, CardHeader, Avatar, Tooltip } from "@nextui-org/react";
+import { Button, Input, Card, CardBody, CardHeader, Avatar, Tooltip, Divider } from "@nextui-org/react";
 import { generateResponse } from '@/apis/geminiService';
 import ReactMarkdown from 'react-markdown';
 
@@ -15,10 +15,18 @@ const Chatbot = () => {
 
   const toggleChatbot = () => {
     if (!isOpen && messages.length === 0) {
-      // Add initial greeting when opening for the first time
-      setMessages([{ text: "Hello! How can I help you?", isUser: false }]);
+      setIsOpen(true);
+      // Show loading animation
+      setMessages([{ text: '...', isUser: false, isThinking: true }]);
+      
+      // Simulate loading delay
+      setTimeout(() => {
+        // Replace loading animation with initial greeting
+        setMessages([{ text: "Hello! How can I help you?", isUser: false }]);
+      }, 1500); // Adjust the delay (in milliseconds) as needed
+    } else {
+      setIsOpen(!isOpen);
     }
-    setIsOpen(!isOpen);
   };
 
   const handleSendMessage = async () => {
@@ -96,32 +104,35 @@ const Chatbot = () => {
           exit={{ opacity: 0, y: 20 }}
           className="absolute bottom-20 right-0 w-[400px]"
         >
-          <Card className="h-[500px] flex flex-col bg-white dark:bg-gray-900 shadow-xl">
-            <CardHeader className="flex gap-3 p-4 bg-white dark:bg-gray-900">
-              <Avatar
-                icon={<KoiChatbotIcon />}
-                className="bg-purple-600 text-white"
-              />
-              <div className="flex flex-col">
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">Koi Pond Assistant</p>
+          <Card className="h-[500px] flex flex-col">
+            <CardHeader className="flex flex-col gap-1 p-4">
+              <div className="flex items-center gap-3">
+                <Avatar
+                  icon={<KoiChatbotIcon />}
+                  className="bg-purple-600 text-white"
+                />
+                <div className="flex flex-col">
+                  <p className="text-lg font-semibold">KoiPond Assistant</p>
+                </div>
               </div>
+              <Divider className="mt-2" />
             </CardHeader>
             <div className="flex-grow overflow-y-auto scrollbar-hide">
-              <CardBody className="px-4 py-2 bg-gray-50 dark:bg-gray-800">
+              <CardBody className="px-4 py-2">
                 {messages.map((message, index) => (
                   <div key={index} className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} mb-3`}>
                     <div className={`max-w-[75%] p-3 rounded-2xl ${
                       message.isUser 
                         ? 'bg-purple-600 text-white' 
-                        : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white'
+                        : 'bg-default-100 text-foreground'
                     }`}>
                       {message.isUser ? (
                         message.text
                       ) : message.isThinking ? (
                         <div className="flex space-x-1 items-center justify-center">
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-current rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                          <div className="w-2 h-2 bg-current rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                          <div className="w-2 h-2 bg-current rounded-full animate-bounce"></div>
                         </div>
                       ) : (
                         <ReactMarkdown className="prose dark:prose-invert prose-sm max-w-none">
@@ -134,14 +145,17 @@ const Chatbot = () => {
                 <div ref={messagesEndRef} />
               </CardBody>
             </div>
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2 bg-white dark:bg-gray-900">
+            <div className="p-4 border-t border-divider flex items-center gap-2">
               <Input
                 fullWidth
                 placeholder="Type your message..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                className="rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white"
+                classNames={{
+                  input: "bg-transparent",
+                  inputWrapper: "bg-default-100",
+                }}
               />
               <Button
                 isIconOnly
