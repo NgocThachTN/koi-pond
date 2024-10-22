@@ -25,7 +25,14 @@ const pages = [
   { name: "Features", href: "/login" },
   { name: "Blog", href: "/blog" },
   { name: "About Us", href: "/about" },
-  { name: "Pricing", href: "/pricing" },
+  {
+    name: "Pricing",
+    href: "/pricing",
+    dropdown: [
+      { name: "Sample Design ", href: "/pricinguser" },
+      { name: "Custom Design", href: "/pricinguser2" },
+    ],
+  },
 ];
 
 const menuItems = [
@@ -111,7 +118,7 @@ export const Navbar = () => {
           </Button>
         </NavbarItem>
       </NavbarContent>
-       
+
       <NavbarMenuToggle className="text-default-400 md:hidden" />
 
       <NavbarMenu className="top-[calc(var(--navbar-height)_-_1px)] max-h-fit bg-default-200/50 pb-6 pt-6 shadow-medium backdrop-blur-md backdrop-saturate-150 dark:bg-default-100/50">
@@ -146,10 +153,10 @@ export const Navbar = () => {
             </Link>
             {index < menuItems.length - 1 && <Divider className="opacity-50" />}
           </NavbarMenuItem>
-          
-        ))} 
+
+        ))}
       </NavbarMenu>
-      
+
     </NextUINavbar>
   );
 };
