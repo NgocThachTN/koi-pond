@@ -75,7 +75,7 @@ const Chatbot = () => {
 
   return (
     <div className="fixed bottom-4 right-4 z-50" ref={chatbotRef}>
-      <Tooltip content="Hello!, " placement="left">
+      <Tooltip content="Hello!, How can I help you?" placement="left">
         <Button
           isIconOnly
           color="primary"
