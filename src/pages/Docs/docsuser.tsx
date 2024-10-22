@@ -37,6 +37,7 @@ import {
 } from "@/apis/user.api";
 import { toast } from "react-toastify";
 import { sendOrderConfirmationEmail } from "@/apis/email.api";
+import Chatbot from '@/components/Chatbot/Chatbot';
 
 export default function DocsPageUser() {
   return (
@@ -461,6 +462,7 @@ function QuotationForm() {
           )}
         </ModalContent>
       </Modal>
+      <Chatbot />
     </>
   );
 }

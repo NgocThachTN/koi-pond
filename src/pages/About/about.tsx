@@ -8,6 +8,7 @@ import { Divider } from "@nextui-org/divider";
 import { Button } from "@nextui-org/button";
 import { CheckIcon } from '@heroicons/react/24/solid';
 import { TitleManager } from '@/components/TitleManager';
+import Chatbot from '@/components/Chatbot/Chatbot';
 export default function AboutPage() {
   const reasons = [
     {
@@ -94,6 +95,7 @@ export default function AboutPage() {
             <TeamSection />
           </div>
         </section>
+        <Chatbot />
       </DefaultLayout>
     </>
   );

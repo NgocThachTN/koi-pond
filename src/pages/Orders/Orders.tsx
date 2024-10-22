@@ -25,7 +25,7 @@ import { format } from 'date-fns'
 import { Chip } from "@nextui-org/react";
 import { ScrollShadow } from "@nextui-org/react"
 import { TitleManager } from '@/components/TitleManager'; // Add this import at the top of the file
-
+import Chatbot from '@/components/Chatbot/Chatbot';
 const statusColorMap: Record<string, "warning" | "primary" | "success" | "danger"> = {
   pending: "warning",
   processing: "primary",
@@ -977,6 +977,7 @@ const OrdersPage: React.FC = () => {
             </ModalFooter>
           </ModalContent>
         </Modal>
+        <Chatbot />
       </div>
     </div>
   )

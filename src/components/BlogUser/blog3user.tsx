@@ -1,7 +1,7 @@
 import React from "react";
 import { NextUIProvider, Card, CardBody, CardHeader, Image, Divider, Button } from "@nextui-org/react";
 import DefaultLayout from "@/layouts/defaultuser";
-
+import Chatbot from '@/components/Chatbot/Chatbot';
 export default function Blog3PageUser() {
   return (
     <NextUIProvider>
@@ -52,6 +52,7 @@ export default function Blog3PageUser() {
             </div>
           </CardBody>
         </Card>
+        <Chatbot />
       </DefaultLayout>
     </NextUIProvider>
   );

@@ -16,6 +16,8 @@ import Process from "@/components/Process/process";
 import Project from "@/components/project/project";
 import { AuthProvider } from '@apis/authen';
 import { useInView } from 'react-intersection-observer';
+import Chatbot from '@/components/Chatbot/Chatbot';
+
 export default function IndexPage() {
   const settings = {
     dots: true,
@@ -216,6 +218,7 @@ export default function IndexPage() {
       >
         <TeamSection />
       </motion.div>
+      <Chatbot />
     </DefaultLayout>
   );
 }
