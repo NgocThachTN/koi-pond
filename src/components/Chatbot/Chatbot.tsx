@@ -15,6 +15,7 @@ const Chatbot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatbotRef = useRef<HTMLDivElement>(null);
+  const [conversationHistory, setConversationHistory] = useState<string[]>([]);
 
   const toggleChatbot = () => {
     setIsOpen(!isOpen);
@@ -23,13 +24,18 @@ const Chatbot = () => {
   const handleSendMessage = async () => {
     if (input.trim() === '' || isLoading) return;
 
-    setMessages([...messages, { text: input, isUser: true }]);
+    const userMessage = { text: input, isUser: true };
+    setMessages(prevMessages => [...prevMessages, userMessage]);
     setInput('');
     setIsLoading(true);
 
     try {
-      const response = await generateResponse(input);
-      setMessages(prev => [...prev, { text: response, isUser: false }]);
+      const updatedHistory = [...conversationHistory, input];
+      const response = await generateResponse(updatedHistory);
+      const botMessage = { text: response, isUser: false };
+      
+      setMessages(prevMessages => [...prevMessages, botMessage]);
+      setConversationHistory(updatedHistory);
     } catch (error) {
       console.error('Error generating response:', error);
       setMessages(prev => [...prev, { text: "Sorry, I couldn't process your request. Please try again.", isUser: false }]);
