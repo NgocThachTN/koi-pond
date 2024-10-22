@@ -40,11 +40,11 @@ const teamMembers = [
 function TeamSection() {
   return (
     <div className="max-w-full px-4 sm:px-6 lg:px-8 py-16">
-      <h2 className="text-4xl font-bold text-center mb-12 text-violet-600 dark:text-violet-600">Meet Our Team</h2>
+      <h2 className="text-4xl font-bold text-center mb-12 text-violet-600 dark:text-violet-60">Meet Our Team</h2>
       <div className="flex justify-center">
-        <div className="flex space-x-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {teamMembers.map((member, index) => (
-            <Card key={index} className="bg-white dark:bg-gray-800 shadow-md w-[200px]">
+            <Card key={index} className="bg-white dark:bg-gray-800 shadow-md w-full max-w-[200px] mx-auto">
               <CardBody className="p-0 overflow-hidden">
                 <Image
                   src={member.image}
