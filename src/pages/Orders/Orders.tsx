@@ -38,7 +38,7 @@ const formatMessageContent = (content: string) => {
   
   return content.replace(firebaseStorageRegex, (match) => {
     const fileName = decodeURIComponent(match.split('/').pop()?.split('?')[0] || 'contract.pdf');
-    return `<a href="${match}" target="_blank" rel="noopener noreferrer" class="text-white underline hover:text-blue-200">${fileName}</a>`;
+    return `<a href="${match}" target="_blank" rel="noopener noreferrer" class="text-gray underline hover:text-blue-200">${fileName}</a>`;
   });
 };
 
