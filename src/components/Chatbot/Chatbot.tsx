@@ -84,14 +84,14 @@ const Chatbot = () => {
   }, []);
 
   return (
-    <div className="fixed bottom-4 right-4 z-50" ref={chatbotRef}>
+    <div className="fixed bottom-4 right-4 z-50 sm:bottom-8 sm:right-8" ref={chatbotRef}>
       <Tooltip content="Hello! How can I help you?" placement="left">
         <Button
           isIconOnly
           color="secondary"
           variant="shadow"
           aria-label="Open Koi Pond Assistant"
-          className="rounded-full w-16 h-16 bg-purple-600 text-white shadow-lg hover:bg-purple-700 transition-colors"
+          className="rounded-full w-12 h-12 sm:w-16 sm:h-16 bg-purple-600 text-white shadow-lg hover:bg-purple-700 transition-colors"
           onClick={toggleChatbot}
         >
           <KoiChatbotIcon />
@@ -102,9 +102,9 @@ const Chatbot = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          className="absolute bottom-20 right-0 w-[400px]"
+          className="absolute bottom-16 sm:bottom-20 right-0 w-[calc(100vw-2rem)] sm:w-[400px] max-w-[400px]"
         >
-          <Card className="h-[500px] flex flex-col">
+          <Card className="h-[calc(100vh-8rem)] sm:h-[500px] flex flex-col">
             <CardHeader className="flex flex-col gap-1 p-4">
               <div className="flex items-center gap-3">
                 <Avatar
@@ -118,7 +118,7 @@ const Chatbot = () => {
               <Divider className="mt-2" />
             </CardHeader>
             <div className="flex-grow overflow-y-auto scrollbar-hide">
-              <CardBody className="px-4 py-2">
+              <CardBody className="px-3 sm:px-4 py-2">
                 {messages.map((message, index) => (
                   <div key={index} className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} mb-3`}>
                     <div className={`max-w-[75%] p-3 rounded-2xl ${
@@ -145,7 +145,7 @@ const Chatbot = () => {
                 <div ref={messagesEndRef} />
               </CardBody>
             </div>
-            <div className="p-4 border-t border-divider flex items-center gap-2">
+            <div className="p-2 sm:p-4 border-t border-divider flex items-center gap-2">
               <Input
                 fullWidth
                 placeholder="Type your message..."
@@ -153,7 +153,7 @@ const Chatbot = () => {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 classNames={{
-                  input: "bg-transparent",
+                  input: "bg-transparent text-sm sm:text-base",
                   inputWrapper: "bg-default-100",
                 }}
               />
@@ -163,7 +163,7 @@ const Chatbot = () => {
                 variant="flat"
                 onPress={handleSendMessage}
                 isDisabled={isThinking}
-                className="rounded-full w-10 h-10 bg-purple-600 text-white hover:bg-purple-700 transition-colors"
+                className="rounded-full w-8 h-8 sm:w-10 sm:h-10 bg-purple-600 text-white hover:bg-purple-700 transition-colors"
               >
                 <SendIcon />
               </Button>
