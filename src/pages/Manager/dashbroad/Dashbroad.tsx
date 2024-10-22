@@ -20,10 +20,20 @@ const Dashboard = () => {
         const contractsData = await getContractsApi();
         
         setAccounts(accountsData || []);
-        // Sort requests from newest to oldest
-        const sortedRequests = requestsData.sort((a, b) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+        // Sort requests by newest ID, then by email and customer name
+        const sortedRequests = requestsData
+          .filter(request => {
+            const user = request.users?.$values?.[0];
+            return user && (user.name || user.email);
+          })
+          .sort((a, b) => {
+            const userA = a.users?.$values?.[0];
+            const userB = b.users?.$values?.[0];
+            if (b.id !== a.id) return b.id - a.id; // Sort by newest ID first
+            if (userA?.email && userB?.email) return userA.email.localeCompare(userB.email);
+            if (userA?.name && userB?.name) return userA.name.localeCompare(userB.name);
+            return 0;
+          });
         setRequests(sortedRequests);
         setContracts(Array.isArray(contractsData.data.$values) ? contractsData.data.$values : []);
       } catch (error) {
@@ -239,7 +249,7 @@ const Dashboard = () => {
             </TableHeader>
             <TableBody>
               {requests.slice(0, 5).map((request, index) => (
-                <TableRow key={index}>
+                <TableRow key={request.id}>
                   <TableCell>{renderCell(request, "user")}</TableCell>
                   <TableCell>{renderCell(request, "requestName")}</TableCell>
                   <TableCell>{renderCell(request, "description")}</TableCell>
