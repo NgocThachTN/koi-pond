@@ -15,7 +15,6 @@ const Chatbot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatbotRef = useRef<HTMLDivElement>(null);
-  const [conversationHistory, setConversationHistory] = useState<string[]>([]);
 
   const toggleChatbot = () => {
     setIsOpen(!isOpen);
@@ -24,18 +23,13 @@ const Chatbot = () => {
   const handleSendMessage = async () => {
     if (input.trim() === '' || isLoading) return;
 
-    const userMessage = { text: input, isUser: true };
-    setMessages(prevMessages => [...prevMessages, userMessage]);
+    setMessages([...messages, { text: input, isUser: true }]);
     setInput('');
     setIsLoading(true);
 
     try {
-      const updatedHistory = [...conversationHistory, input];
-      const response = await generateResponse(updatedHistory);
-      const botMessage = { text: response, isUser: false };
-      
-      setMessages(prevMessages => [...prevMessages, botMessage]);
-      setConversationHistory(updatedHistory);
+      const response = await generateResponse(input);
+      setMessages(prev => [...prev, { text: response, isUser: false }]);
     } catch (error) {
       console.error('Error generating response:', error);
       setMessages(prev => [...prev, { text: "Sorry, I couldn't process your request. Please try again.", isUser: false }]);
@@ -68,7 +62,7 @@ const Chatbot = () => {
 
   return (
     <div className="fixed bottom-4 right-4 z-50" ref={chatbotRef}>
-      <Tooltip content="Hello!, How can I help you?" placement="left">
+      <Tooltip content="Hello!, " placement="left">
         <Button
           isIconOnly
           color="primary"
