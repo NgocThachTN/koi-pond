@@ -651,7 +651,7 @@ const OrdersPage: React.FC = () => {
                                     onClick={() => handleEditContractClick(selectedItem)}
                                     className="w-full"
                                   >
-                                    Edit Contract
+                                    View Contract
                                   </Button>
                                 </CardBody>
                               </Card>

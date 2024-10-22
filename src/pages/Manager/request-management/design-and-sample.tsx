@@ -393,7 +393,7 @@ const DesignAndSample: React.FC = () => {
               </Button>
             </Tooltip>
             <Button color="primary" size="sm" onClick={() => handleCreateContractClick(request)}>
-              Create Contract
+              Accept Request
             </Button>
           </div>
         );
@@ -717,7 +717,7 @@ const DesignAndSample: React.FC = () => {
                     Cancel
                   </Button>
                   <Button color="primary" onPress={handleCreateContract}>
-                    Create Contract
+                    Accept Request
                   </Button>
                 </ModalFooter>
               </>

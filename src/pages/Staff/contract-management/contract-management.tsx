@@ -242,7 +242,7 @@ const ContractManagement: React.FC = () => {
     
     return content.replace(firebaseStorageRegex, (match) => {
       const fileName = decodeURIComponent(match.split('/').pop()?.split('?')[0] || 'contract.pdf');
-      return `<a href="${match}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${fileName}</a>`;
+      return `<a href="${match}" target="_blank" rel="noopener noreferrer" class="text-white-600 hover:underline">${fileName}</a>`;
     });
   };
 
