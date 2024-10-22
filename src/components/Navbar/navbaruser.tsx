@@ -50,8 +50,8 @@ const pages = [
     name: "Pricing",
     href: "#",
     dropdown: [
-      { name: "Thiết kế có sẵn ", href: "/pricinguser" },
-      { name: "Bản vẽ theo yêu cầu", href: "/pricinguser2" },
+      { name: "Sample Design ", href: "/pricinguser" },
+      { name: "Custom Design", href: "/pricinguser2" },
     ],
   },
 ];
