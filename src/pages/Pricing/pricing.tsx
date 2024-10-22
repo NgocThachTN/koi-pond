@@ -3,6 +3,7 @@ import DefaultLayout from "@/layouts/default";
 import { Button, Card, CardBody, CardHeader, Divider, } from "@nextui-org/react";
 import { CheckIcon } from "@heroicons/react/24/solid";
 import { TitleManager } from '@/components/TitleManager';
+import Chatbot from '@/components/Chatbot/Chatbot';
 export default function PricingPage() {
 
 
@@ -60,35 +61,9 @@ export default function PricingPage() {
           </Button>
         </div>
       </section>
+      <Chatbot />
     </DefaultLayout>
   );
 }
 
-function PricingCard({ title, features, highlighted = false }: {
-  title: string;
-  features: string[];
-  highlighted?: boolean;
-}) {
-  return (
-    <Card
-      className={`w-72 ${highlighted ? 'shadow-lg border-2 border-primary' : ''}`}
-      radius="lg"
-      shadow="sm"
-    >
-      <CardHeader className="flex flex-col items-center pb-0 pt-6">
-        <h2 className="text-xl font-bold">{title}</h2>
-      </CardHeader>
-      <Divider className="my-4" />
-      <CardBody className="px-6">
-        <ul className="mb-6 space-y-2">
-          {features.map((feature, index) => (
-            <li key={index} className="flex items-center">
-              <CheckIcon className="w-4 h-4 mr-2 text-primary" />
-              <span>{feature}</span>
-            </li>
-          ))}
-        </ul>
-      </CardBody>
-    </Card>
-  );
-}
+

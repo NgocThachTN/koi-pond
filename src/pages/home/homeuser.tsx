@@ -14,6 +14,7 @@ import Process from "@/components/Process/process";
 import Project from "@/components/project/project";
 import { useInView } from 'react-intersection-observer';
 import { TitleManager } from '@/components/TitleManager';
+import Chatbot from '@/components/Chatbot/Chatbot';
 
 export default function UserPage() {
   const settings = {
@@ -167,6 +168,7 @@ export default function UserPage() {
           </motion.div>
         </DefaultLayout>
       </motion.div>
+      <Chatbot />
     </>
   );
 }

@@ -25,7 +25,7 @@ import { format } from 'date-fns'
 import { Chip } from "@nextui-org/react";
 import { ScrollShadow } from "@nextui-org/react"
 import { TitleManager } from '@/components/TitleManager'; // Add this import at the top of the file
-
+import Chatbot from '@/components/Chatbot/Chatbot';
 const statusColorMap: Record<string, "warning" | "primary" | "success" | "danger"> = {
   pending: "warning",
   processing: "primary",
@@ -38,7 +38,7 @@ const formatMessageContent = (content: string) => {
   
   return content.replace(firebaseStorageRegex, (match) => {
     const fileName = decodeURIComponent(match.split('/').pop()?.split('?')[0] || 'contract.pdf');
-    return `<a href="${match}" target="_blank" rel="noopener noreferrer" class="text-white underline hover:text-blue-200">${fileName}</a>`;
+    return `<a href="${match}" target="_blank" rel="noopener noreferrer" class="text-gray underline hover:text-blue-200">${fileName}</a>`;
   });
 };
 
@@ -977,6 +977,7 @@ const OrdersPage: React.FC = () => {
             </ModalFooter>
           </ModalContent>
         </Modal>
+        <Chatbot />
       </div>
     </div>
   )

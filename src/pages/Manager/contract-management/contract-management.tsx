@@ -23,9 +23,11 @@ import {
   SelectItem,
   Avatar,
   ScrollShadow,
-  Link
+  Link,
+  Card,
+  CardBody
 } from "@nextui-org/react";
-import { SearchIcon } from '@nextui-org/shared-icons';
+import { SearchIcon, EyeIcon } from '@nextui-org/shared-icons';
 import { getContractsApi, Contract, updateContractByRequestDesignApi, updateContractBySampleApi } from '@/apis/user.api';
 import { sendOrderCompletionEmail } from '@/apis/email.api';
 import { format, parseISO } from 'date-fns';
@@ -45,6 +47,8 @@ const ContractManagement: React.FC = () => {
   const [isPolling, setIsPolling] = useState(false);
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [pollingInterval, setPollingInterval] = useState(5000); // Start with 5 seconds
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
 
   useEffect(() => {
     fetchContracts();
@@ -79,6 +83,10 @@ const ContractManagement: React.FC = () => {
 
   const getCustomerName = (contract: Contract) => {
     return contract.requests.$values[0]?.users.$values[0]?.name || 'N/A';
+  };
+
+  const getCustomerEmail = (contract: Contract) => {
+    return contract.requests.$values[0]?.users.$values[0]?.email || 'N/A';
   };
 
   const handleEditClick = (contract: Contract) => {
@@ -267,9 +275,10 @@ const ContractManagement: React.FC = () => {
     return 'No updates';
   };
 
-  const truncateDescription = (description: string, maxLength: number = 30): string => {
-    const latestStatus = getLatestStatus(description);
-    return latestStatus.length > maxLength ? `${latestStatus.slice(0, maxLength)}...` : latestStatus;
+  const truncateDescription = (contract: Contract, maxLength: number = 30): string => {
+    const requestDescription = contract.requests.$values[0]?.description;
+    if (!requestDescription) return 'No description';
+    return requestDescription.length > maxLength ? `${requestDescription.slice(0, maxLength)}...` : requestDescription;
   };
 
   const filteredContracts = contracts.filter(contract => 
@@ -342,6 +351,21 @@ const ContractManagement: React.FC = () => {
     };
   }, [editModalOpen, editingContract, pollingInterval, fetchLatestUpdates]);
 
+  const handleViewDetails = (contract: Contract) => {
+    setSelectedContract(contract);
+    setDetailModalOpen(true);
+  };
+
+  const getRequestType = (contract: Contract) => {
+    const request = contract.requests.$values[0];
+    if (request.designs && request.designs.$values.length > 0) {
+      return 'Design';
+    } else if (request.samples && request.samples.$values.length > 0) {
+      return 'Sample';
+    }
+    return 'Unknown';
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
@@ -367,7 +391,7 @@ const ContractManagement: React.FC = () => {
           <Table aria-label="Contracts table">
             <TableHeader>
               <TableColumn>Contract Name</TableColumn>
-              <TableColumn>Customer Name</TableColumn>
+              <TableColumn>Customer Info</TableColumn>
               <TableColumn>Start Date</TableColumn>
               <TableColumn>End Date</TableColumn>
               <TableColumn>Status</TableColumn>
@@ -378,7 +402,12 @@ const ContractManagement: React.FC = () => {
               {paginatedContracts.map((contract, index) => (
                 <TableRow key={index}>
                   <TableCell>{contract.contractName}</TableCell>
-                  <TableCell>{getCustomerName(contract)}</TableCell>
+                  <TableCell>
+                    <div>
+                      <p>{getCustomerName(contract)}</p>
+                      <p>{getCustomerEmail(contract)}</p>
+                    </div>
+                  </TableCell>
                   <TableCell>{new Date(contract.contractStartDate).toLocaleDateString()}</TableCell>
                   <TableCell>{new Date(contract.contractEndDate).toLocaleDateString()}</TableCell>
                   <TableCell>
@@ -387,12 +416,17 @@ const ContractManagement: React.FC = () => {
                     </Chip>
                   </TableCell>
                   <TableCell>
-                    <Tooltip content={contract.description || 'No description'}>
-                      <span>{truncateDescription(contract.description)}</span>
+                    <Tooltip content={contract.requests.$values[0]?.description || 'No description'}>
+                      <span>{truncateDescription(contract)}</span>
                     </Tooltip>
                   </TableCell>
                   <TableCell>
-                    <Button onClick={() => handleEditClick(contract)}>Edit</Button>
+                    <div className="flex gap-2">
+                      <Button onClick={() => handleEditClick(contract)}>Edit</Button>
+                      <Button isIconOnly onClick={() => handleViewDetails(contract)}>
+                        <EyeIcon />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -509,6 +543,76 @@ const ContractManagement: React.FC = () => {
                 Save Changes
               </Button>
             </ModalFooter>
+          </ModalContent>
+        </Modal>
+
+        {/* Updated Modal for detailed view */}
+        <Modal 
+          isOpen={detailModalOpen} 
+          onClose={() => setDetailModalOpen(false)}
+          size="4xl"
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">Contract Details</ModalHeader>
+                <ModalBody>
+                  {selectedContract && (
+                    <div className="grid grid-cols-3 gap-4">
+                      <Card>
+                        <CardBody>
+                          <h3 className="text-lg font-semibold mb-2">Contract Information</h3>
+                          <div className="space-y-2">
+                            <p><strong>Contract Name:</strong> {selectedContract.contractName}</p>
+                            <p><strong>Start Date:</strong> {format(new Date(selectedContract.contractStartDate), 'dd/MM/yyyy')}</p>
+                            <p><strong>End Date:</strong> {format(new Date(selectedContract.contractEndDate), 'dd/MM/yyyy')}</p>
+                            <p><strong>Status:</strong> <Chip color={getStatusColor(selectedContract.status)}>{selectedContract.status}</Chip></p>
+                          </div>
+                        </CardBody>
+                      </Card>
+
+                      <Card>
+                        <CardBody>
+                          <h3 className="text-lg font-semibold mb-2">Customer Information</h3>
+                          <div className="space-y-2">
+                            <p><strong>Name:</strong> {getCustomerName(selectedContract)}</p>
+                            <p><strong>Email:</strong> {selectedContract.requests.$values[0]?.users.$values[0]?.email || 'N/A'}</p>
+                            <p><strong>Phone:</strong> {selectedContract.requests.$values[0]?.users.$values[0]?.phoneNumber || 'N/A'}</p>
+                            <p><strong>Address:</strong> {selectedContract.requests.$values[0]?.users.$values[0]?.address || 'N/A'}</p>
+                          </div>
+                        </CardBody>
+                      </Card>
+
+                      <Card>
+                        <CardBody>
+                          <h3 className="text-lg font-semibold mb-2">Request Information</h3>
+                          <div className="space-y-2">
+                            <p><strong>Request Name:</strong> {selectedContract.requests.$values[0]?.requestName || 'N/A'}</p>
+                            <p><strong>Request Type:</strong> {getRequestType(selectedContract)}</p>
+                          </div>
+                        </CardBody>
+                      </Card>
+
+                      <Card className="col-span-3">
+                        <CardBody>
+                          <h3 className="text-lg font-semibold mb-2">Description</h3>
+                          <ScrollShadow className="h-[200px] max-w-[800px] mx-auto">
+                            <p className="whitespace-pre-wrap text-sm">
+                              {selectedContract.requests.$values[0]?.description || 'No description available.'}
+                            </p>
+                          </ScrollShadow>
+                        </CardBody>
+                      </Card>
+                    </div>
+                  )}
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="primary" onPress={onClose}>
+                    Close
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
           </ModalContent>
         </Modal>
       </div>

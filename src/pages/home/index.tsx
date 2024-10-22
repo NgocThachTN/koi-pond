@@ -16,6 +16,7 @@ import Process from "@/components/Process/process";
 import Project from "@/components/project/project";
 import { AuthProvider } from '@apis/authen';
 import { useInView } from 'react-intersection-observer';
+import Chatbot from "@/components/Chatbot/Chatbot";
 export default function IndexPage() {
   const settings = {
     dots: true,
@@ -86,7 +87,7 @@ export default function IndexPage() {
                     radius="lg"
                     width="100%"
                     alt={`Hồ cá Koi ${index + 1}`}
-                    className="w-full object-cover h-[500px]"
+                    className="w-full object-cover h-[300px] md:h-[500px]"
                     src={image}
                   />
                 </div>
@@ -100,33 +101,18 @@ export default function IndexPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <div className="text-center md:text-left">
-              <motion.span
-                className={title()}
+              <motion.h1
+                className={`${title()} text-2xl md:text-4xl mb-2`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
               >
-                Professional and high-class&nbsp;
-              </motion.span>
-              <motion.span
-                className={title({ color: "violet" })}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.6 }}
-              >
-                Koi pond&nbsp;
-              </motion.span>
-              <br />
-              <motion.span
-                className={title()}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.8 }}
-              >
-                design and construction.
-              </motion.span>
+                <span>Professional and high-class </span>
+                <span className={title({ color: "violet" })}>Koi pond </span>
+                <span>design and construction.</span>
+              </motion.h1>
               <motion.div
-                className={subtitle({ class: "mt-4" })}
+                className={`${subtitle({ class: "mt-4" })} text-sm md:text-base`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 1 }}
@@ -143,9 +129,10 @@ export default function IndexPage() {
             >
               <Link
                 className={buttonStyles({
-                  color: "primary",
+                  color: "secondary",
                   radius: "full",
                   variant: "shadow",
+                  size: "sm",
                 })}
                 href="/pricing"
               >
@@ -155,6 +142,7 @@ export default function IndexPage() {
                 className={buttonStyles({
                   variant: "bordered",
                   radius: "full",
+                  size: "sm",
                 })}
                 href="/login"
               >
@@ -216,6 +204,7 @@ export default function IndexPage() {
       >
         <TeamSection />
       </motion.div>
+      <Chatbot />
     </DefaultLayout>
   );
 }

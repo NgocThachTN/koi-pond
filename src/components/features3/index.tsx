@@ -10,13 +10,13 @@ const FeatureCard = ({ icon: Icon, title, description }: { icon: React.ElementTy
   
   return (
     <Card 
-      className="max-w-[400px] transition-transform duration-200 ease-in-out hover:-translate-y-2"
+      className="max-w-[400px] transition-transform duration-200 ease-in-out hover:-translate-y-2 hover:shadow-violet-500/50"
       isPressable
       isHoverable
     >
       <CardBody className="p-4">
         <div className="flex items-center gap-3 mb-2">
-          <Icon className="text-default-500" size={24} />
+          <Icon className="text-violet-500" size={24} />
           <h3 className="text-lg font-semibold">{title}</h3>
         </div>
         <p>{description}</p>
@@ -35,7 +35,7 @@ function index() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold text-center mb-8">Our Services</h2>
+      <h2 className="text-3xl font-bold text-center mb-8 text-violet-600">Our Services</h2>
       <div className="flex flex-wrap gap-4 justify-center">
         {features.map((feature, index) => (
           <FeatureCard key={index} {...feature} />

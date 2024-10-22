@@ -1,7 +1,7 @@
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import { Card, CardBody, CardHeader, Image, Divider } from "@nextui-org/react";
-
+import Chatbot from '@/components/Chatbot/Chatbot';
 export default function Blog1Page() {
   return (
     <DefaultLayout>
@@ -76,6 +76,7 @@ export default function Blog1Page() {
           </Card>
         </div>
       </div>
+      <Chatbot />
     </DefaultLayout>
   );
 }

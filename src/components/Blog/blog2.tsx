@@ -1,5 +1,5 @@
 import DefaultLayout from "@/layouts/default";
-
+import Chatbot from '@/components/Chatbot/Chatbot';
 import React from "react";
 import { Card, CardBody, CardHeader, CardFooter, Image, Button, Spacer } from "@nextui-org/react";
 const images = [
@@ -95,7 +95,7 @@ export default function Blog2Page() {
         </CardBody>
 
       </Card>
-
+      <Chatbot />
     </DefaultLayout>
   );
 }

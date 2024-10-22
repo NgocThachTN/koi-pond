@@ -3,6 +3,7 @@ import DefaultLayout from "@/layouts/defaultuser";
 import { Card, CardHeader, CardBody, CardFooter, Image, Link, Button } from "@nextui-org/react";
 import { motion } from "framer-motion";
 import { TitleManager } from '@/components/TitleManager'; // Import TitleManager
+import Chatbot from '@/components/Chatbot/Chatbot';
 
 const posts = [
 
@@ -80,6 +81,7 @@ export default function BlogPageUser() {
           </motion.div>
         </section>
       </DefaultLayout>
+      <Chatbot />
     </>
   );
 }

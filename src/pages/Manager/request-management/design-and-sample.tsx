@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import DefaultManagerLayout from '@/layouts/defaultmanager';
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Tooltip, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Pagination, Input, Card, CardBody, CardHeader, Divider, Image, Tabs, Tab } from "@nextui-org/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Tooltip, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Pagination, Input, Card, CardBody, CardHeader, Divider, Image, Tabs, Tab, User, Link } from "@nextui-org/react";
 import { SearchIcon, EyeIcon } from '@nextui-org/shared-icons';
 import { getUserRequestsApi, UserRequest, createContractByRequestDesignApi, createContractBySampleDesignApi } from '@/apis/user.api';
 import { jsPDF } from 'jspdf';
@@ -516,35 +516,46 @@ const DesignAndSample: React.FC = () => {
                         </Card>
                       </Tab>
                       <Tab key="users" title="Users">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {selectedRequest.users.$values.map((user, index) => (
-                            <Card key={index} className="max-w-[340px]">
-                              <CardHeader className="justify-between">
-                                <div className="flex gap-5">
-                                  <Image
-                                    alt="User avatar"
-                                    height={40}
-                                    radius="sm"
-                                    src={user.avatarUrl || "https://via.placeholder.com/40"}
-                                    width={40}
-                                  />
-                                  <div className="flex flex-col gap-1 items-start justify-center">
-                                    <h4 className="text-small font-semibold leading-none text-default-600">{user.name}</h4>
-                                    <h5 className="text-small tracking-tight text-default-400">{user.email}</h5>
+                        <Card>
+                          <CardBody>
+                            {selectedRequest.users.$values.map((user, index) => (
+                              <div key={index} className="mb-8 last:mb-0">
+                                <User
+                                  name={user.name}
+                                  description={user.email}
+                                
+                                  classNames={{
+                                    name: "text-xl",
+                                    description: "text-lg",
+                                  }}
+                                />
+                                <div className="mt-4 grid grid-cols-2 gap-4 text-large">
+                                  <div>
+                                    <p className="text-default-500 text-lg">User ID</p>
+                                    <p className="font-semibold text-xl">{user.$id}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-default-500 text-lg">Username</p>
+                                    <p className="font-semibold text-xl">{user.userName}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-default-500 text-lg">Phone</p>
+                                    <p className="font-semibold text-xl">{user.phoneNumber}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-default-500 text-lg">Role</p>
+                                    <p className="font-semibold text-xl">{user.roleId}</p>
                                   </div>
                                 </div>
-                              </CardHeader>
-                              <CardBody className="px-3 py-0 text-small text-default-400">
-                                <p><strong>User ID:</strong> {user.$id}</p>
-                                <p><strong>Username:</strong> {user.userName}</p>
-                                <p><strong>Phone:</strong> {user.phoneNumber}</p>
-                                <p><strong>Address:</strong> {user.address}</p>
-                                <p><strong>Role ID:</strong> {user.roleId}</p>
-                                {/* We don't display the password for security reasons */}
-                              </CardBody>
-                            </Card>
-                          ))}
-                        </div>
+                                <div className="mt-4">
+                                  <p className="text-default-500 text-lg">Address</p>
+                                  <p className="font-semibold text-xl">{user.address}</p>
+                                </div>
+                                {index < selectedRequest.users.$values.length - 1 && <Divider className="my-4" />}
+                              </div>
+                            ))}
+                          </CardBody>
+                        </Card>
                       </Tab>
                       {selectedRequest.designs.$values.length > 0 && (
                         <Tab key="designs" title="Designs">

@@ -5,10 +5,15 @@ interface LoginResType {
   role: string;
   email: string;
   userName: string;
+  status: string;
+}
+
+interface LoginErrorType {
+  message: string;
 }
 
 export const loginApi = (email: string, password: string) => {
-  return http.post<LoginResType>("Auth/login", {
+  return http.post<LoginResType | LoginErrorType>("Auth/login", {
     email: email,
     password: password,
   });
@@ -673,5 +678,7 @@ export const updateMaintenanceRequestBySampleApi = (
     requestData
   );
 }; 
+
+
 
 
