@@ -18,6 +18,10 @@ const Chatbot = () => {
   const [conversationHistory, setConversationHistory] = useState<{ role: string; content: string }[]>([]);
 
   const toggleChatbot = () => {
+    if (!isOpen && messages.length === 0) {
+      // Add initial greeting when opening for the first time
+      setMessages([{ text: "Hello! How can I help you?", isUser: false }]);
+    }
     setIsOpen(!isOpen);
   };
 
@@ -124,25 +128,23 @@ const Chatbot = () => {
               ))}
               <div ref={messagesEndRef} />
             </CardBody>
-            <div className="p-4 border-t">
+            <div className="p-4 border-t flex items-center gap-2">
               <Input
                 fullWidth
                 placeholder="Type your message..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                endContent={
-                  <Button
-                    isIconOnly
-                    color="primary"
-                    variant="flat"
-                    onPress={handleSendMessage}
-                    isLoading={isLoading}
-                  >
-                    {!isLoading && <SendIcon />}
-                  </Button>
-                }
               />
+              <Button
+                isIconOnly
+                color="primary"
+                variant="flat"
+                onPress={handleSendMessage}
+                isLoading={isLoading}
+              >
+                {!isLoading && <SendIcon />}
+              </Button>
             </div>
           </Card>
         </motion.div>
