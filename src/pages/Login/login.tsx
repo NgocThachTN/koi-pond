@@ -32,6 +32,7 @@ export default function Login() {
   const { login } = useAuth();
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
+  const [accountStatus, setAccountStatus] = useState("");
 
   const validateEmail = (email: string) => {
     const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
@@ -50,14 +51,21 @@ export default function Login() {
     try {
       const response = await loginApi(email, password);
       console.log('Login response:', response.data);
+      
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userName', response.data.userName);
-      localStorage.setItem('userEmail', response.data.email); // Added this line
+      localStorage.setItem('userEmail', response.data.email);
+      localStorage.setItem('userRole', response.data.role);
+      localStorage.setItem('accountStatus', response.data.status);
       await login(email, password);
       navigate('/homeuser');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login failed:', error);
-      setErrorModalMessage("Invalid email or password. Please try again.");
+      if (error.response && error.response.data && error.response.data.message) {
+        setErrorModalMessage(error.response.data.message);
+      } else {
+        setErrorModalMessage("Your password is incorrect. Please try again.");
+      }
       setIsErrorModalOpen(true);
     }
   }
