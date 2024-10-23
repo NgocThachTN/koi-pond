@@ -163,10 +163,15 @@ export const NavbarUser = () => {
                       {page.name}
                     </Button>
                   </DropdownTrigger>
-                  <DropdownMenu aria-label={`${page.name} dropdown`}>
+                  <DropdownMenu aria-label={`${page.name} dropdown`} className="min-w-[100px] p-0">
                     {page.dropdown.map((item) => (
-                      <DropdownItem key={item.name}>
-                        <Link href={item.href}>{item.name}</Link>
+                      <DropdownItem key={item.name} className="py-1 px-1">
+                        <Link
+                          href={item.href}
+                          className="text-purple-600 hover:text-purple-800 text-sm w-full text-center block"
+                        >
+                          {item.name}
+                        </Link>
                       </DropdownItem>
                     ))}
                   </DropdownMenu>
