@@ -111,8 +111,9 @@ const Chatbot = () => {
                   icon={<KoiChatbotIcon />}
                   className="bg-purple-600 text-white"
                 />
+                {/* title for chatbot */}
                 <div className="flex flex-col">
-                  <p className="text-lg font-semibold">KoiPond Assistant</p>
+                  <p className="text-lg font-semibold">KoiPond Assistant </p>
                 </div>
               </div>
               <Divider className="mt-2" />

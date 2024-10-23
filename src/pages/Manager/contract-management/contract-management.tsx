@@ -42,6 +42,7 @@ const ContractManagement: React.FC = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchType, setSearchType] = useState('name'); // New state for search type
   const [newProgressUpdate, setNewProgressUpdate] = useState('');
   const [localDescription, setLocalDescription] = useState('');
   const [isPolling, setIsPolling] = useState(false);
@@ -281,9 +282,14 @@ const ContractManagement: React.FC = () => {
     return requestDescription.length > maxLength ? `${requestDescription.slice(0, maxLength)}...` : requestDescription;
   };
 
-  const filteredContracts = contracts.filter(contract => 
-    getCustomerName(contract).toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredContracts = contracts.filter(contract => {
+    if (searchType === 'name') {
+      return getCustomerName(contract).toLowerCase().includes(searchTerm.toLowerCase());
+    } else if (searchType === 'status') {
+      return contract.status?.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+    return true;
+  });
 
   const paginatedContracts = filteredContracts.slice(
     (currentPage - 1) * itemsPerPage,
@@ -374,12 +380,24 @@ const ContractManagement: React.FC = () => {
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Contract Management</h1>
         
-        {/* Search Input */}
-        <div className="mb-4">
+        {/* Updated Search Input */}
+        <div className="mb-4 flex gap-2">
+          <Select 
+            className="w-[200px]"
+            value={searchType}
+            onChange={(e) => setSearchType(e.target.value)}
+          >
+            <SelectItem key="name" value="name">
+              Search by Name
+            </SelectItem>
+            <SelectItem key="status" value="status">
+              Search by Status
+            </SelectItem>
+          </Select>
           <Input
             isClearable
             className="w-full max-w-[300px]"
-            placeholder="Search by customer name..."
+            placeholder={searchType === 'name' ? "Search by customer name..." : "Search by contract status..."}
             startContent={<SearchIcon />}
             value={searchTerm}
             onClear={() => setSearchTerm('')}
