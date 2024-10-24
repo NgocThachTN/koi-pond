@@ -4,7 +4,7 @@ class Http {
   constructor() {
     this.instance = axios.create({
       baseURL:
-        "https://koipondconstructionmanagement20241004010355.azurewebsites.net/api/",
+        "https://koifishconstruction-e7fqewewe3f4ead0.eastasia-01.azurewebsites.net/api/",
       headers: {
         "Content-Type": "application/json",
       },
