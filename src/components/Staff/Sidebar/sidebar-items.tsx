@@ -46,7 +46,12 @@ export const items: SidebarItem[] = [
         icon: "solar:document-linear",
         title: "Contract Management",
     },
-
+    {
+        key: "maintenance-management",
+        href: "/staff/maintenance-management",
+        icon: "solar:chart-2-linear",
+        title: "Maintenance Management",
+    },
 
 ];
 

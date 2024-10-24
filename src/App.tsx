@@ -27,7 +27,7 @@ import StaffDashboard from "./pages/Staff/dashbroad/Dashbroad";
 import DesignAndSampleStaff from "./pages/Staff/request-management/design-and-sample";
 import MaintenanceStaffManagement from "./pages/Staff/request-management/maintenance";
 import ContractStaffManagement from "./pages/Staff/contract-management/contract-management";
-
+import MaintenanceManagementStaff from "./pages/Staff/maintenance-management/maintenance-management";
 
 // Import các trang Manager
 import Dashboard from "@/pages/Manager/dashbroad/Dashbroad";
@@ -236,6 +236,12 @@ function App() {
         path="/staff/contract-management"
         element={
           isAuthenticated && userRole === 'Staff' ? <ContractStaffManagement /> : <Navigate to="/staff/contract-management" />
+        }
+      />
+      <Route
+        path="/staff/maintenance-management"
+        element={
+          isAuthenticated && userRole === 'Staff' ? <MaintenanceManagementStaff /> : <Navigate to="/staff/maintenance-management" />
         }
       />
 

@@ -15,9 +15,9 @@ const StaffDashboard = () => {
         setIsLoading(true);
         const requestsData = await getUserRequestsApi('');
         const contractsData = await getContractsApi();
-        
+
         // Sort requests from newest to oldest
-        const sortedRequests = requestsData.sort((a, b) => 
+        const sortedRequests = requestsData.sort((a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         setRequests(sortedRequests);
@@ -57,17 +57,17 @@ const StaffDashboard = () => {
   });
 
   const chartData = [
-    { 
-      name: 'Pending', 
-      requests: requestStatusCounts.pending, 
+    {
+      name: 'Pending',
+      requests: requestStatusCounts.pending,
       contracts: contractStatusCounts.pending,
     },
-    { 
-      name: 'Processing', 
+    {
+      name: 'Processing',
       contracts: contractStatusCounts.processing,
     },
-    { 
-      name: 'Completed', 
+    {
+      name: 'Completed',
       contracts: contractStatusCounts.completed,
     },
   ];
@@ -122,6 +122,14 @@ const StaffDashboard = () => {
     }
   };
 
+  // Add this new function to filter requests
+  const filterRequestsWithEmail = (requests: UserRequest[]) => {
+    return requests.filter(request => {
+      const user = request.users?.$values?.[0];
+      return user && user.email && user.email.trim() !== '';
+    });
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -129,7 +137,7 @@ const StaffDashboard = () => {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Koi Pond Construction Dashboard</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-primary/10">
           <CardBody className="flex flex-row items-center">
@@ -140,7 +148,7 @@ const StaffDashboard = () => {
             </div>
           </CardBody>
         </Card>
-        
+
         <Card className="bg-success/10">
           <CardBody className="flex flex-row items-center">
             <Icon icon="mdi:check-circle" width={40} height={40} className="text-success" />
@@ -150,7 +158,7 @@ const StaffDashboard = () => {
             </div>
           </CardBody>
         </Card>
-        
+
         <Card className="bg-warning/10">
           <CardBody className="flex flex-row items-center">
             <Icon icon="mdi:clipboard-text-clock" width={40} height={40} className="text-warning" />
@@ -160,7 +168,7 @@ const StaffDashboard = () => {
             </div>
           </CardBody>
         </Card>
-        
+
         <Card className="bg-secondary/10">
           <CardBody className="flex flex-row items-center">
             <Icon icon="mdi:progress-wrench" width={40} height={40} className="text-secondary" />
@@ -171,7 +179,7 @@ const StaffDashboard = () => {
           </CardBody>
         </Card>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader>Contracts by Status</CardHeader>
@@ -189,7 +197,7 @@ const StaffDashboard = () => {
             </ResponsiveContainer>
           </CardBody>
         </Card>
-        
+
         <Card>
           <CardHeader>Processing Contracts</CardHeader>
           <Divider />
@@ -217,7 +225,7 @@ const StaffDashboard = () => {
           </CardBody>
         </Card>
       </div>
-      
+
       <Card>
         <CardHeader>Recent Requests</CardHeader>
         <Divider />
@@ -231,7 +239,7 @@ const StaffDashboard = () => {
               <TableColumn>SAMPLE</TableColumn>
             </TableHeader>
             <TableBody>
-              {requests.slice(0, 5).map((request, index) => (
+              {filterRequestsWithEmail(requests).slice(0, 5).map((request, index) => (
                 <TableRow key={index}>
                   <TableCell>{renderCell(request, "user")}</TableCell>
                   <TableCell>{renderCell(request, "requestName")}</TableCell>

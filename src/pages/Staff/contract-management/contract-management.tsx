@@ -23,9 +23,11 @@ import {
   SelectItem,
   Avatar,
   ScrollShadow,
-  Link
+  Link,
+  Card,
+  CardBody
 } from "@nextui-org/react";
-import { SearchIcon } from '@nextui-org/shared-icons';
+import { SearchIcon, EyeIcon } from '@nextui-org/shared-icons';
 import { getContractsApi, Contract, updateContractByRequestDesignApi, updateContractBySampleApi } from '@/apis/user.api';
 import { sendOrderCompletionEmail } from '@/apis/email.api';
 import { format, parseISO } from 'date-fns';
@@ -40,20 +42,27 @@ const ContractManagement: React.FC = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchType, setSearchType] = useState('name'); // New state for search type
   const [newProgressUpdate, setNewProgressUpdate] = useState('');
   const [localDescription, setLocalDescription] = useState('');
+  const [isPolling, setIsPolling] = useState(false);
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [pollingInterval, setPollingInterval] = useState(5000); // Start with 5 seconds
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
 
   useEffect(() => {
     fetchContracts();
   }, []);
 
   useEffect(() => {
+    let intervalId: NodeJS.Timeout;
     if (editModalOpen) {
-      const intervalId = setInterval(fetchLatestUpdates, 5000); // Poll every 5 seconds
-      return () => clearInterval(intervalId);
+      intervalId = setInterval(fetchLatestUpdates, 5000); // Poll every 5 seconds
     }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [editModalOpen, editingContract]);
 
   const fetchContracts = async () => {
@@ -77,6 +86,10 @@ const ContractManagement: React.FC = () => {
     return contract.requests.$values[0]?.users.$values[0]?.name || 'N/A';
   };
 
+  const getCustomerEmail = (contract: Contract) => {
+    return contract.requests.$values[0]?.users.$values[0]?.email || 'N/A';
+  };
+
   const handleEditClick = (contract: Contract) => {
     setEditingContract(contract);
     setLocalDescription(contract.description || '');
@@ -89,7 +102,7 @@ const ContractManagement: React.FC = () => {
     if (!editingContract || !newProgressUpdate.trim()) return;
 
     const currentDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
-    const newUpdate = `[${currentDate}] Staff: ${newProgressUpdate}`;
+    const newUpdate = `[${currentDate}] Manager: ${newProgressUpdate}`;
     const updatedDescription = localDescription
       ? `${localDescription}\n\n${newUpdate}`
       : newUpdate;
@@ -111,24 +124,25 @@ const ContractManagement: React.FC = () => {
       });
 
       console.log("Message sent and contract updated successfully:", updatedContract);
-      
+
       // Update the local state
       setLocalDescription(updatedDescription);
       setNewProgressUpdate('');
-      
+
       // Update the contract in the contracts list without fetching all contracts again
-      setContracts(prevContracts => 
-        prevContracts.map(contract => 
-          contract.contractId === editingContract.contractId ? {...contract, description: updatedDescription} : contract
+      setContracts(prevContracts =>
+        prevContracts.map(contract =>
+          contract.contractId === editingContract.contractId ? { ...contract, description: updatedDescription } : contract
         )
       );
-      
+
       // Update the editingContract state and chatMessages
-      setEditingContract(prevContract => ({...prevContract!, description: updatedDescription}));
+      setEditingContract(prevContract => ({ ...prevContract!, description: updatedDescription }));
       setChatMessages(formatProgressUpdates(updatedDescription));
 
     } catch (err) {
       console.error("Error in handleSendMessage:", err);
+      // You might want to show an error message to the user here
     }
   };
 
@@ -207,7 +221,7 @@ const ContractManagement: React.FC = () => {
         return "default";
     }
   };
-
+  //rút gọn url 
   const shortenUrl = (url: string, maxLength: number = 30) => {
     if (!url) return 'N/A';
     if (url.length <= maxLength) return url;
@@ -216,9 +230,9 @@ const ContractManagement: React.FC = () => {
 
   const formatProgressUpdates = (description: string) => {
     if (!description) return [];
-    
+
     const lines = description.split('\n');
-    
+
     return lines.map((line, index) => {
       const dateMatch = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.*?): (.*)/);
       if (dateMatch) {
@@ -234,25 +248,6 @@ const ContractManagement: React.FC = () => {
       }
       return null;
     }).filter(Boolean);
-  };
-
-  const formatMessageContent = (content: string) => {
-    // Giữ nguyên các ký tự xuống dòng
-    const firebaseStorageRegex = /https:\/\/firebasestorage\.googleapis\.com\/.*?\.pdf(\?[^\s]+)?/g;
-    
-    return content.replace(firebaseStorageRegex, (match) => {
-      const fileName = decodeURIComponent(match.split('/').pop()?.split('?')[0] || 'contract.pdf');
-      return `<a href="${match}" target="_blank" rel="noopener noreferrer" class="text-white-600 hover:underline">${fileName}</a>`;
-    });
-  };
-
-  const MessageContent: React.FC<{ content: string }> = ({ content }) => {
-    return (
-      <p
-        className="text-sm break-words"
-        dangerouslySetInnerHTML={{ __html: formatMessageContent(content) }}
-      />
-    );
   };
 
   const getLatestStatus = (description: string): string => {
@@ -281,14 +276,20 @@ const ContractManagement: React.FC = () => {
     return 'No updates';
   };
 
-  const truncateDescription = (description: string, maxLength: number = 30): string => {
-    const latestStatus = getLatestStatus(description);
-    return latestStatus.length > maxLength ? `${latestStatus.slice(0, maxLength)}...` : latestStatus;
+  const truncateDescription = (contract: Contract, maxLength: number = 30): string => {
+    const requestDescription = contract.requests.$values[0]?.description;
+    if (!requestDescription) return 'No description';
+    return requestDescription.length > maxLength ? `${requestDescription.slice(0, maxLength)}...` : requestDescription;
   };
 
-  const filteredContracts = contracts.filter(contract =>
-    getCustomerName(contract).toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredContracts = contracts.filter(contract => {
+    if (searchType === 'name') {
+      return getCustomerName(contract).toLowerCase().includes(searchTerm.toLowerCase());
+    } else if (searchType === 'status') {
+      return contract.status?.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+    return true;
+  });
 
   const paginatedContracts = filteredContracts.slice(
     (currentPage - 1) * itemsPerPage,
@@ -298,17 +299,37 @@ const ContractManagement: React.FC = () => {
   console.log('Filtered Contracts:', filteredContracts);
   console.log('Paginated Contracts:', paginatedContracts);
 
+  const formatMessageContent = (content: string) => {
+    // Giữ nguyên các ký tự xuống dòng
+    const firebaseStorageRegex = /https:\/\/firebasestorage\.googleapis\.com\/.*?\.pdf(\?[^\s]+)?/g;
+
+    return content.replace(firebaseStorageRegex, (match) => {
+      const fileName = decodeURIComponent(match.split('/').pop()?.split('?')[0] || 'contract.pdf');
+      return `<a href="${match}" target="_blank" rel="noopener noreferrer">${fileName}</a>`;
+    });
+  };
+
+  // Trong phần render của tin nhắn
+  const MessageContent: React.FC<{ content: string }> = ({ content }) => {
+    return (
+      <p
+        className="text-sm dark:text-white"
+        dangerouslySetInnerHTML={{ __html: formatMessageContent(content) }}
+      />
+    );
+  };
+
   const fetchLatestUpdates = useCallback(async (contract: Contract) => {
     if (!contract) return;
-    
+
     try {
       const response = await getContractsApi();
       const updatedContract = response.data.$values.find(
         (c: Contract) => c.contractId === contract.contractId
       );
-      
+
       if (updatedContract && updatedContract.description !== contract.description) {
-        const formattedMessages = formatProgressUpdates(updatedContract.description || '');
+        const formattedMessages = formatProgressUpdates(updatedContract.description);
         setChatMessages(formattedMessages);
         setEditingContract(prevContract => ({
           ...prevContract!,
@@ -336,6 +357,21 @@ const ContractManagement: React.FC = () => {
     };
   }, [editModalOpen, editingContract, pollingInterval, fetchLatestUpdates]);
 
+  const handleViewDetails = (contract: Contract) => {
+    setSelectedContract(contract);
+    setDetailModalOpen(true);
+  };
+
+  const getRequestType = (contract: Contract) => {
+    const request = contract.requests.$values[0];
+    if (request.designs && request.designs.$values.length > 0) {
+      return 'Design';
+    } else if (request.samples && request.samples.$values.length > 0) {
+      return 'Sample';
+    }
+    return 'Unknown';
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
@@ -344,12 +380,24 @@ const ContractManagement: React.FC = () => {
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Contract Management</h1>
 
-        {/* Search Input */}
-        <div className="mb-4">
+        {/* Updated Search Input */}
+        <div className="mb-4 flex gap-2">
+          <Select
+            className="w-[200px]"
+            value={searchType}
+            onChange={(e) => setSearchType(e.target.value)}
+          >
+            <SelectItem key="name" value="name">
+              Search by Name
+            </SelectItem>
+            <SelectItem key="status" value="status">
+              Search by Status
+            </SelectItem>
+          </Select>
           <Input
             isClearable
             className="w-full max-w-[300px]"
-            placeholder="Search by customer name..."
+            placeholder={searchType === 'name' ? "Search by customer name..." : "Search by contract status..."}
             startContent={<SearchIcon />}
             value={searchTerm}
             onClear={() => setSearchTerm('')}
@@ -361,7 +409,7 @@ const ContractManagement: React.FC = () => {
           <Table aria-label="Contracts table">
             <TableHeader>
               <TableColumn>Contract Name</TableColumn>
-              <TableColumn>Customer Name</TableColumn>
+              <TableColumn>Customer Info</TableColumn>
               <TableColumn>Start Date</TableColumn>
               <TableColumn>End Date</TableColumn>
               <TableColumn>Status</TableColumn>
@@ -372,7 +420,12 @@ const ContractManagement: React.FC = () => {
               {paginatedContracts.map((contract, index) => (
                 <TableRow key={index}>
                   <TableCell>{contract.contractName}</TableCell>
-                  <TableCell>{getCustomerName(contract)}</TableCell>
+                  <TableCell>
+                    <div>
+                      <p>{getCustomerName(contract)}</p>
+                      <p>{getCustomerEmail(contract)}</p>
+                    </div>
+                  </TableCell>
                   <TableCell>{new Date(contract.contractStartDate).toLocaleDateString()}</TableCell>
                   <TableCell>{new Date(contract.contractEndDate).toLocaleDateString()}</TableCell>
                   <TableCell>
@@ -381,12 +434,17 @@ const ContractManagement: React.FC = () => {
                     </Chip>
                   </TableCell>
                   <TableCell>
-                    <Tooltip content={contract.description || 'No description'}>
-                      <span>{truncateDescription(contract.description)}</span>
+                    <Tooltip content={contract.requests.$values[0]?.description || 'No description'}>
+                      <span>{truncateDescription(contract)}</span>
                     </Tooltip>
                   </TableCell>
                   <TableCell>
-                    <Button onClick={() => handleEditClick(contract)}>Edit</Button>
+                    <div className="flex gap-2">
+                      <Button onClick={() => handleEditClick(contract)}>Edit</Button>
+                      <Button isIconOnly onClick={() => handleViewDetails(contract)}>
+                        <EyeIcon />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -404,8 +462,8 @@ const ContractManagement: React.FC = () => {
           />
         </div>
 
-        <Modal 
-          isOpen={editModalOpen} 
+        <Modal
+          isOpen={editModalOpen}
           onClose={() => setEditModalOpen(false)}
           size="5xl"
         >
@@ -420,27 +478,27 @@ const ContractManagement: React.FC = () => {
                     <Input
                       label="Contract Name"
                       value={editingContract.contractName}
-                      onChange={(e) => setEditingContract({...editingContract, contractName: e.target.value})}
+                      onChange={(e) => setEditingContract({ ...editingContract, contractName: e.target.value })}
                       className="mb-4"
                     />
                     <Input
                       label="Start Date"
                       type="date"
                       value={format(new Date(editingContract.contractStartDate), 'yyyy-MM-dd')}
-                      onChange={(e) => setEditingContract({...editingContract, contractStartDate: e.target.value})}
+                      onChange={(e) => setEditingContract({ ...editingContract, contractStartDate: e.target.value })}
                       className="mb-4"
                     />
                     <Input
                       label="End Date"
                       type="date"
                       value={format(new Date(editingContract.contractEndDate), 'yyyy-MM-dd')}
-                      onChange={(e) => setEditingContract({...editingContract, contractEndDate: e.target.value})}
+                      onChange={(e) => setEditingContract({ ...editingContract, contractEndDate: e.target.value })}
                       className="mb-4"
                     />
                     <Select
                       label="Status"
                       selectedKeys={[editingContract.status]}
-                      onChange={(e) => setEditingContract({...editingContract, status: e.target.value})}
+                      onChange={(e) => setEditingContract({ ...editingContract, status: e.target.value })}
                       className="mb-4"
                     >
                       <SelectItem key="Pending" value="Pending">Pending</SelectItem>
@@ -449,25 +507,24 @@ const ContractManagement: React.FC = () => {
                       <SelectItem key="Cancelled" value="Cancelled">Cancelled</SelectItem>
                     </Select>
                   </div>
-                  
-                  {/* Right column: Progress updates */}
+
+                  {/* Right column: Progress updates, calling chat bubble */}
                   <div className="col-span-2 flex flex-col h-[600px] bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                     <h3 className="text-lg font-semibold mb-4 dark:text-white">Progress Updates</h3>
                     <ScrollShadow className="flex-grow mb-4">
                       <div className="space-y-4">
                         {chatMessages.map((message, index) => (
-                          <div key={message.id} className={`flex ${message.sender === 'Staff' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`flex items-start gap-2 max-w-[80%] ${message.sender === 'Staff' ? 'flex-row-reverse' : ''}`}>
+                          <div key={message.id} className={`flex ${message.sender === 'Manager' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`flex items-start gap-2 max-w-[80%] ${message.sender === 'Manager' ? 'flex-row-reverse' : ''}`}>
                               <Avatar
                                 name={message.sender}
                                 size="sm"
-                                className={message.sender === 'Staff' ? 'bg-primary text-white' : 'bg-default-300 dark:bg-gray-600'}
+                                className={message.sender === 'Manager' ? 'bg-primary text-white' : 'bg-default-300 dark:bg-gray-600'}
                               />
-                              <div className={`p-3 rounded-lg shadow ${
-                                message.sender === 'Staff' 
-                                  ? 'bg-primary text-white dark:bg-blue-600' 
+                              <div className={`p-3 rounded-lg shadow ${message.sender === 'Manager'
+                                  ? 'bg-primary text-white dark:bg-blue-600'
                                   : 'bg-white text-black dark:bg-gray-700 dark:text-white'
-                              } max-w-full overflow-hidden`}>
+                                } max-w-full overflow-hidden`}>
                                 <p className="font-semibold text-sm">{message.sender}</p>
                                 <MessageContent content={message.content} />
                                 <p className="text-xs opacity-70 mt-1 dark:text-gray-300">{message.timestamp}</p>
@@ -477,6 +534,7 @@ const ContractManagement: React.FC = () => {
                         ))}
                       </div>
                     </ScrollShadow>
+                    {/* {text modal chat} */}
                     <Divider className="my-4" />
                     <div className="flex items-end gap-2">
                       <Textarea
@@ -502,6 +560,76 @@ const ContractManagement: React.FC = () => {
                 Save Changes
               </Button>
             </ModalFooter>
+          </ModalContent>
+        </Modal>
+
+        {/* Updated Modal for detailed view */}
+        <Modal
+          isOpen={detailModalOpen}
+          onClose={() => setDetailModalOpen(false)}
+          size="4xl"
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">Contract Details</ModalHeader>
+                <ModalBody>
+                  {selectedContract && (
+                    <div className="grid grid-cols-3 gap-4">
+                      <Card>
+                        <CardBody>
+                          <h3 className="text-lg font-semibold mb-2">Contract Information</h3>
+                          <div className="space-y-2">
+                            <p><strong>Contract Name:</strong> {selectedContract.contractName}</p>
+                            <p><strong>Start Date:</strong> {format(new Date(selectedContract.contractStartDate), 'dd/MM/yyyy')}</p>
+                            <p><strong>End Date:</strong> {format(new Date(selectedContract.contractEndDate), 'dd/MM/yyyy')}</p>
+                            <p><strong>Status:</strong> <Chip color={getStatusColor(selectedContract.status)}>{selectedContract.status}</Chip></p>
+                          </div>
+                        </CardBody>
+                      </Card>
+
+                      <Card>
+                        <CardBody>
+                          <h3 className="text-lg font-semibold mb-2">Customer Information</h3>
+                          <div className="space-y-2">
+                            <p><strong>Name:</strong> {getCustomerName(selectedContract)}</p>
+                            <p><strong>Email:</strong> {selectedContract.requests.$values[0]?.users.$values[0]?.email || 'N/A'}</p>
+                            <p><strong>Phone:</strong> {selectedContract.requests.$values[0]?.users.$values[0]?.phoneNumber || 'N/A'}</p>
+                            <p><strong>Address:</strong> {selectedContract.requests.$values[0]?.users.$values[0]?.address || 'N/A'}</p>
+                          </div>
+                        </CardBody>
+                      </Card>
+
+                      <Card>
+                        <CardBody>
+                          <h3 className="text-lg font-semibold mb-2">Request Information</h3>
+                          <div className="space-y-2">
+                            <p><strong>Request Name:</strong> {selectedContract.requests.$values[0]?.requestName || 'N/A'}</p>
+                            <p><strong>Request Type:</strong> {getRequestType(selectedContract)}</p>
+                          </div>
+                        </CardBody>
+                      </Card>
+
+                      <Card className="col-span-3">
+                        <CardBody>
+                          <h3 className="text-lg font-semibold mb-2">Description</h3>
+                          <ScrollShadow className="h-[200px] max-w-[800px] mx-auto">
+                            <p className="whitespace-pre-wrap text-sm">
+                              {selectedContract.requests.$values[0]?.description || 'No description available.'}
+                            </p>
+                          </ScrollShadow>
+                        </CardBody>
+                      </Card>
+                    </div>
+                  )}
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="primary" onPress={onClose}>
+                    Close
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
           </ModalContent>
         </Modal>
       </div>

@@ -45,11 +45,6 @@ const MaintenanceManagement: React.FC = () => {
   ];
 
   const renderCell = (request: MaintenanceRequest, columnKey: React.Key) => {
-    // Only render if the status is 'Pending'
-    if (request.status !== 'Pending') {
-      return null;
-    }
-
     const user = request.requests.$values[0]?.users.$values[0];
     switch (columnKey) {
       case "id":
@@ -81,8 +76,8 @@ const MaintenanceManagement: React.FC = () => {
         );
       case "actions":
         return (
-          <Button color="success" onClick={() => handleAcceptRequest(request)}>
-            Accept Request
+          <Button color="primary" onClick={() => openEditModal(request)}>
+            Edit
           </Button>
         );
       default:
@@ -158,13 +153,13 @@ const MaintenanceManagement: React.FC = () => {
   };
 
   const filteredMaintenanceRequests = maintenanceRequests.filter(request =>
-    ["Pending"].includes(request.status)
+    ["Completed", "Processing", "Cancelled"].includes(request.status)
   );
 
   const renderTableBody = useCallback(() => {
-    console.log('Rendering table body, maintenanceRequests:', maintenanceRequests);
+    console.log('Rendering table body, filteredMaintenanceRequests:', filteredMaintenanceRequests);
     return (
-      <TableBody items={maintenanceRequests}>
+      <TableBody items={filteredMaintenanceRequests}>
         {(item) => (
           <TableRow key={item.maintenanceRequestId}>
             {(columnKey) => (
@@ -174,7 +169,7 @@ const MaintenanceManagement: React.FC = () => {
         )}
       </TableBody>
     );
-  }, [maintenanceRequests]);
+  }, [filteredMaintenanceRequests]);
 
   const statusOptions = [
     { value: 'Pending', label: 'Pending' },
@@ -195,34 +190,6 @@ const MaintenanceManagement: React.FC = () => {
         return 'danger';
       default:
         return 'default';
-    }
-  };
-
-  const handleAcceptRequest = async (request: MaintenanceRequest) => {
-    try {
-      setLoading(true);
-      const updatedRequest = { ...request, status: 'Processing' };
-      let response;
-      if (updatedRequest.requests.$values[0]?.designs) {
-        response = await updateMaintenanceRequestByDesignApi(updatedRequest);
-      } else if (updatedRequest.requests.$values[0]?.samples) {
-        response = await updateMaintenanceRequestBySampleApi(updatedRequest);
-      } else {
-        throw new Error('Invalid request type');
-      }
-
-      if (response.status === 200) {
-        await fetchMaintenanceRequests();
-        console.log('Maintenance request accepted successfully');
-      } else {
-        console.error('Update failed:', response.data);
-        setError('Failed to accept maintenance request');
-      }
-    } catch (error) {
-      console.error('Error accepting maintenance request:', error);
-      setError('An error occurred while accepting the maintenance request');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -252,7 +219,7 @@ const MaintenanceManagement: React.FC = () => {
   return (
     <DefaultStaffLayout>
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Maintenance Request Management</h1>
+        <h1 className="text-2xl font-bold mb-4">Maintenance Management</h1>
         {filteredMaintenanceRequests.length > 0 ? (
           <Table aria-label="Maintenance requests table">
             <TableHeader columns={columns}>
@@ -261,7 +228,7 @@ const MaintenanceManagement: React.FC = () => {
             {renderTableBody()}
           </Table>
         ) : (
-          <p>No maintenance requests found .</p>
+          <p>No maintenance requests found with status Completed, Processing, or Cancelled.</p>
         )}
 
         <Modal isOpen={isEditModalOpen} onClose={closeEditModal}>
