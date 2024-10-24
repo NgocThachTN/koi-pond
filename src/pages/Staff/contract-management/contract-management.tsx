@@ -521,7 +521,7 @@ const ContractManagement: React.FC = () => {
                                 size="sm"
                                 className={message.sender === 'Manager' ? 'bg-primary text-white' : 'bg-default-300 dark:bg-gray-600'}
                               />
-                              <div className={`p-3 rounded-lg shadow ${message.sender === 'Manager'
+                              <div className={`p-3 rounded-lg shadow ${message.sender === 'Staff'
                                   ? 'bg-primary text-white dark:bg-blue-600'
                                   : 'bg-white text-black dark:bg-gray-700 dark:text-white'
                                 } max-w-full overflow-hidden`}>
