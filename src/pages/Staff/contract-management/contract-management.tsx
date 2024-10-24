@@ -102,7 +102,7 @@ const ContractManagement: React.FC = () => {
     if (!editingContract || !newProgressUpdate.trim()) return;
 
     const currentDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
-    const newUpdate = `[${currentDate}] Manager: ${newProgressUpdate}`;
+    const newUpdate = `[${currentDate}] Staff: ${newProgressUpdate}`; // Changed "Manager" to "Staff"
     const updatedDescription = localDescription
       ? `${localDescription}\n\n${newUpdate}`
       : newUpdate;
