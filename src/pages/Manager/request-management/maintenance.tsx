@@ -9,6 +9,7 @@ const MaintenanceManagement: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingRequest, setEditingRequest] = useState<MaintenanceRequest | null>(null);
+  const [searchStatus, setSearchStatus] = useState<string>("");
 
   useEffect(() => {
     fetchMaintenanceRequests();
@@ -152,10 +153,14 @@ const MaintenanceManagement: React.FC = () => {
     }
   };
 
+  const filteredRequests = maintenanceRequests.filter(request =>
+    request.status.toLowerCase().includes(searchStatus.toLowerCase())
+  );
+
   const renderTableBody = useCallback(() => {
-    console.log('Rendering table body, maintenanceRequests:', maintenanceRequests);
+    console.log('Rendering table body, filteredRequests:', filteredRequests);
     return (
-      <TableBody items={maintenanceRequests}>
+      <TableBody items={filteredRequests}>
         {(item) => (
           <TableRow key={item.maintenanceRequestId}>
             {(columnKey) => (
@@ -165,7 +170,7 @@ const MaintenanceManagement: React.FC = () => {
         )}
       </TableBody>
     );
-  }, [maintenanceRequests]);
+  }, [filteredRequests]);
 
   const statusOptions = [
     { value: 'Pending', label: 'Pending' },
@@ -216,7 +221,32 @@ const MaintenanceManagement: React.FC = () => {
     <DefaultManagerLayout>
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Maintenance Management</h1>
-        {maintenanceRequests.length > 0 ? (
+        <div className="flex justify-between items-center mb-4">
+          <Input
+            className="max-w-xs"
+            size="sm"
+            placeholder="Search by status..."
+            value={searchStatus}
+            onChange={(e) => setSearchStatus(e.target.value)}
+            startContent={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-4 h-4 text-default-400"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                />
+              </svg>
+            }
+          />
+        </div>
+        {filteredRequests.length > 0 ? (
           <Table aria-label="Maintenance requests table">
             <TableHeader columns={columns}>
               {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
