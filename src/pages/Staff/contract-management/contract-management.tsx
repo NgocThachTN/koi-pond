@@ -514,8 +514,8 @@ const ContractManagement: React.FC = () => {
                     <ScrollShadow className="flex-grow mb-4">
                       <div className="space-y-4">
                         {chatMessages.map((message, index) => (
-                          <div key={message.id} className={`flex ${message.sender === 'Manager' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`flex items-start gap-2 max-w-[80%] ${message.sender === 'Manager' ? 'flex-row-reverse' : ''}`}>
+                          <div key={message.id} className={`flex ${message.sender === 'Staff' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`flex items-start gap-2 max-w-[80%] ${message.sender === 'Staff' ? 'flex-row-reverse' : ''}`}>
                               <Avatar
                                 name={message.sender}
                                 size="sm"
