@@ -105,18 +105,22 @@ const StaffDashboard = () => {
             <span className="truncate max-w-xs">{request?.description || 'No description'}</span>
           </Tooltip>
         );
-      case "design":
-        return design ? (
-          <Chip color="primary" variant="flat">
-            {design.designName || 'Unnamed Design'}
-          </Chip>
-        ) : "N/A";
-      case "sample":
-        return sample ? (
-          <Chip color="secondary" variant="flat">
-            {sample.sampleName || 'Unnamed Sample'}
-          </Chip>
-        ) : "N/A";
+      case "type":
+        if (design) {
+          return (
+            <Chip color="primary" variant="flat">
+              Design: {design.designName || 'Unnamed Design'}
+            </Chip>
+          );
+        } else if (sample) {
+          return (
+            <Chip color="secondary" variant="flat">
+              Sample: {sample.sampleName || 'Unnamed Sample'}
+            </Chip>
+          );
+        } else {
+          return "N/A";
+        }
       default:
         return null;
     }
@@ -235,8 +239,7 @@ const StaffDashboard = () => {
               <TableColumn>CUSTOMER</TableColumn>
               <TableColumn>REQUEST NAME</TableColumn>
               <TableColumn>DESCRIPTION</TableColumn>
-              <TableColumn>DESIGN</TableColumn>
-              <TableColumn>SAMPLE</TableColumn>
+              <TableColumn>TYPE</TableColumn>
             </TableHeader>
             <TableBody>
               {filterRequestsWithEmail(requests).slice(0, 5).map((request, index) => (
@@ -244,8 +247,7 @@ const StaffDashboard = () => {
                   <TableCell>{renderCell(request, "user")}</TableCell>
                   <TableCell>{renderCell(request, "requestName")}</TableCell>
                   <TableCell>{renderCell(request, "description")}</TableCell>
-                  <TableCell>{renderCell(request, "design")}</TableCell>
-                  <TableCell>{renderCell(request, "sample")}</TableCell>
+                  <TableCell>{renderCell(request, "type")}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

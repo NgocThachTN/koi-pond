@@ -12,6 +12,10 @@ import {
   Link,
   Button,
   Divider,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { cn } from "@nextui-org/react";
@@ -27,10 +31,10 @@ const pages = [
   { name: "About Us", href: "/about" },
   {
     name: "Pricing",
-    href: "/pricing",
+    href: "#",
     dropdown: [
-      { name: "Sample Design ", href: "/pricinguser" },
-      { name: "Custom Design", href: "/pricinguser2" },
+      { name: "Sample Design ", href: "/pricing" },
+      { name: "Custom Design", href: "/pricinguser1" },
     ],
   },
 ];
@@ -73,19 +77,39 @@ export const Navbar = () => {
       </NavbarBrand>
 
       {/* Center Content */}
-      <NavbarContent justify="center" className="gap-20"> {/* Thay đổi từ gap-4 thành gap-8 */}
+      <NavbarContent justify="center" className="gap-20">
         {pages.map((page) => (
           <NavbarItem key={page.name}>
-            <Link
-              className={cn("text-default-500", {
-                "text-foreground": page.name === "Customers",
-              })}
-              href={page.href}
-              size="sm"
-              aria-current={page.name === "Customers" ? "page" : undefined}
-            >
-              {page.name}
-            </Link>
+            {page.dropdown ? (
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button
+                    variant="light"
+                    className="text-default-500"
+                  >
+                    {page.name}
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu aria-label={`${page.name} dropdown`}>
+                  {page.dropdown.map((item) => (
+                    <DropdownItem key={item.name}>
+                      <Link href={item.href}>{item.name}</Link>
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            ) : (
+              <Link
+                className={cn("text-default-500", {
+                  "text-foreground": page.name === "Customers",
+                })}
+                href={page.href}
+                size="sm"
+                aria-current={page.name === "Customers" ? "page" : undefined}
+              >
+                {page.name}
+              </Link>
+            )}
           </NavbarItem>
         ))}
       </NavbarContent>

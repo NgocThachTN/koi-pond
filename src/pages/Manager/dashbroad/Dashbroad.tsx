@@ -18,7 +18,7 @@ const Dashboard = () => {
         const accountsData = await getAccountInfo();
         const requestsData = await getUserRequestsApi('');
         const contractsData = await getContractsApi();
-        
+
         setAccounts(accountsData || []);
         // Sort requests by newest ID, then by email and customer name
         const sortedRequests = requestsData
@@ -72,18 +72,18 @@ const Dashboard = () => {
   });
 
   const chartData = [
-    { 
-      name: 'Pending', 
-      requests: requestStatusCounts.pending, 
+    {
+      name: 'Pending',
+      requests: requestStatusCounts.pending,
       contracts: contractStatusCounts.pending,
     },
-    { 
-      name: 'Processing', 
-      requests: requestStatusCounts.processing, 
+    {
+      name: 'Processing',
+      requests: requestStatusCounts.processing,
       contracts: contractStatusCounts.processing,
     },
-    { 
-      name: 'Completed', 
+    {
+      name: 'Completed',
       contracts: contractStatusCounts.completed,
     },
   ];
@@ -121,18 +121,22 @@ const Dashboard = () => {
             <span className="truncate max-w-xs">{request?.description || 'No description'}</span>
           </Tooltip>
         );
-      case "design":
-        return design ? (
-          <Chip color="primary" variant="flat">
-            {design.designName || 'Unnamed Design'}
-          </Chip>
-        ) : "N/A";
-      case "sample":
-        return sample ? (
-          <Chip color="secondary" variant="flat">
-            {sample.sampleName || 'Unnamed Sample'}
-          </Chip>
-        ) : "N/A";
+      case "type":
+        if (design) {
+          return (
+            <Chip color="primary" variant="flat">
+              Design: {design.designName || 'Unnamed Design'}
+            </Chip>
+          );
+        } else if (sample) {
+          return (
+            <Chip color="secondary" variant="flat">
+              Sample: {sample.sampleName || 'Unnamed Sample'}
+            </Chip>
+          );
+        } else {
+          return "N/A";
+        }
       default:
         return null;
     }
@@ -145,7 +149,7 @@ const Dashboard = () => {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Koi Pond Construction Dashboard</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-primary/10">
           <CardBody className="flex flex-row items-center">
@@ -156,7 +160,7 @@ const Dashboard = () => {
             </div>
           </CardBody>
         </Card>
-        
+
         <Card className="bg-success/10">
           <CardBody className="flex flex-row items-center">
             <Icon icon="mdi:account-group" width={40} height={40} className="text-success" />
@@ -166,7 +170,7 @@ const Dashboard = () => {
             </div>
           </CardBody>
         </Card>
-        
+
         <Card className="bg-warning/10">
           <CardBody className="flex flex-row items-center">
             <Icon icon="mdi:clipboard-text-clock" width={40} height={40} className="text-warning" />
@@ -176,7 +180,7 @@ const Dashboard = () => {
             </div>
           </CardBody>
         </Card>
-        
+
         <Card className="bg-secondary/10">
           <CardBody className="flex flex-row items-center">
             <Icon icon="mdi:account-hard-hat" width={40} height={40} className="text-secondary" />
@@ -187,7 +191,7 @@ const Dashboard = () => {
           </CardBody>
         </Card>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader>Requests and Contracts by Status</CardHeader>
@@ -206,7 +210,7 @@ const Dashboard = () => {
             </ResponsiveContainer>
           </CardBody>
         </Card>
-        
+
         <Card>
           <CardHeader>Processing Contracts</CardHeader>
           <Divider />
@@ -234,7 +238,7 @@ const Dashboard = () => {
           </CardBody>
         </Card>
       </div>
-      
+
       <Card>
         <CardHeader>Recent Requests</CardHeader>
         <Divider />
@@ -244,8 +248,7 @@ const Dashboard = () => {
               <TableColumn>CUSTOMER</TableColumn>
               <TableColumn>REQUEST NAME</TableColumn>
               <TableColumn>DESCRIPTION</TableColumn>
-              <TableColumn>DESIGN</TableColumn>
-              <TableColumn>SAMPLE</TableColumn>
+              <TableColumn>TYPE</TableColumn>
             </TableHeader>
             <TableBody>
               {requests.slice(0, 5).map((request, index) => (
@@ -253,8 +256,7 @@ const Dashboard = () => {
                   <TableCell>{renderCell(request, "user")}</TableCell>
                   <TableCell>{renderCell(request, "requestName")}</TableCell>
                   <TableCell>{renderCell(request, "description")}</TableCell>
-                  <TableCell>{renderCell(request, "design")}</TableCell>
-                  <TableCell>{renderCell(request, "sample")}</TableCell>
+                  <TableCell>{renderCell(request, "type")}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

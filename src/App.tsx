@@ -28,7 +28,7 @@ import DesignAndSampleStaff from "./pages/Staff/request-management/design-and-sa
 import MaintenanceStaffManagement from "./pages/Staff/request-management/maintenance";
 import ContractStaffManagement from "./pages/Staff/contract-management/contract-management";
 import MaintenanceManagementStaff from "./pages/Staff/maintenance-management/maintenance-management";
-
+import PricingUser1 from "./pages/Pricing/pricinguser1";
 // Import các trang Manager
 import Dashboard from "@/pages/Manager/dashbroad/Dashbroad";
 import StaffManagement from "@/pages/Manager/user-management/staff";
@@ -115,6 +115,7 @@ function App() {
       {/* Guest routes */}
       <Route element={<GuestRoute element={<DocsPage />} />} path="/docs" />
       <Route element={<GuestRoute element={<PricingPage />} />} path="/pricing" />
+      <Route element={<GuestRoute element={<PricingUser1 />} />} path="/pricinguser1" />
       <Route element={<GuestRoute element={<BlogPage />} />} path="/blog" />
       <Route element={<GuestRoute element={<AboutPage />} />} path="/about" />
       <Route element={<GuestRoute element={<LoginPage />} />} path="/login" />
