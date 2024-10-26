@@ -6,7 +6,7 @@ const teamMembers = [
   {
     name: "Phan Khánh Dương",
     role: "Project Manager - BE Developer",
-    image: "https://cdna.artstation.com/p/assets/images/images/038/652/346/large/joe-parente-joji-pink-guy-comp-01.jpg?1623691200",
+    image: "Images/khanhduong.PNG",
     email: "",
     facebook: "https://www.facebook.com/be.ta.5030927",
     github: "https://github.com/ReshTheDragon",
@@ -22,7 +22,7 @@ const teamMembers = [
   {
     name: "Trường Nguyễn Ngọc Thạch",
     role: "FE Developer",
-    image: "Images/ngocthach.jpg",
+    image: "Images/ngocthach.png",
     email: "thachtnnse180664@fpt.edu.vn",
     facebook: "https://www.facebook.com/ngocthach.hannsoki",
     github: "https://github.com/NgocThachTN",

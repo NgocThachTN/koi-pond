@@ -78,7 +78,7 @@ export default function Login() {
         <div className="absolute left-2 top-5 lg:left-5">
           <div className="flex items-center">
             <AcmeIcon size={40} />
-            <p className="font-medium">KoiPond</p>
+            <p className="font-medium">KoiPond</p> {/*Koi Pond Logo */}
           </div>
         </div>
 
@@ -165,9 +165,9 @@ export default function Login() {
                 {/* <Checkbox name="remember" size="sm">
                   Remember for 15 days
                 </Checkbox> */}
-                <Link className="text-default-500" href="#" size="sm">
+                {/* <Link className="text-default-500" href="#" size="sm">
                   Forgot password?
-                </Link>
+                </Link> */}
               </div>
               <Button
                 color="primary"
