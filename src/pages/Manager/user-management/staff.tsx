@@ -17,7 +17,10 @@ import {
   ModalBody,
   ModalFooter,
   Input,
-  useDisclosure
+  useDisclosure,
+  Switch,
+  Select,
+  SelectItem
 } from "@nextui-org/react";
 import { EyeIcon, EditIcon, DeleteIcon } from "@nextui-org/shared-icons";
 import { FaPlus } from 'react-icons/fa';
@@ -29,6 +32,7 @@ const columns = [
   { name: "ADDRESS", uid: "address" },
   { name: "EMAIL", uid: "email" },
   { name: "ROLE", uid: "roleId" },
+  { name: "STATUS", uid: "status" },
   { name: "ACTIONS", uid: "actions" },
 ];
 
@@ -47,7 +51,8 @@ const StaffManagement: React.FC = () => {
     userName: "",
     email: "",
     password: "",
-    roleId: 3 // Mặc định là role staff
+    roleId: 3, // Mặc định là role staff
+    status: "Active", // Đảm bảo status mặc định là "Active"
   });
   const rowsPerPage = 7;
 
@@ -98,7 +103,10 @@ const StaffManagement: React.FC = () => {
   const handleUpdateStaff = async () => {
     if (selectedStaff) {
       try {
-        await updateAccountInfo(selectedStaff.accountId, selectedStaff);
+        await updateAccountInfo(selectedStaff.accountId, {
+          ...selectedStaff,
+          status: selectedStaff.status === "Active" ? "Active" : "Inactive"
+        });
         const updatedStaff = staffMembers.map(staff => 
           staff.accountId === selectedStaff.accountId ? selectedStaff : staff
         );
@@ -125,7 +133,8 @@ const StaffManagement: React.FC = () => {
 
   const handleCreateStaff = async () => {
     try {
-      await createAccountInfo(newStaff);
+      // Đảm bảo rằng status luôn là "Active" khi tạo mới
+      await createAccountInfo({ ...newStaff, status: "Active" });
       // Refresh danh sách nhân viên sau khi tạo mới
       const data = await getAccountInfo();
       const staff = data.filter(user => user.roleId === 3);
@@ -140,7 +149,8 @@ const StaffManagement: React.FC = () => {
         userName: "",
         email: "",
         password: "",
-        roleId: 3
+        roleId: 3,
+        status: "Active", // Reset status về "Active"
       });
     } catch (error) {
       console.error("Failed to create staff:", error);
@@ -155,6 +165,16 @@ const StaffManagement: React.FC = () => {
         return (
           <Chip color="primary" size="sm" variant="flat">
             Staff
+          </Chip>
+        );
+      case "status":
+        return (
+          <Chip
+            color={staff.status === "Active" ? "success" : "danger"}
+            size="sm"
+            variant="flat"
+          >
+            {staff.status}
           </Chip>
         );
       case "actions":
@@ -249,6 +269,19 @@ const StaffManagement: React.FC = () => {
                     value={selectedStaff.email}
                     onChange={(e) => setSelectedStaff({...selectedStaff, email: e.target.value})}
                   />
+                  <Select
+                    label="Status"
+                    placeholder="Select status"
+                    selectedKeys={[selectedStaff.status]}
+                    onChange={(e) => setSelectedStaff({...selectedStaff, status: e.target.value})}
+                  >
+                    <SelectItem key="Active" value="Active">
+                      Active
+                    </SelectItem>
+                    <SelectItem key="Inactive" value="Inactive">
+                      Inactive
+                    </SelectItem>
+                  </Select>
                 </>
               )}
             </ModalBody>
@@ -314,6 +347,12 @@ const StaffManagement: React.FC = () => {
                 type="password"
                 value={newStaff.password}
                 onChange={(e) => setNewStaff({...newStaff, password: e.target.value})}
+              />
+              {/* Có thể thêm một trường hiển thị để cho thấy status mặc định là Active */}
+              <Input
+                label="Status"
+                value="Active"
+                isReadOnly
               />
             </ModalBody>
             <ModalFooter>

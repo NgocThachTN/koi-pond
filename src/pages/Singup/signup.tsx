@@ -19,6 +19,7 @@ export default function SignUpPage() {
     confirmPassword: "",
     address: "",
     phoneNumber: "",
+    status: "Active",
   });
   const [isAgreed, setIsAgreed] = useState(false);
   const [error, setError] = useState("");

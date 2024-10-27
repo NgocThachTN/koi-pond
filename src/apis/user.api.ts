@@ -27,6 +27,7 @@ interface RegisterReqType {
   phoneNumber: string;
   address: string;
   roleId: number;
+  status: string;
 }
 
 interface RegisterResType {

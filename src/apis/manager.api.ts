@@ -59,10 +59,13 @@ export interface CreateAccountInfo {
   email: string;
   password: string;
   roleId: number;
+  status: string;
 }
 
 // Thêm hàm mới để tạo tài khoản
 export const createAccountInfo = async (accountInfo: CreateAccountInfo): Promise<void> => {
-  await http.post('Accounts', accountInfo);
+  await http.post('Accounts', {
+    ...accountInfo,
+    status: accountInfo.status || "Active" // Đảm bảo status luôn có giá trị
+  });
 }
-

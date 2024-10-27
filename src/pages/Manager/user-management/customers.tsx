@@ -56,7 +56,8 @@ const CustomerManagement: React.FC = () => {
     userName: "",
     email: "",
     password: "",
-    roleId: 1 // Mặc định là role customer
+    roleId: 1,
+    status: "Active" // Add default status
   });
   const rowsPerPage = 7;
 
@@ -136,8 +137,12 @@ const CustomerManagement: React.FC = () => {
 
   const handleCreateCustomer = async () => {
     try {
-      await createAccountInfo(newCustomer);
-      // Refresh danh sách khách hàng sau khi tạo mới
+      const customerToCreate = {
+        ...newCustomer,
+        status: "Active" // Đảm bảo status luôn được gán là "Active"
+      };
+      await createAccountInfo(customerToCreate);
+      // Refresh customer list after creating a new one
       const data = await getAccountInfo();
       const customers = data.filter(user => user.roleId === 1);
       setUsers(customers);
@@ -151,7 +156,8 @@ const CustomerManagement: React.FC = () => {
         userName: "",
         email: "",
         password: "",
-        roleId: 1
+        roleId: 1,
+        status: "Active" // Reset status to default
       });
     } catch (error) {
       console.error("Failed to create customer:", error);
@@ -353,6 +359,14 @@ const CustomerManagement: React.FC = () => {
                 value={newCustomer.password}
                 onChange={(e) => setNewCustomer({...newCustomer, password: e.target.value})}
               />
+              <Select
+                label="Status"
+                selectedKeys={[newCustomer.status]}
+                onChange={(e) => setNewCustomer({...newCustomer, status: e.target.value})}
+              >
+                <SelectItem key="Active" value="Active">Active</SelectItem>
+                <SelectItem key="Inactive" value="Inactive">Inactive</SelectItem>
+              </Select>
             </ModalBody>
             <ModalFooter>
               <Button color="primary" onPress={handleCreateCustomer}>
