@@ -16,8 +16,8 @@ import Blog1Page from "./components/Blog/blog1";
 import Blog2Page from "./components/Blog/blog2";
 import Blog3Page from "./components/Blog/blog3";
 import BlogPageUser from "./pages/Blog/bloguser";
-import PricingPageUser from "@/pages/Pricing/pricinguser";
-import PricingPageUser2 from "@/pages/Pricing/pricinguser2";
+import PricingUser from "@/pages/Pricing/pricinguser";
+import PricingUser2 from "@/pages/Pricing/pricinguser2";
 import AboutPageUser from "./pages/About/aboutuser";
 import DocsPageUser from "@/pages/Docs/docsuser";
 import OrdersPage from "./pages/Orders/Orders";
@@ -141,11 +141,11 @@ function App() {
         }
       />
       <Route element={isAuthenticated ? <BlogPageUser /> : <Navigate to="/bloguser" />} path="/bloguser" />
-      <Route element={isAuthenticated ? <PricingPageUser /> : <Navigate to="/pricinguser" />} path="/pricinguser" />
+      <Route element={isAuthenticated ? <PricingUser /> : <Navigate to="/pricinguser" />} path="/pricinguser" />
       <Route element={isAuthenticated ? <AboutPageUser /> : <Navigate to="/aboutuser" />} path="/aboutuser" />
       <Route element={isAuthenticated ? <DocsPageUser /> : <Navigate to="/docsuser" />} path="/docsuser" />
       <Route element={isAuthenticated ? <OrdersPage /> : <Navigate to="/orders" />} path="/orders" />
-      <Route element={isAuthenticated ? <PricingPageUser2 /> : <Navigate to="/pricinguser2" />} path="/pricinguser2" />
+      <Route element={isAuthenticated ? <PricingUser2 /> : <Navigate to="/pricinguser2" />} path="/pricinguser2" />
       <Route element={isAuthenticated ? <Blog1PageUser /> : <Navigate to="/BlogUser/blog1user" />} path="/BlogUser/blog1user" />
       <Route element={isAuthenticated ? <Blog2PageUser /> : <Navigate to="/BlogUser/blog2user" />} path="/BlogUser/blog2user" />
       <Route element={isAuthenticated ? <Blog3PageUser /> : <Navigate to="/BlogUser/blog3user" />} path="/BlogUser/blog3user" />

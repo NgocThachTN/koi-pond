@@ -4,9 +4,9 @@ import { Button, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell
 import { Tabs, Tab } from "@nextui-org/tabs";
 import { CheckIcon } from '@heroicons/react/24/solid';
 import { TitleManager } from '@/components/TitleManager';
-export default function PricingPage() {
+export default function PricingUser() {
   // Mảng chứa các URL hình ảnh cụ thể
-  const imageUrls = [
+  const imageUrls1 = [
     "https://sanvuonadong.vn/wp-content/uploads/2020/07/ho-ca-koi-trong-nha-dep-01-san-vuon-a-dong.jpg",
     "https://sanvuonadong.vn/wp-content/uploads/2020/10/ho-ca-koi-mini-bang-kinh-04-san-vuon-a-dong.jpg",
     "https://sanvuonadong.vn/wp-content/uploads/2020/10/thiet-ke-ho-ca-koi-mini-truoc-nha-03-san-vuon-a-dong.jpg",
@@ -55,9 +55,9 @@ export default function PricingPage() {
 
         <Card className="w-full max-w-4xl">
           <CardBody>
-            <Table 
-              aria-label="Pricing table" 
-              className="w-full" 
+            <Table
+              aria-label="Pricing table"
+              className="w-full"
               shadow="none"
               removeWrapper
             >
@@ -96,12 +96,14 @@ export default function PricingPage() {
 
         <h2 className={title({ size: "sm", class: "mt-12 mb-4" })}>Mini Koi Pond</h2>
         <div className="grid grid-cols-3 gap-4">
-          {imageUrls.map((url, index) => (
-            <div key={index} className="relative w-full pb-[66.67%] overflow-hidden rounded-lg">
+          {imageUrls1.map((url, index) => (
+            <div key={index} className="aspect-square overflow-hidden rounded-lg">
               <Image
                 src={url}
                 alt={`Image ${index + 1}`}
-                className="absolute top-0 left-0 w-full h-full object-cover"
+                className="w-full h-full object-cover"
+                height={360}
+                width={360}
               />
             </div>
           ))}
