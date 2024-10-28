@@ -9,7 +9,6 @@ const MaintenanceManagement: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingRequest, setEditingRequest] = useState<MaintenanceRequest | null>(null);
-  const [searchStatus, setSearchStatus] = useState<string>("");
 
   useEffect(() => {
     fetchMaintenanceRequests();
@@ -46,6 +45,11 @@ const MaintenanceManagement: React.FC = () => {
   ];
 
   const renderCell = (request: MaintenanceRequest, columnKey: React.Key) => {
+    // Only render if the status is 'Pending'
+    if (request.status !== 'Pending') {
+      return null;
+    }
+
     const user = request.requests.$values[0]?.users.$values[0];
     switch (columnKey) {
       case "id":
@@ -77,8 +81,8 @@ const MaintenanceManagement: React.FC = () => {
         );
       case "actions":
         return (
-          <Button color="primary" onClick={() => openEditModal(request)}>
-            Edit
+          <Button color="success" onClick={() => handleAcceptRequest(request)}>
+            Accept Request
           </Button>
         );
       default:
@@ -153,14 +157,14 @@ const MaintenanceManagement: React.FC = () => {
     }
   };
 
-  const filteredRequests = maintenanceRequests.filter(request =>
-    request.status.toLowerCase().includes(searchStatus.toLowerCase())
+  const filteredMaintenanceRequests = maintenanceRequests.filter(request =>
+    ["Pending"].includes(request.status)
   );
 
   const renderTableBody = useCallback(() => {
-    console.log('Rendering table body, filteredRequests:', filteredRequests);
+    console.log('Rendering table body, maintenanceRequests:', maintenanceRequests);
     return (
-      <TableBody items={filteredRequests}>
+      <TableBody items={maintenanceRequests}>
         {(item) => (
           <TableRow key={item.maintenanceRequestId}>
             {(columnKey) => (
@@ -170,7 +174,7 @@ const MaintenanceManagement: React.FC = () => {
         )}
       </TableBody>
     );
-  }, [filteredRequests]);
+  }, [maintenanceRequests]);
 
   const statusOptions = [
     { value: 'Pending', label: 'Pending' },
@@ -191,6 +195,34 @@ const MaintenanceManagement: React.FC = () => {
         return 'danger';
       default:
         return 'default';
+    }
+  };
+
+  const handleAcceptRequest = async (request: MaintenanceRequest) => {
+    try {
+      setLoading(true);
+      const updatedRequest = { ...request, status: 'Processing' };
+      let response;
+      if (updatedRequest.requests.$values[0]?.designs) {
+        response = await updateMaintenanceRequestByDesignApi(updatedRequest);
+      } else if (updatedRequest.requests.$values[0]?.samples) {
+        response = await updateMaintenanceRequestBySampleApi(updatedRequest);
+      } else {
+        throw new Error('Invalid request type');
+      }
+
+      if (response.status === 200) {
+        await fetchMaintenanceRequests();
+        console.log('Maintenance request accepted successfully');
+      } else {
+        console.error('Update failed:', response.data);
+        setError('Failed to accept maintenance request');
+      }
+    } catch (error) {
+      console.error('Error accepting maintenance request:', error);
+      setError('An error occurred while accepting the maintenance request');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -220,33 +252,8 @@ const MaintenanceManagement: React.FC = () => {
   return (
     <DefaultManagerLayout>
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Maintenance Management</h1>
-        <div className="flex justify-between items-center mb-4">
-          <Input
-            className="max-w-xs"
-            size="sm"
-            placeholder="Search by status..."
-            value={searchStatus}
-            onChange={(e) => setSearchStatus(e.target.value)}
-            startContent={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-4 h-4 text-default-400"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                />
-              </svg>
-            }
-          />
-        </div>
-        {filteredRequests.length > 0 ? (
+        <h1 className="text-2xl font-bold mb-4">Maintenance Request Management</h1>
+        {filteredMaintenanceRequests.length > 0 ? (
           <Table aria-label="Maintenance requests table">
             <TableHeader columns={columns}>
               {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
@@ -254,7 +261,7 @@ const MaintenanceManagement: React.FC = () => {
             {renderTableBody()}
           </Table>
         ) : (
-          <p>No maintenance requests found.</p>
+          <p>No maintenance requests found .</p>
         )}
 
         <Modal isOpen={isEditModalOpen} onClose={closeEditModal}>

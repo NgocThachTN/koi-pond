@@ -207,7 +207,7 @@ const MaintenanceManagement: React.FC = () => {
     return (
       <DefaultStaffLayout>
         <div className="p-6">
-          <h1 className="text-2xl font-bold mb-4">Maintenance Management</h1>
+          <h1 className="text-2xl font-bold mb-4">Maintenance Contract Management</h1>
           <p className="text-red-500">{error}</p>
         </div>
       </DefaultStaffLayout>
@@ -219,7 +219,7 @@ const MaintenanceManagement: React.FC = () => {
   return (
     <DefaultStaffLayout>
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Maintenance Management</h1>
+        <h1 className="text-2xl font-bold mb-4">Maintenance Contract Management</h1>
         {filteredMaintenanceRequests.length > 0 ? (
           <Table aria-label="Maintenance requests table">
             <TableHeader columns={columns}>
