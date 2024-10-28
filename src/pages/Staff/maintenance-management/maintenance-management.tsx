@@ -262,7 +262,12 @@ const MaintenanceManagement: React.FC = () => {
                   <Select
                     label="Status"
                     selectedKeys={[editingRequest.status]}
-                    onChange={(e) => handleInputChange('status', e.target.value)}
+                    onChange={(e) => {
+                      // Kiểm tra nếu e.target.value là undefined hoặc null, 
+                      // thì giữ nguyên giá trị status hiện tại
+                      const newStatus = e.target.value || editingRequest.status;
+                      handleInputChange('status', newStatus);
+                    }}
                   >
                     {statusOptions.map((status) => (
                       <SelectItem key={status.value} value={status.value}>
