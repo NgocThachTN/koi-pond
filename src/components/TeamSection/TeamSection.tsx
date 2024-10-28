@@ -30,7 +30,7 @@ const teamMembers = [
   {
     name: "Đỗ Vũ Khôi Nguyên",
     role: "FE Developer",
-    image: "Images/khoinguyen.png",
+    image: "Images/khoinguyen.jpg",
     facebook: "https://www.facebook.com/dvkn.a9",
     github: "https://github.com/nguyen2103",
   },
