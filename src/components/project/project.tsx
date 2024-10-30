@@ -1,8 +1,12 @@
 import React from 'react';
 import {Card, CardBody, CardFooter, Image, Button, Chip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter} from "@nextui-org/react";
 import { FaMapMarkerAlt, FaClock, FaCalendarAlt, FaCheckCircle } from "react-icons/fa";
+import { useAuth } from '@apis/authen';
+import { useNavigate } from 'react-router-dom';
 
 function Project() {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [selectedProject, setSelectedProject] = React.useState(null);
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -121,6 +125,15 @@ function Project() {
   const handleOpen = (project) => {
     setSelectedProject(project);
     setIsOpen(true);
+  };
+
+  const handleButtonClick = (path: string) => {
+    if (!isAuthenticated) {
+      navigate('/login');
+    } else {
+      navigate(path);
+      setIsOpen(false);
+    }
   };
 
   return (
@@ -258,21 +271,17 @@ function Project() {
                     {/* Action Buttons */}
                     <div className="flex gap-3 pt-4">
                       <Button 
-                        as="a"
-                        href="/docsuser"
                         color="secondary"
                         className="flex-1"
-                        onClick={() => setIsOpen(false)}
+                        onClick={() => handleButtonClick('/docsuser')}
                       >
                         Request Quote
                       </Button>
                       <Button 
-                        as="a"
-                        href="/pricinguser"
                         color="secondary"
                         variant="bordered"
                         className="flex-1"
-                        onClick={() => setIsOpen(false)}
+                        onClick={() => handleButtonClick('/pricinguser')}
                       >
                         Pricing
                       </Button>
