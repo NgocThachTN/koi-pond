@@ -9,6 +9,7 @@ import { Button } from "@nextui-org/button";
 import { CheckIcon } from '@heroicons/react/24/solid';
 import { TitleManager } from '@/components/TitleManager';
 import Chatbot from '@/components/Chatbot/Chatbot';
+import { motion } from "framer-motion";
 
 export default function AboutPageUser() {
   const reasons = [
@@ -38,6 +39,27 @@ export default function AboutPageUser() {
     },
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+      },
+    },
+  };
+
   return (
     <>
       <Head>
@@ -45,60 +67,72 @@ export default function AboutPageUser() {
       </Head>
       <TitleManager title="Koi Pond Construction | About Us" />
       <DefaultLayout>
-        <section className="flex flex-col items-center justify-center gap-8 py-8 md:py-10">
-          <div className="text-center max-w-3xl">
+        <motion.section
+          className="flex flex-col items-center justify-center gap-8 py-8 md:py-10"
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+        >
+          <motion.div className="text-center max-w-3xl" variants={itemVariants}>
             <h1 className={title({ color: "violet" })}>Crafting Aquatic Masterpieces</h1>
             <h2 className={subtitle({ class: "mt-4" })}>
               Elevating Outdoor Spaces with Exquisite Koi Pond Design and Construction
             </h2>
-          </div>
+          </motion.div>
 
-          <Card className="max-w-[1000px] w-full">
-            <CardBody className="flex flex-col md:flex-row gap-6 p-0">
-              <Image
-                alt="Koi Pond Showcase"
-                className="object-cover w-full md:w-1/2 h-[300px] md:h-auto"
-                src="https://images.unsplash.com/photo-1595569099048-7f7a5f4c8f2c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
-              />
-              <div className="p-6 flex flex-col justify-center">
-                <h3 className="text-2xl font-bold mb-4">Our Legacy of Excellence</h3>
-                <p className="text-lg">
-                  For over two decades, Elite Koi Pond Construction has been at the forefront of aquascaping innovation. 
-                  Our team of master craftsmen and aquatic experts blend artistry with cutting-edge technology to create 
-                  living, breathing ecosystems that captivate and inspire.
-                </p>
-              </div>
-            </CardBody>
-          </Card>
+          <motion.div variants={itemVariants}>
+            <Card className="max-w-[1000px] w-full">
+              <CardBody className="flex flex-col md:flex-row gap-6 p-0">
+                <Image
+                  alt="Koi Pond Showcase"
+                  className="object-cover w-full md:w-1/2 h-[300px] md:h-auto"
+                  src="https://images.unsplash.com/photo-1595569099048-7f7a5f4c8f2c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+                />
+                <div className="p-6 flex flex-col justify-center">
+                  <h3 className="text-2xl font-bold mb-4">Our Legacy of Excellence</h3>
+                  <p className="text-lg">
+                    For over two decades, Elite Koi Pond Construction has been at the forefront of aquascaping innovation. 
+                    Our team of master craftsmen and aquatic experts blend artistry with cutting-edge technology to create 
+                    living, breathing ecosystems that captivate and inspire.
+                  </p>
+                </div>
+              </CardBody>
+            </Card>
+          </motion.div>
 
           <Divider className="my-8" />
 
-          <div className="max-w-[1000px] w-full">
+          <motion.div className="max-w-[1000px] w-full" variants={itemVariants}>
             <h3 className={title({ size: "sm", className: "text-center mb-12" })}>Why Choose Us</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8"
+              variants={containerVariants}
+            >
               {reasons.map((reason, index) => (
-                <Card key={index} className="p-4">
-                  <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
-                    <h4 className="text-lg font-bold flex items-center gap-2">
-                      <CheckIcon className="w-5 h-5 text-success" />
-                      {reason.title}
-                    </h4>
-                  </CardHeader>
-                  <CardBody className="overflow-visible py-2">
-                    <p className="text-default-500">{reason.description}</p>
-                  </CardBody>
-                </Card>
+                <motion.div key={index} variants={itemVariants}>
+                  <Card className="p-4">
+                    <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
+                      <h4 className="text-lg font-bold flex items-center gap-2">
+                        <CheckIcon className="w-5 h-5 text-success" />
+                        {reason.title}
+                      </h4>
+                    </CardHeader>
+                    <CardBody className="overflow-visible py-2">
+                      <p className="text-default-500">{reason.description}</p>
+                    </CardBody>
+                  </Card>
+                </motion.div>
               ))}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           <Divider className="my-8" />
 
-          <div className="w-full max-w-[1000px]">
+          <motion.div className="w-full max-w-[1000px]" variants={itemVariants}>
             <h3 className={title({ size: "sm", className: "text-center mb-8" })}>Meet Our Visionaries</h3>
             <TeamSection />
-          </div>
-        </section>
+          </motion.div>
+        </motion.section>
         <Chatbot />
       </DefaultLayout>
     </>
