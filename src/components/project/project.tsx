@@ -9,6 +9,7 @@ function Project() {
   const navigate = useNavigate();
   const [selectedProject, setSelectedProject] = React.useState(null);
   const [isOpen, setIsOpen] = React.useState(false);
+  const [showLoginAlert, setShowLoginAlert] = React.useState(false);
 
   const projects = [
     {
@@ -129,7 +130,7 @@ function Project() {
 
   const handleButtonClick = (path: string) => {
     if (!isAuthenticated) {
-      navigate('/login');
+      setShowLoginAlert(true);
     } else {
       navigate(path);
       setIsOpen(false);
@@ -292,6 +293,38 @@ function Project() {
             </ModalBody>
           </ModalContent>
         )}
+      </Modal>
+
+      <Modal 
+        size="sm" 
+        isOpen={showLoginAlert} 
+        onClose={() => setShowLoginAlert(false)}
+      >
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">Login Required</ModalHeader>
+          <ModalBody>
+            <p>Please login to access this feature.</p>
+          </ModalBody>
+          <ModalFooter>
+            <Button 
+              color="danger" 
+              variant="light" 
+              onPress={() => setShowLoginAlert(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              color="secondary"
+              onPress={() => {
+                setShowLoginAlert(false);
+                setIsOpen(false);
+                navigate('/login');
+              }}
+            >
+              Login
+            </Button>
+          </ModalFooter>
+        </ModalContent>
       </Modal>
     </div>
   );
