@@ -35,7 +35,7 @@ const statusColorMap: Record<string, "warning" | "primary" | "success" | "danger
 
 const formatMessageContent = (content: string) => {
   const firebaseStorageRegex = /https:\/\/firebasestorage\.googleapis\.com\/.*?\.pdf(\?[^\s]+)?/g;
-  
+
   return content.replace(firebaseStorageRegex, (match) => {
     const fileName = decodeURIComponent(match.split('/').pop()?.split('?')[0] || 'contract.pdf');
     return `<a href="${match}" target="_blank" rel="noopener noreferrer" class="text-gray underline hover:text-blue-200">${fileName}</a>`;
@@ -291,16 +291,11 @@ const OrdersPage: React.FC = () => {
     }
   }
 
-  const shortenUrl = (url: string, maxLength: number = 30) => {
-    if (url.length <= maxLength) return url;
-    return url.substring(0, maxLength - 3) + '...';
-  };
-
   const formatProgressUpdates = (description: string) => {
     if (!description) return [];
-    
+
     const lines = description.split('\n');
-    
+
     return lines.map((line, index) => {
       const dateMatch = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.*?): (.*)/);
       if (dateMatch) {
@@ -320,13 +315,13 @@ const OrdersPage: React.FC = () => {
 
   const fetchLatestUpdates = useCallback(async (contract: Contract) => {
     if (!contract) return;
-    
+
     try {
       const response = await getContractsApi();
       const updatedContract = response.data.$values.find(
         (c: Contract) => c.contractId === contract.contractId
       );
-      
+
       if (updatedContract && updatedContract.description !== contract.description) {
         const formattedMessages = formatProgressUpdates(updatedContract.description || '');
         setChatMessages(prev => ({
@@ -406,10 +401,10 @@ const OrdersPage: React.FC = () => {
       const updatedContract = await updateFunction(updatePayload);
 
       console.log("Contract updated successfully:", updatedContract);
-      
+
       setNewProgressUpdate('');
-      setEditingContract(prev => ({...prev!, contractDescription: updatedDescription}));
-      
+      setEditingContract(prev => ({ ...prev!, contractDescription: updatedDescription }));
+
       // Update the chat messages for this specific contract
       const formattedMessages = formatProgressUpdates(updatedDescription);
       setChatMessages(prev => ({
@@ -418,10 +413,10 @@ const OrdersPage: React.FC = () => {
       }));
 
       // Update the contracts list
-      setContracts(prevContracts => 
-        prevContracts.map(contract => 
-          contract.contractId === editingContract.contractId 
-            ? {...contract, description: updatedDescription} 
+      setContracts(prevContracts =>
+        prevContracts.map(contract =>
+          contract.contractId === editingContract.contractId
+            ? { ...contract, description: updatedDescription }
             : contract
         )
       );
@@ -930,17 +925,15 @@ const OrdersPage: React.FC = () => {
                               <Avatar
                                 name={message.sender}
                                 size="sm"
-                                className={`${
-                                  message.sender === 'Customer' ? 'bg-blue-500' :
-                                  message.sender === 'Manager' ? 'bg-green-500' :
-                                  'bg-gray-500'
-                                } text-white`}
+                                className={`${message.sender === 'Customer' ? 'bg-blue-500' :
+                                    message.sender === 'Manager' ? 'bg-green-500' :
+                                      'bg-gray-500'
+                                  } text-white`}
                               />
-                              <div className={`p-3 rounded-lg ${
-                                message.sender === 'Customer' 
-                                  ? 'bg-blue-500 text-white' 
+                              <div className={`p-3 rounded-lg ${message.sender === 'Customer'
+                                  ? 'bg-blue-500 text-white'
                                   : 'bg-white text-black dark:bg-gray-700 dark:text-white'
-                              }`}>
+                                }`}>
                                 <p className="font-semibold text-sm">{message.sender}</p>
                                 <MessageContent content={message.content} />
                                 <p className="text-xs opacity-70 mt-1">{message.timestamp}</p>
