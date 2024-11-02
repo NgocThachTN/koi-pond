@@ -32,6 +32,7 @@ interface UserInfo {
   userName: string;
   email: string;
   roleId: number;
+  password: string;
 }
 
 export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
@@ -95,7 +96,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
         address: userInfo.address,
         userName: userInfo.userName,
         email: userInfo.email,
-        password: "", // You might want to handle this differently
+        password: userInfo.password, // You might want to handle this differently
         roleId: userInfo.roleId,
         status: userInfo.status,
       });
