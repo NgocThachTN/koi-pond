@@ -96,7 +96,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
         userName: userInfo.userName,
         email: userInfo.email,
         password: "", // You might want to handle this differently
-        roleId: userInfo.roleId
+        roleId: userInfo.roleId,
+        status: userInfo.status,
       });
     }
     onClose();
