@@ -14,6 +14,7 @@ import {
   Chip,
   Input,
   Textarea,
+  useDisclosure,
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { getUserInfoApi } from '@/apis/user.api';
@@ -39,6 +40,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
   const [isEditing, setIsEditing] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [editedInfo, setEditedInfo] = useState<UpdateAccountInfo | null>(null);
+  const { isOpen: isSuccessOpen, onOpen: onSuccessOpen, onClose: onSuccessClose } = useDisclosure();
 
   useEffect(() => {
     if (isOpen) {
@@ -122,6 +124,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
         console.log("Profile updated successfully");
         fetchUserInfo(); // Refresh user info
         closeEditModal();
+        onSuccessOpen(); // Open success modal
       } catch (error) {
         console.error("Failed to update profile:", error);
         // Handle error (e.g., show error message to user)
@@ -287,6 +290,28 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
                 </Button>
                 <Button color="primary" onPress={handleSaveChanges}>
                   Save Changes
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      {/* Success Modal */}
+      <Modal isOpen={isSuccessOpen} onClose={onSuccessClose} size="sm">
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Success</ModalHeader>
+              <ModalBody>
+                <div className="flex items-center gap-2">
+                  <Icon icon="mdi:check-circle" className="text-success" width={24} />
+                  <p>Profile updated successfully!</p>
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="primary" onPress={onSuccessClose}>
+                  OK
                 </Button>
               </ModalFooter>
             </>
