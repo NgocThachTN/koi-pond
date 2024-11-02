@@ -177,18 +177,18 @@ const OrdersPage: React.FC = () => {
       case "requestName":
         return item.requestName
       case "type":
-        if (item.designs.$values[0]?.designName) {
+        if (item.designs?.$values?.[0]?.designName) {
           return 'Design'
-        } else if (item.samples.$values[0]?.sampleName) {
+        } else if (item.samples?.$values?.[0]?.sampleName) {
           return 'Sample'
         } else {
           return 'N/A'
         }
       case "status":
-        const status = item.hasContract ? item.contractStatus.toLowerCase() : 'pending';
+        const status = item.hasContract ? (item.contractStatus || 'pending').toLowerCase() : 'pending';
         return (
           <Chip
-            color={statusColorMap[status]}
+            color={statusColorMap[status] || "warning"}
             variant="flat"
             size="sm"
           >
@@ -207,7 +207,7 @@ const OrdersPage: React.FC = () => {
           </Button>
         )
       case "maintenance":
-        return item.contractStatus === 'Completed' ? (
+        return (item.contractStatus || '').toLowerCase() === 'completed' ? (
           <Button size="sm" color="secondary" onClick={() => {
             setSelectedItem(item)
             onMaintenanceOpen()

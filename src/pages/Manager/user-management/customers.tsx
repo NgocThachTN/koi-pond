@@ -24,6 +24,7 @@ import {
 import { EyeIcon, EditIcon, DeleteIcon, SearchIcon } from "@nextui-org/shared-icons";
 import { FaPlus } from 'react-icons/fa';
 import { getAccountInfo, AccountInfo, updateAccountInfo, deleteAccountInfo, createAccountInfo, CreateAccountInfo } from '@/apis/manager.api';
+import { userInfo } from 'os';
 
 // Add this type definition
 type ExtendedAccountInfo = AccountInfo & { status: string };
@@ -362,7 +363,12 @@ const CustomerManagement: React.FC = () => {
               <Select
                 label="Status"
                 selectedKeys={[newCustomer.status]}
-                onChange={(e) => setNewCustomer({...newCustomer, status: e.target.value})}
+                onChange={(e) => {
+                  setNewCustomer(prev => ({
+                    ...prev,
+                    status: e.target.value
+                  }));
+                }}
               >
                 <SelectItem key="Active" value="Active">Active</SelectItem>
                 <SelectItem key="Inactive" value="Inactive">Inactive</SelectItem>
