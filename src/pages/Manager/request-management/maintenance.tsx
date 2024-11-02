@@ -41,15 +41,9 @@ const MaintenanceManagement: React.FC = () => {
     { key: "startDate", label: "Start Date" },
     { key: "endDate", label: "End Date" },
     { key: "status", label: "Status" },
-    { key: "actions", label: "Actions" },
   ];
 
   const renderCell = (request: MaintenanceRequest, columnKey: React.Key) => {
-    // Only render if the status is 'Pending'
-    if (request.status !== 'Pending') {
-      return null;
-    }
-
     const user = request.requests.$values[0]?.users.$values[0];
     switch (columnKey) {
       case "id":
@@ -78,12 +72,6 @@ const MaintenanceManagement: React.FC = () => {
           >
             {request.status}
           </Chip>
-        );
-      case "actions":
-        return (
-          <Button color="success" onClick={() => handleAcceptRequest(request)}>
-            Accept Request
-          </Button>
         );
       default:
         return 'N/A';
@@ -156,10 +144,6 @@ const MaintenanceManagement: React.FC = () => {
       setEditingRequest(updatedRequest);
     }
   };
-
-  const filteredMaintenanceRequests = maintenanceRequests.filter(request =>
-    ["Pending"].includes(request.status)
-  );
 
   const renderTableBody = useCallback(() => {
     console.log('Rendering table body, maintenanceRequests:', maintenanceRequests);
@@ -253,7 +237,7 @@ const MaintenanceManagement: React.FC = () => {
     <DefaultManagerLayout>
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Maintenance Request Management</h1>
-        {filteredMaintenanceRequests.length > 0 ? (
+        {maintenanceRequests.length > 0 ? (
           <Table aria-label="Maintenance requests table">
             <TableHeader columns={columns}>
               {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
