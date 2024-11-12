@@ -70,7 +70,7 @@ const ContractManagement: React.FC = () => {
       setLoading(true);
       const response = await getContractsApi();
       const sortedContracts = response.data.$values.sort((a, b) =>
-        new Date(b.contractStartDate).getTime() - new Date(a.contractStartDate).getTime()
+        b.contractId - a.contractId
       );
       setContracts(sortedContracts);
       setError(null);

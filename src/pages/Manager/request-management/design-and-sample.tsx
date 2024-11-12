@@ -78,7 +78,7 @@ const DesignAndSample: React.FC = () => {
 
   const generatePDF = (contractData: any, selectedRequest: UserRequest) => {
     const doc = new jsPDF();
-    
+
     // Helper functions
     const addText = (text: string, x: number, y: number, options?: any) => {
       doc.text(text, x, y, options);
@@ -106,20 +106,20 @@ const DesignAndSample: React.FC = () => {
     doc.rect(0, 0, 210, 297, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
-    
+
     doc.setFontSize(36);
     addText('KOI POND MASTERS', 105, 80, { align: 'center' });
-    
+
     doc.setFontSize(24);
     addText('KOI POND', 105, 110, { align: 'center' });
     addText('CONSTRUCTION CONTRACT', 105, 120, { align: 'center' });
-    
+
     doc.setFontSize(14);
     addText(`Date: ${format(new Date(), 'MMMM d, yyyy')}`, 105, 150, { align: 'center' });
     addText(`Contract ID: ${contractData.contractName}`, 105, 165, { align: 'center' });
 
-    const size = selectedRequest.designs.$values.length > 0 
-      ? selectedRequest.designs.$values[0].designSize 
+    const size = selectedRequest.designs.$values.length > 0
+      ? selectedRequest.designs.$values[0].designSize
       : selectedRequest.samples.$values[0].sampleSize;
     const type = selectedRequest.designs.$values.length > 0 ? 'Design' : 'Sample';
     addText(`${type} Size: ${size}`, 105, 180, { align: 'center' });
@@ -143,7 +143,7 @@ const DesignAndSample: React.FC = () => {
       `Customer Name: ${selectedRequest.users.$values[0].name}`,
       `Address: ${selectedRequest.users.$values[0].address}`,
       `Phone: ${selectedRequest.users.$values[0].phoneNumber}` // Thêm số điện thoại của khách hàng
-      
+
     ], yPosition + 10);
 
     yPosition = addSection('2. PROJECT DETAILS', [
@@ -252,11 +252,11 @@ const DesignAndSample: React.FC = () => {
     yPosition = addSection('7. SIGNATURES', [
       'By signing below, both parties agree to the terms and conditions set forth in this contract.'
     ], yPosition + 20);
-    
+
     doc.line(20, yPosition, 90, yPosition);
     yPosition += addText('Contractor Signature', 55, yPosition + 5, { align: 'center' });
     yPosition += 20;
-    
+
     doc.line(120, yPosition - 25, 190, yPosition - 25);
     addText('Client Signature', 155, yPosition - 20, { align: 'center' });
 
@@ -290,13 +290,13 @@ const DesignAndSample: React.FC = () => {
 
       if (response.status === 201) {
         setContractId(response.data.$id);
-        
+
         // Generate PDF
         const pdfDoc = generatePDF(contractData, selectedRequest);
-        
+
         // Create Blob from PDF
         const pdfBlob = pdfDoc.output('blob');
-        
+
         // Upload PDF to Firebase Storage
         const storageRef = ref(storage, `contracts/${contractData.contractName}.pdf`);
         await uploadBytes(storageRef, pdfBlob);
@@ -324,13 +324,13 @@ const DesignAndSample: React.FC = () => {
         );
 
         console.log('Email sent successfully');
-        
+
         // Close the create contract modal
         setIsCreateContractModalOpen(false);
-        
+
         // Open the success modal
         setIsModalOpen(true);
-        
+
         // Open the PDF in a new tab
         window.open(downloadURL, '_blank');
       } else {
@@ -453,7 +453,7 @@ const DesignAndSample: React.FC = () => {
             <ModalHeader className="flex flex-col gap-1">Contract Created Successfully</ModalHeader>
             <ModalBody>
               <p>Your contract has been created successfully.</p>
-              <p>Contract ID: {contractId}</p>
+
             </ModalBody>
             <ModalFooter>
               <Button color="primary" onPress={() => setIsModalOpen(false)}>
@@ -463,9 +463,9 @@ const DesignAndSample: React.FC = () => {
           </ModalContent>
         </Modal>
 
-        <Modal 
-          isOpen={isDetailModalOpen} 
-          onClose={() => setIsDetailModalOpen(false)} 
+        <Modal
+          isOpen={isDetailModalOpen}
+          onClose={() => setIsDetailModalOpen(false)}
           size="4xl"
           scrollBehavior="inside"
         >
@@ -495,16 +495,16 @@ const DesignAndSample: React.FC = () => {
                               <div>
                                 <p className="text-small text-default-500">Size</p>
                                 <p className="text-medium font-semibold">
-                                  {selectedRequest.designs.$values.length > 0 
-                                    ? selectedRequest.designs.$values[0].designSize 
+                                  {selectedRequest.designs.$values.length > 0
+                                    ? selectedRequest.designs.$values[0].designSize
                                     : selectedRequest.samples.$values[0].sampleSize}
                                 </p>
                               </div>
                               <div>
                                 <p className="text-small text-default-500">Price</p>
                                 <p className="text-medium font-semibold">
-                                  ${selectedRequest.designs.$values.length > 0 
-                                    ? selectedRequest.designs.$values[0].designPrice 
+                                  ${selectedRequest.designs.$values.length > 0
+                                    ? selectedRequest.designs.$values[0].designPrice
                                     : selectedRequest.samples.$values[0].samplePrice}
                                 </p>
                               </div>
@@ -523,7 +523,7 @@ const DesignAndSample: React.FC = () => {
                                 <User
                                   name={user.name}
                                   description={user.email}
-                                
+
                                   classNames={{
                                     name: "text-xl",
                                     description: "text-lg",
@@ -618,8 +618,8 @@ const DesignAndSample: React.FC = () => {
           </ModalContent>
         </Modal>
 
-        <Modal 
-          isOpen={isCreateContractModalOpen} 
+        <Modal
+          isOpen={isCreateContractModalOpen}
           onClose={() => setIsCreateContractModalOpen(false)}
           size="5xl"
         >
@@ -637,9 +637,9 @@ const DesignAndSample: React.FC = () => {
                           <p><strong>Request Name:</strong> {selectedRequest.requestName}</p>
                           <p><strong>Description:</strong> {selectedRequest.description}</p>
                           <p><strong>Type:</strong> {selectedRequest.designs.$values.length > 0 ? 'Design' : 'Sample'}</p>
-                          
+
                           <Divider className="my-4" />
-                          
+
                           {selectedRequest.designs.$values.length > 0 ? (
                             <>
                               <h4 className="text-md font-semibold mt-2 mb-1">Design Details</h4>
@@ -677,7 +677,7 @@ const DesignAndSample: React.FC = () => {
                               ))}
                             </>
                           )}
-                          
+
                           <Divider className="my-4" />
                           <h4 className="text-md font-semibold mb-1">Customer Information</h4>
                           {selectedRequest.users.$values[0] && (
@@ -691,34 +691,34 @@ const DesignAndSample: React.FC = () => {
                         </>
                       )}
                     </div>
-                    
+
                     {/* Right side: Contract Information Form */}
                     <div>
                       <h3 className="text-lg font-semibold mb-2">Contract Information</h3>
                       <Input
                         label="Contract Name"
                         value={contractData.contractName}
-                        onChange={(e) => setContractData({...contractData, contractName: e.target.value})}
+                        onChange={(e) => setContractData({ ...contractData, contractName: e.target.value })}
                         className="mb-2"
                       />
                       <Input
                         label="Start Date"
                         type="date"
                         value={contractData.contractStartDate}
-                        onChange={(e) => setContractData({...contractData, contractStartDate: e.target.value})}
+                        onChange={(e) => setContractData({ ...contractData, contractStartDate: e.target.value })}
                         className="mb-2"
                       />
                       <Input
                         label="End Date"
                         type="date"
                         value={contractData.contractEndDate}
-                        onChange={(e) => setContractData({...contractData, contractEndDate: e.target.value})}
+                        onChange={(e) => setContractData({ ...contractData, contractEndDate: e.target.value })}
                         className="mb-2"
                       />
                       <Input
                         label="Description"
                         value={contractData.description}
-                        onChange={(e) => setContractData({...contractData, description: e.target.value})}
+                        onChange={(e) => setContractData({ ...contractData, description: e.target.value })}
                       />
                     </div>
                   </div>

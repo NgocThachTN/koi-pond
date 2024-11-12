@@ -453,7 +453,7 @@ const DesignAndSample: React.FC = () => {
             <ModalHeader className="flex flex-col gap-1">Contract Created Successfully</ModalHeader>
             <ModalBody>
               <p>Your contract has been created successfully.</p>
-              <p>Contract ID: {contractId}</p>
+
             </ModalBody>
             <ModalFooter>
               <Button color="primary" onPress={() => setIsModalOpen(false)}>

@@ -70,7 +70,7 @@ const ContractManagement: React.FC = () => {
       setLoading(true);
       const response = await getContractsApi();
       const sortedContracts = response.data.$values.sort((a, b) =>
-        new Date(b.contractStartDate).getTime() - new Date(a.contractStartDate).getTime()
+        b.contractId - a.contractId // Sắp xếp theo contractId từ lớn đến nhỏ
       );
       setContracts(sortedContracts);
       setError(null);
@@ -124,20 +124,20 @@ const ContractManagement: React.FC = () => {
       });
 
       console.log("Message sent and contract updated successfully:", updatedContract);
-      
+
       // Update the local state
       setLocalDescription(updatedDescription);
       setNewProgressUpdate('');
-      
+
       // Update the contract in the contracts list without fetching all contracts again
-      setContracts(prevContracts => 
-        prevContracts.map(contract => 
-          contract.contractId === editingContract.contractId ? {...contract, description: updatedDescription} : contract
+      setContracts(prevContracts =>
+        prevContracts.map(contract =>
+          contract.contractId === editingContract.contractId ? { ...contract, description: updatedDescription } : contract
         )
       );
-      
+
       // Update the editingContract state and chatMessages
-      setEditingContract(prevContract => ({...prevContract!, description: updatedDescription}));
+      setEditingContract(prevContract => ({ ...prevContract!, description: updatedDescription }));
       setChatMessages(formatProgressUpdates(updatedDescription));
 
     } catch (err) {
@@ -173,7 +173,7 @@ const ContractManagement: React.FC = () => {
 
         const userEmail = editingContract.requests.$values[0].users.$values[0]?.email;
         const userName = editingContract.requests.$values[0].users.$values[0]?.name;
-        
+
         console.log("User email:", userEmail);
         console.log("User name:", userName);
 
@@ -221,7 +221,7 @@ const ContractManagement: React.FC = () => {
         return "default";
     }
   };
- //rút gọn url 
+  //rút gọn url 
   const shortenUrl = (url: string, maxLength: number = 30) => {
     if (!url) return 'N/A';
     if (url.length <= maxLength) return url;
@@ -230,9 +230,9 @@ const ContractManagement: React.FC = () => {
 
   const formatProgressUpdates = (description: string) => {
     if (!description) return [];
-    
+
     const lines = description.split('\n');
-    
+
     return lines.map((line, index) => {
       const dateMatch = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.*?): (.*)/);
       if (dateMatch) {
@@ -252,7 +252,7 @@ const ContractManagement: React.FC = () => {
 
   const getLatestStatus = (description: string): string => {
     if (!description) return 'No updates';
-    
+
     const lines = description.split('\n');
     let latestUpdate = '';
     let latestTimestamp = new Date(0); // Initialize with the earliest possible date
@@ -302,7 +302,7 @@ const ContractManagement: React.FC = () => {
   const formatMessageContent = (content: string) => {
     // Giữ nguyên các ký tự xuống dòng
     const firebaseStorageRegex = /https:\/\/firebasestorage\.googleapis\.com\/.*?\.pdf(\?[^\s]+)?/g;
-    
+
     return content.replace(firebaseStorageRegex, (match) => {
       const fileName = decodeURIComponent(match.split('/').pop()?.split('?')[0] || 'contract.pdf');
       return `<a href="${match}" target="_blank" rel="noopener noreferrer">${fileName}</a>`;
@@ -321,13 +321,13 @@ const ContractManagement: React.FC = () => {
 
   const fetchLatestUpdates = useCallback(async (contract: Contract) => {
     if (!contract) return;
-    
+
     try {
       const response = await getContractsApi();
       const updatedContract = response.data.$values.find(
         (c: Contract) => c.contractId === contract.contractId
       );
-      
+
       if (updatedContract && updatedContract.description !== contract.description) {
         const formattedMessages = formatProgressUpdates(updatedContract.description);
         setChatMessages(formattedMessages);
@@ -379,10 +379,10 @@ const ContractManagement: React.FC = () => {
     <DefaultManagerLayout>
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Contract Management</h1>
-        
+
         {/* Updated Search Input */}
         <div className="mb-4 flex gap-2">
-          <Select 
+          <Select
             className="w-[200px]"
             value={searchType}
             onChange={(e) => setSearchType(e.target.value)}
@@ -462,8 +462,8 @@ const ContractManagement: React.FC = () => {
           />
         </div>
 
-        <Modal 
-          isOpen={editModalOpen} 
+        <Modal
+          isOpen={editModalOpen}
           onClose={() => setEditModalOpen(false)}
           size="5xl"
         >
@@ -478,27 +478,27 @@ const ContractManagement: React.FC = () => {
                     <Input
                       label="Contract Name"
                       value={editingContract.contractName}
-                      onChange={(e) => setEditingContract({...editingContract, contractName: e.target.value})}
+                      onChange={(e) => setEditingContract({ ...editingContract, contractName: e.target.value })}
                       className="mb-4"
                     />
                     <Input
                       label="Start Date"
                       type="date"
                       value={format(new Date(editingContract.contractStartDate), 'yyyy-MM-dd')}
-                      onChange={(e) => setEditingContract({...editingContract, contractStartDate: e.target.value})}
+                      onChange={(e) => setEditingContract({ ...editingContract, contractStartDate: e.target.value })}
                       className="mb-4"
                     />
                     <Input
                       label="End Date"
                       type="date"
                       value={format(new Date(editingContract.contractEndDate), 'yyyy-MM-dd')}
-                      onChange={(e) => setEditingContract({...editingContract, contractEndDate: e.target.value})}
+                      onChange={(e) => setEditingContract({ ...editingContract, contractEndDate: e.target.value })}
                       className="mb-4"
                     />
                     <Select
                       label="Status"
                       selectedKeys={[editingContract.status]}
-                      onChange={(e) => setEditingContract({...editingContract, status: e.target.value})}
+                      onChange={(e) => setEditingContract({ ...editingContract, status: e.target.value })}
                       className="mb-4"
                     >
                       <SelectItem key="Pending" value="Pending">Pending</SelectItem>
@@ -507,7 +507,7 @@ const ContractManagement: React.FC = () => {
                       <SelectItem key="Cancelled" value="Cancelled">Cancelled</SelectItem>
                     </Select>
                   </div>
-                  
+
                   {/* Right column: Progress updates, calling chat bubble */}
                   <div className="col-span-2 flex flex-col h-[600px] bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                     <h3 className="text-lg font-semibold mb-4 dark:text-white">Progress Updates</h3>
@@ -521,11 +521,10 @@ const ContractManagement: React.FC = () => {
                                 size="sm"
                                 className={message.sender === 'Manager' ? 'bg-primary text-white' : 'bg-default-300 dark:bg-gray-600'}
                               />
-                              <div className={`p-3 rounded-lg shadow ${
-                                message.sender === 'Manager' 
-                                  ? 'bg-primary text-white dark:bg-blue-600' 
+                              <div className={`p-3 rounded-lg shadow ${message.sender === 'Manager'
+                                  ? 'bg-primary text-white dark:bg-blue-600'
                                   : 'bg-white text-black dark:bg-gray-700 dark:text-white'
-                              } max-w-full overflow-hidden`}>
+                                } max-w-full overflow-hidden`}>
                                 <p className="font-semibold text-sm">{message.sender}</p>
                                 <MessageContent content={message.content} />
                                 <p className="text-xs opacity-70 mt-1 dark:text-gray-300">{message.timestamp}</p>
@@ -565,8 +564,8 @@ const ContractManagement: React.FC = () => {
         </Modal>
 
         {/* Updated Modal for detailed view */}
-        <Modal 
-          isOpen={detailModalOpen} 
+        <Modal
+          isOpen={detailModalOpen}
           onClose={() => setDetailModalOpen(false)}
           size="4xl"
         >
