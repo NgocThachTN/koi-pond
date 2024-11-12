@@ -21,7 +21,7 @@ import { useNavigate } from 'react-router-dom'; // Add this import at the top of
 import { useAuth } from '@apis/authen';
 import { TitleManager } from '@/components/TitleManager'; // Import TitleManager
 
-export default function Login() {  
+export default function Login() {
 
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
@@ -51,7 +51,7 @@ export default function Login() {
     try {
       const response = await loginApi(email, password);
       console.log('Login response:', response.data);
-      
+
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userName', response.data.userName);
       localStorage.setItem('userEmail', response.data.email);
@@ -92,26 +92,7 @@ export default function Login() {
               </p>
             </div>
 
-            <div className="flex w-full flex-col gap-2">
-              <Button
-                startContent={<Icon icon="flat-color-icons:google" width={24} />}
-                variant="bordered"
-              >
-                Continue with Google
-              </Button>
-              <Button
-                startContent={
-                  <Icon
-                    className="text-default-500"
-                    icon="fe:facebook"
-                    width={24}
-                  />
-                }
-                variant="bordered"
-              >
-                Continue with Facebook
-              </Button>
-            </div>
+
 
             <div className="flex w-full items-center gap-4 py-2">
               <Divider className="flex-1" />
@@ -200,8 +181,8 @@ export default function Login() {
         </div>
 
         {/* Error Modal */}
-        <Modal 
-          isOpen={isErrorModalOpen} 
+        <Modal
+          isOpen={isErrorModalOpen}
           onClose={() => setIsErrorModalOpen(false)}
           placement="center"
         >
