@@ -72,7 +72,7 @@ export default function SignUpPage() {
   };
 
   return (
-    
+
     <div className="relative flex h-screen w-screen">
       <TitleManager title="Koi Pond Construction | Sign Up" />
       {/* Brand Logo */}
@@ -91,20 +91,7 @@ export default function SignUpPage() {
             <p className="text-small text-default-500">Sign up for a new account to get started</p>
           </div>
 
-          <div className="flex w-full flex-col gap-2">
-            <Button
-              startContent={<Icon icon="flat-color-icons:google" width={24} />}
-              variant="bordered"
-            >
-              Sign Up with Google
-            </Button>
-            <Button
-              startContent={<Icon className="text-default-500" icon="fe:facebook" width={24} />}
-              variant="bordered"
-            >
-              Sign Up with Facebook
-            </Button>
-          </div>
+
 
           <div className="flex w-full items-center gap-4 py-2">
             <Divider className="flex-1" />
@@ -198,9 +185,9 @@ export default function SignUpPage() {
               value={formData.phoneNumber}
               onChange={handleInputChange}
             />
-            <Checkbox 
-              isRequired 
-              className="py-4" 
+            <Checkbox
+              isRequired
+              className="py-4"
               size="sm"
               isSelected={isAgreed}
               onValueChange={setIsAgreed}
@@ -239,7 +226,7 @@ export default function SignUpPage() {
           backgroundPosition: "center",
         }}
       >
-       
+
       </div>
 
       {/* Success Modal */}
