@@ -926,13 +926,13 @@ const OrdersPage: React.FC = () => {
                                 name={message.sender}
                                 size="sm"
                                 className={`${message.sender === 'Customer' ? 'bg-blue-500' :
-                                    message.sender === 'Manager' ? 'bg-green-500' :
-                                      'bg-gray-500'
+                                  message.sender === 'Manager' ? 'bg-green-500' :
+                                    'bg-gray-500'
                                   } text-white`}
                               />
                               <div className={`p-3 rounded-lg ${message.sender === 'Customer'
-                                  ? 'bg-blue-500 text-white'
-                                  : 'bg-white text-black dark:bg-gray-700 dark:text-white'
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-white text-black dark:bg-gray-700 dark:text-white'
                                 }`}>
                                 <p className="font-semibold text-sm">{message.sender}</p>
                                 <MessageContent content={message.content} />

@@ -40,6 +40,7 @@ import Blog1PageUser from "./components/BlogUser/blog1user";
 import ContractManagement from "@/pages/Manager/contract-management/contract-management";
 import Blog3PageUser from "./components/BlogUser/blog3user";
 import Blog2PageUser from "./components/BlogUser/blog2user";
+import UnauthorizedPage from "@/pages/Unauthorized/unauthorized";
 
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { isAuthenticated, userRole } = useAuth();
@@ -140,6 +141,48 @@ function App() {
           />
         }
       />
+      <Route
+        path="/bloguser"
+        element={
+          <ProtectedRoute element={<BlogPageUser />} />
+        }
+      />
+      <Route
+        path="/pricinguser"
+        element={
+          <ProtectedRoute element={<PricingUser />} />
+        }
+      />
+      <Route
+        path="/aboutuser"
+        element={
+          <ProtectedRoute element={<AboutPageUser />} />
+        }
+      />
+      <Route
+        path="/docsuser"
+        element={
+          <ProtectedRoute element={<DocsPageUser />} />
+        }
+      />
+      <Route
+        path="/orders"
+        element={
+          <ProtectedRoute element={<OrdersPage />} />
+        }
+      />
+      <Route
+        path="/pricinguser2"
+        element={
+          <ProtectedRoute element={<PricingUser2 />} />
+        }
+      />
+      <Route
+        path="/BlogUser/blog1user"
+        element={
+          <ProtectedRoute element={<Blog1PageUser />} />
+        }
+      />
       <Route element={isAuthenticated ? <BlogPageUser /> : <Navigate to="/bloguser" />} path="/bloguser" />
       <Route element={isAuthenticated ? <PricingUser /> : <Navigate to="/pricinguser" />} path="/pricinguser" />
       <Route element={isAuthenticated ? <AboutPageUser /> : <Navigate to="/aboutuser" />} path="/aboutuser" />
@@ -155,54 +198,66 @@ function App() {
         path="/manager"
         element={
           <ProtectedRoute
-            element={userRole === 'Manager' ? <AdminPage /> : <Navigate to="/manager" />}
+            element={userRole === 'Manager' ? <AdminPage /> : <Navigate to="/unauthorized" />}
           />
         }
       />
       <Route
         path="/manager/dashboard"
         element={
-          isAuthenticated && userRole === 'Manager' ? <Dashboard /> : <Navigate to="/manager" />
+          <ProtectedRoute
+            element={userRole === 'Manager' ? <Dashboard /> : <Navigate to="/unauthorized" />}
+          />
         }
       />
       <Route
         path="/manager/user-management/staff"
         element={
-          isAuthenticated && userRole === 'Manager' ? <StaffManagement /> : <Navigate to="/manager/user-management/staff" />
+          <ProtectedRoute
+            element={userRole === 'Manager' ? <StaffManagement /> : <Navigate to="/unauthorized" />}
+          />
         }
       />
       <Route
         path="/manager/user-management/customers"
         element={
-          isAuthenticated && userRole === 'Manager' ? <CustomerManagement /> : <Navigate to="/manager/user-management/customers" />
+          <ProtectedRoute
+            element={userRole === 'Manager' ? <CustomerManagement /> : <Navigate to="/unauthorized" />}
+          />
         }
       />
       <Route
         path="/manager/request-management/design-and-sample"
         element={
-          isAuthenticated && userRole === 'Manager' ? <DesignAndSample /> : <Navigate to="/manager/request-management/design-and-sample" />
+          <ProtectedRoute
+            element={userRole === 'Manager' ? <DesignAndSample /> : <Navigate to="/unauthorized" />}
+          />
         }
       />
       <Route
         path="/manager/request-management/maintenance"
         element={
-          isAuthenticated && userRole === 'Manager' ? <MaintenanceManagement /> : <Navigate to="/manager/request-management/maintenance" />
+          <ProtectedRoute
+            element={userRole === 'Manager' ? <MaintenanceManagement /> : <Navigate to="/unauthorized" />}
+          />
         }
       />
       <Route
         path="/manager/feedback-management"
         element={
-          isAuthenticated && userRole === 'Manager' ? <FeedbackManagement /> : <Navigate to="/manager/feedback-management" />
+          <ProtectedRoute
+            element={userRole === 'Manager' ? <FeedbackManagement /> : <Navigate to="/unauthorized" />}
+          />
         }
       />
       <Route
         path="/manager/contract-management"
         element={
-          isAuthenticated && userRole === 'Manager' ? <ContractManagement /> : <Navigate to="/manager/contract-management" />
+          <ProtectedRoute
+            element={userRole === 'Manager' ? <ContractManagement /> : <Navigate to="/unauthorized" />}
+          />
         }
       />
-
-
 
       {/* Staff Page */}
       <Route
@@ -217,37 +272,47 @@ function App() {
       <Route
         path="/staff/dashboard"
         element={
-          isAuthenticated && userRole === 'Staff' ? <StaffDashboard /> : <Navigate to="/staff" />
+          <ProtectedRoute
+            element={userRole === 'Staff' ? <StaffDashboard /> : <Navigate to="/unauthorized" />}
+          />
         }
       />
 
       <Route
         path="/staff/request-management/design-and-sample"
         element={
-          isAuthenticated && userRole === 'Staff' ? <DesignAndSampleStaff /> : <Navigate to="/staff/request-management/design-and-sample" />
+          <ProtectedRoute
+            element={userRole === 'Staff' ? <DesignAndSampleStaff /> : <Navigate to="/unauthorized" />}
+          />
         }
       />
       <Route
         path="/staff/request-management/maintenance"
         element={
-          isAuthenticated && userRole === 'Staff' ? <MaintenanceStaffManagement /> : <Navigate to="/staff/request-management/maintenance" />
+          <ProtectedRoute
+            element={userRole === 'Staff' ? <MaintenanceStaffManagement /> : <Navigate to="/unauthorized" />}
+          />
         }
       />
       <Route
         path="/staff/contract-management"
         element={
-          isAuthenticated && userRole === 'Staff' ? <ContractStaffManagement /> : <Navigate to="/staff/contract-management" />
+          <ProtectedRoute
+            element={userRole === 'Staff' ? <ContractStaffManagement /> : <Navigate to="/unauthorized" />}
+          />
         }
       />
       <Route
         path="/staff/maintenance-management"
         element={
-          isAuthenticated && userRole === 'Staff' ? <MaintenanceManagementStaff /> : <Navigate to="/staff/maintenance-management" />
+          <ProtectedRoute
+            element={userRole === 'Staff' ? <MaintenanceManagementStaff /> : <Navigate to="/unauthorized" />}
+          />
         }
       />
 
-      {/* Catch-all route for unauthorized access */}
-      <Route path="/unauthorized" element={<h1>Unauthorized Access</h1>} />
+      {/* Catch-all routes */}
+      <Route path="/unauthorized" element={<UnauthorizedPage />} />
       <Route path="*" element={<h1>404 Not Found</h1>} />
     </Routes>
   );

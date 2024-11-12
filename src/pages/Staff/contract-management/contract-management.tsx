@@ -221,12 +221,7 @@ const ContractManagement: React.FC = () => {
         return "default";
     }
   };
-  //rút gọn url 
-  const shortenUrl = (url: string, maxLength: number = 30) => {
-    if (!url) return 'N/A';
-    if (url.length <= maxLength) return url;
-    return url.substring(0, maxLength - 3) + '...';
-  };
+
 
   const formatProgressUpdates = (description: string) => {
     if (!description) return [];
@@ -248,32 +243,6 @@ const ContractManagement: React.FC = () => {
       }
       return null;
     }).filter(Boolean);
-  };
-
-  const getLatestStatus = (description: string): string => {
-    if (!description) return 'No updates';
-
-    const lines = description.split('\n');
-    let latestUpdate = '';
-    let latestTimestamp = new Date(0); // Initialize with the earliest possible date
-
-    for (const line of lines) {
-      const match = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.*)/);
-      if (match) {
-        const [, timestamp, update] = match;
-        const date = parseISO(timestamp);
-        if (date > latestTimestamp) {
-          latestTimestamp = date;
-          latestUpdate = update;
-        }
-      }
-    }
-
-    if (latestUpdate) {
-      return `${format(latestTimestamp, 'dd/MM/yyyy HH:mm:ss')} - ${latestUpdate}`;
-    }
-
-    return 'No updates';
   };
 
   const truncateDescription = (contract: Contract, maxLength: number = 30): string => {
@@ -522,8 +491,8 @@ const ContractManagement: React.FC = () => {
                                 className={message.sender === 'Manager' ? 'bg-primary text-white' : 'bg-default-300 dark:bg-gray-600'}
                               />
                               <div className={`p-3 rounded-lg shadow ${message.sender === 'Staff'
-                                  ? 'bg-primary text-white dark:bg-blue-600'
-                                  : 'bg-white text-black dark:bg-gray-700 dark:text-white'
+                                ? 'bg-primary text-white dark:bg-blue-600'
+                                : 'bg-white text-black dark:bg-gray-700 dark:text-white'
                                 } max-w-full overflow-hidden`}>
                                 <p className="font-semibold text-sm">{message.sender}</p>
                                 <MessageContent content={message.content} />

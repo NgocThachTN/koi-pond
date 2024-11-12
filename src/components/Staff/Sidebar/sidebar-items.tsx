@@ -9,7 +9,7 @@ import TeamAvatar from "./team-avatar.tsx";
 export const items: SidebarItem[] = [
     {
         key: "dashboard",
-        href: "/staff/dashboard",
+        href: "/staff",
         icon: "solar:home-2-linear",
         title: "Dashboard",
     },

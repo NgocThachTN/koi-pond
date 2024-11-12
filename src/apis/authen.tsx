@@ -13,44 +13,67 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isInitialized, setIsInitialized] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [accountStatus, setAccountStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const role = localStorage.getItem('userRole');
-    const email = localStorage.getItem('userEmail');
-    const status = localStorage.getItem('accountStatus');
-    console.log('Auth state on mount:', { token, role, email, status });
-    if (token) {
-      setIsAuthenticated(true);
-      setUserRole(role);
-      setUserEmail(email);
-      setAccountStatus(status);
-    }
+    const initializeAuth = () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        const role = localStorage.getItem('userRole');
+        const email = localStorage.getItem('userEmail');
+
+        console.log('Auth initialization:', { token, role, email });
+
+        if (token && role && email) {
+          setIsAuthenticated(true);
+          setUserRole(role);
+          setUserEmail(email);
+        } else {
+          console.log('Missing auth data, clearing state');
+          setIsAuthenticated(false);
+          setUserRole(null);
+          setUserEmail(null);
+          localStorage.clear();
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        setIsAuthenticated(false);
+      } finally {
+        setIsInitialized(true);
+      }
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
     try {
       const response = await loginApi(email, password);
-      if ('token' in response.data) {
-        const { token, role, email: userEmail, status } = response.data;
-        console.log('Login response:', response.data);
+      console.log('Login response:', response);
+
+      if (response?.data?.token) {
+        const { token, role, email: userEmail } = response.data;
+
+        // Set localStorage items
         localStorage.setItem('authToken', token);
         localStorage.setItem('userRole', role);
         localStorage.setItem('userEmail', userEmail);
-        localStorage.setItem('accountStatus', status);
+
+        // Update state
         setIsAuthenticated(true);
         setUserRole(role);
         setUserEmail(userEmail);
-        setAccountStatus(status);
+
+        console.log('Login successful:', { token, role, userEmail });
       } else {
-        throw new Error(response.data.message || 'Login failed');
+        throw new Error('Invalid login response');
       }
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('Login error:', error);
       throw error;
     }
   };
@@ -68,8 +91,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   console.log('Current auth state:', { isAuthenticated, userRole, userEmail, accountStatus });
 
+  if (!isInitialized) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-violet-500" />
+      </div>
+    );
+  }
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, userRole, userEmail, accountStatus }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        login,
+        logout,
+        userRole,
+        userEmail,
+        accountStatus
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -158,13 +158,13 @@ const MaintenanceManagement: React.FC = () => {
   };
 
   const filteredMaintenanceRequests = maintenanceRequests.filter(request =>
-    ["Pending"].includes(request.status)
+    request.status === "Pending"
   );
 
   const renderTableBody = useCallback(() => {
     console.log('Rendering table body, maintenanceRequests:', maintenanceRequests);
     return (
-      <TableBody items={maintenanceRequests}>
+      <TableBody items={filteredMaintenanceRequests}>
         {(item) => (
           <TableRow key={item.maintenanceRequestId}>
             {(columnKey) => (
@@ -174,7 +174,7 @@ const MaintenanceManagement: React.FC = () => {
         )}
       </TableBody>
     );
-  }, [maintenanceRequests]);
+  }, [filteredMaintenanceRequests]);
 
   const statusOptions = [
     { value: 'Pending', label: 'Pending' },
