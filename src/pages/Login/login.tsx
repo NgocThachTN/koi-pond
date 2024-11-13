@@ -94,11 +94,7 @@ export default function Login() {
 
 
 
-            <div className="flex w-full items-center gap-4 py-2">
-              <Divider className="flex-1" />
-              <p className="shrink-0 text-tiny text-default-500">OR</p>
-              <Divider className="flex-1" />
-            </div>
+
 
             {errorMessage && (
               <div className="w-full p-3 text-sm text-red-500 bg-red-100 rounded-md">
