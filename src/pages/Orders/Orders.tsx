@@ -362,10 +362,17 @@ const OrdersPage: React.FC = () => {
   }, [isEditContractOpen, editingContract, pollingInterval, fetchLatestUpdates]);
 
   const handleEditContractClick = (contract: Contract) => {
+    // Get fresh contract data from the contracts list
+    const currentContract = contracts.find(c => c.contractId === contract.contractId);
+    
     setEditingContract({
       ...contract,
-
+      ...currentContract, // Ensure we have all current contract data
+      status: currentContract?.status || contract.status,
+      feedback: currentContract?.feedback || contract.feedback,
+      link: currentContract?.link || contract.link,
     });
+
     const formattedMessages = formatProgressUpdates(contract.description || '');
     setChatMessages(prev => ({
       ...prev,
@@ -375,12 +382,30 @@ const OrdersPage: React.FC = () => {
     fetchLatestUpdates(contract);
   };
 
+  const handleFeedbackUpdate = (newFeedback: string) => {
+    if (!editingContract) return;
+
+    // Get current contract from the contracts list to ensure we have the latest data
+    const currentContract = contracts.find(c => c.contractId === editingContract.contractId);
+
+    setEditingContract(prev => ({
+      ...prev!,
+      ...currentContract, // Spread current contract data to preserve all fields
+      feedback: newFeedback,
+      status: currentContract?.status || prev?.status || 'Completed',
+      link: currentContract?.link || prev?.link || '', // Use current contract link first
+    }));
+  };
+
   const handleEditContractSubmit = async () => {
     if (!editingContract) return;
 
     try {
       const isDesignRequest = editingContract.designs && editingContract.designs.$values && editingContract.designs.$values.length > 0;
       const updateFunction = isDesignRequest ? updateContractByRequestDesignApi : updateContractBySampleApi;
+
+      // Get current contract to ensure we have the latest data
+      const currentContract = contracts.find(c => c.contractId === editingContract.contractId);
 
       const currentDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
       let updatedDescription = editingContract.contractDescription || '';
@@ -392,18 +417,15 @@ const OrdersPage: React.FC = () => {
           : newUpdate;
       }
 
+      // Create update payload with ALL fields from current contract
       const updatePayload = {
+        ...currentContract, // Spread current contract data first
+        ...editingContract, // Then spread editing contract data
         contractId: Number(editingContract.contractId),
-        contractName: editingContract.contractName,
-        contractStartDate: editingContract.contractStartDate,
-        contractEndDate: editingContract.contractEndDate,
-        status: editingContract.status,
         description: updatedDescription,
-        progressDescription: editingContract.progressDescription,
-        paymentStatus: editingContract.paymentStatus,
-        contructionProgress: editingContract.contructionProgress,
-        feedback: editingContract.feedback || '',
-        link: editingContract.link || '',
+        status: currentContract?.status || editingContract.status || 'Completed',
+        feedback: editingContract.feedback || currentContract?.feedback || '',
+        link: currentContract?.link || editingContract.link || '', // Use current contract link first
         requests: [{
           requestId: editingContract.requestId,
           requestName: editingContract.requestName,
@@ -418,23 +440,31 @@ const OrdersPage: React.FC = () => {
 
       const updatedContract = await updateFunction(updatePayload);
 
-      console.log("Contract updated successfully:", updatedContract);
-
       setNewProgressUpdate('');
-      setEditingContract(prev => ({ ...prev!, contractDescription: updatedDescription }));
-
-      // Update the chat messages for this specific contract
-      const formattedMessages = formatProgressUpdates(updatedDescription);
-      setChatMessages(prev => ({
-        ...prev,
-        [editingContract.contractId]: formattedMessages
+      
+      // Update the editing contract while preserving all fields
+      setEditingContract(prev => ({
+        ...prev!,
+        ...currentContract, // Spread current contract data
+        contractDescription: updatedDescription,
+        status: currentContract?.status || prev?.status || 'Completed',
+        feedback: prev?.feedback || currentContract?.feedback || '',
+        link: currentContract?.link || prev?.link || '', // Use current contract link first
       }));
 
-      // Update the contracts list
+      // Update contracts list
       setContracts(prevContracts =>
         prevContracts.map(contract =>
           contract.contractId === editingContract.contractId
-            ? { ...contract, description: updatedDescription, feedback: editingContract.feedback }
+            ? {
+                ...contract, // Preserve original contract data
+                ...currentContract, // Spread current contract data
+                ...editingContract, // Then spread any updates
+                description: updatedDescription,
+                status: currentContract?.status || contract.status || 'Completed',
+                feedback: editingContract.feedback || contract.feedback || '',
+                link: currentContract?.link || contract.link || '', // Use current contract link first
+              }
             : contract
         )
       );
@@ -513,6 +543,18 @@ const OrdersPage: React.FC = () => {
       setFeedbackRating(ratingMatch ? parseInt(ratingMatch[1]) : 0);
     }
   }, [editingContract]);
+
+  // Thêm hàm xử lý cập nhật link nếu cần
+  const handleLinkUpdate = (newLink: string) => {
+    if (!editingContract) return;
+
+    setEditingContract(prev => ({
+      ...prev!,
+      link: newLink,
+      status: prev?.status || 'Completed', // Explicitly preserve status
+      feedback: prev?.feedback || '', // Preserve feedback
+    }));
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -1004,12 +1046,9 @@ const OrdersPage: React.FC = () => {
                                   onClick={() => {
                                     setFeedbackRating(star);
                                     const currentFeedback = editingContract.feedback || '';
-                                    const commentsPart = currentFeedback.split('\n\nComments:\n')[1] || '';
-                                    const newFeedback = `Rating: ${star}/5 stars\n\nComments:\n${commentsPart}`;
-                                    setEditingContract(prev => ({
-                                      ...prev!,
-                                      feedback: newFeedback
-                                    }));
+                                    const existingComments = currentFeedback.split('\n\nComments:\n')[1] || '';
+                                    const newFeedback = `Rating: ${star}/5 stars\n\nComments:\n${existingComments}`;
+                                    handleFeedbackUpdate(newFeedback);
                                   }}
                                   className="text-2xl focus:outline-none"
                                   type="button"
@@ -1030,12 +1069,10 @@ const OrdersPage: React.FC = () => {
                             placeholder="Please share your experience with our service..."
                             value={editingContract.feedback?.split('\n\nComments:\n')[1] || ''}
                             onChange={(e) => {
-                              const currentRating = editingContract.feedback?.match(/Rating: (\d)\/5 stars/)?.[1] || feedbackRating;
+                              const currentFeedback = editingContract.feedback || '';
+                              const currentRating = currentFeedback.match(/Rating: (\d)\/5 stars/)?.[1] || feedbackRating;
                               const newFeedback = `Rating: ${currentRating}/5 stars\n\nComments:\n${e.target.value}`;
-                              setEditingContract(prev => ({
-                                ...prev!,
-                                feedback: newFeedback
-                              }));
+                              handleFeedbackUpdate(newFeedback);
                             }}
                             minRows={4}
                           />
