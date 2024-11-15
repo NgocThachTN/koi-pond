@@ -166,6 +166,7 @@ const ContractManagement: React.FC = () => {
         progressDescription: editingContract.progressDescription,
         paymentStatus: editingContract.paymentStatus,
         constructionProgress: editingContract.contructionProgress,
+        link: editingContract.link,
         requests: [{
           ...editingContract.requests.$values[0],
           users: editingContract.requests.$values[0].users.$values,
@@ -597,7 +598,13 @@ const ContractManagement: React.FC = () => {
                       <SelectItem key="paid" value="Paid" className="text-success">Paid</SelectItem>
                       <SelectItem key="not-paid" value="Not Paid" className="text-danger">Not Paid</SelectItem>
                     </Select>
-
+                    <Input
+                      label="Contract Link"
+                      value={editingContract.link || ''}
+                      onChange={(e) => setEditingContract({ ...editingContract, link: e.target.value })}
+                      className="mb-4"
+                      placeholder="Enter contract link..."
+                    />
                   </div>
 
                   {/* Right column: Progress updates, calling chat bubble */}
