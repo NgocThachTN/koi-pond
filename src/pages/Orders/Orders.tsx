@@ -203,7 +203,8 @@ const OrdersPage: React.FC = () => {
           </Chip>
         );
       case "description":
-        return item.description || 'N/A'
+        const originalDescription = item.description.split(/\[\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\]\sCustomer:\s/)[0];
+        return originalDescription || 'N/A';
       case "details":
         return (
           <Button size="sm" color="secondary" onClick={() => {
@@ -404,9 +405,7 @@ const OrdersPage: React.FC = () => {
       const isDesignRequest = editingContract.designs && editingContract.designs.$values && editingContract.designs.$values.length > 0;
       const updateFunction = isDesignRequest ? updateContractByRequestDesignApi : updateContractBySampleApi;
 
-      // Get current contract to ensure we have the latest data
       const currentContract = contracts.find(c => c.contractId === editingContract.contractId);
-
       const currentDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
       let updatedDescription = editingContract.contractDescription || '';
 
@@ -415,41 +414,54 @@ const OrdersPage: React.FC = () => {
         updatedDescription = updatedDescription
           ? `${updatedDescription}\n\n${newUpdate}`
           : newUpdate;
+
+        // Immediately update chat messages
+        const newMessage = {
+          id: chatMessages[editingContract.contractId]?.length || 0,
+          sender: 'Customer',
+          content: newProgressUpdate,
+          timestamp: format(new Date(), 'dd/MM/yyyy HH:mm:ss')
+        };
+
+        setChatMessages(prev => ({
+          ...prev,
+          [editingContract.contractId]: [
+            ...(prev[editingContract.contractId] || []),
+            newMessage
+          ]
+        }));
       }
 
-      // Create update payload with ALL fields from current contract
+      // Rest of the update logic...
       const updatePayload = {
-        ...currentContract, // Spread current contract data first
-        ...editingContract, // Then spread editing contract data
+        ...currentContract,
+        ...editingContract,
         contractId: Number(editingContract.contractId),
         description: updatedDescription,
         status: currentContract?.status || editingContract.status || 'Completed',
         feedback: editingContract.feedback || currentContract?.feedback || '',
-        link: currentContract?.link || editingContract.link || '', // Use current contract link first
+        link: currentContract?.link || editingContract.link || '',
         requests: [{
           requestId: editingContract.requestId,
           requestName: editingContract.requestName,
-          description: editingContract.description,
+          description: editingContract.description.split(/\[\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\]\sCustomer:\s/)[0], // Use original description only
           users: editingContract.users.$values,
           designs: isDesignRequest ? editingContract.designs.$values : [],
           samples: !isDesignRequest ? editingContract.samples.$values : [],
         }]
       };
 
-      console.log("Update payload:", updatePayload);
-
       const updatedContract = await updateFunction(updatePayload);
-
       setNewProgressUpdate('');
       
-      // Update the editing contract while preserving all fields
+      // Update the editing contract
       setEditingContract(prev => ({
         ...prev!,
-        ...currentContract, // Spread current contract data
+        ...currentContract,
         contractDescription: updatedDescription,
         status: currentContract?.status || prev?.status || 'Completed',
         feedback: prev?.feedback || currentContract?.feedback || '',
-        link: currentContract?.link || prev?.link || '', // Use current contract link first
+        link: currentContract?.link || prev?.link || '',
       }));
 
       // Update contracts list
@@ -457,20 +469,20 @@ const OrdersPage: React.FC = () => {
         prevContracts.map(contract =>
           contract.contractId === editingContract.contractId
             ? {
-                ...contract, // Preserve original contract data
-                ...currentContract, // Spread current contract data
-                ...editingContract, // Then spread any updates
+                ...contract,
+                ...currentContract,
+                ...editingContract,
                 description: updatedDescription,
                 status: currentContract?.status || contract.status || 'Completed',
                 feedback: editingContract.feedback || contract.feedback || '',
-                link: currentContract?.link || contract.link || '', // Use current contract link first
+                link: currentContract?.link || contract.link || '',
               }
             : contract
         )
       );
 
     } catch (err) {
-      console.error("Error in handleEditContractSubmit:", err);
+      console.error("Error updating contract:", err);
     }
   };
 
@@ -1004,7 +1016,7 @@ const OrdersPage: React.FC = () => {
                     />
                     <Textarea
                       label="Request Description"
-                      value={editingContract.description}
+                      value={editingContract.description.split(/\[\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\]\sCustomer:\s/)[0] || ''}
                       isReadOnly
                       className="mb-4"
                     />
