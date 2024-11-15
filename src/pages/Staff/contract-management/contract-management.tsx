@@ -247,7 +247,7 @@ const ContractManagement: React.FC = () => {
         return {
           id: index,
           sender: role,
-          content: content,
+          content: content.replace(/\[.*?\] .*?: /g, ''),
           timestamp: formattedDate
         };
       }
@@ -293,7 +293,9 @@ const ContractManagement: React.FC = () => {
     return (
       <p
         className="text-sm dark:text-white"
-        dangerouslySetInnerHTML={{ __html: formatMessageContent(content) }}
+        dangerouslySetInnerHTML={{ 
+          __html: formatMessageContent(content.replace(/\[.*?\] .*?: /g, '')) 
+        }}
       />
     );
   };

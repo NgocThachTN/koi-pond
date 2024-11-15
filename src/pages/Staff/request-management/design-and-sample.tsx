@@ -284,8 +284,13 @@ const DesignAndSample: React.FC = () => {
 
       // Update contractData with the PDF link
       const updatedContractData = {
-        ...contractData,
-        link: downloadURL
+        contractName: contractData.contractName,
+        contractStartDate: contractData.contractStartDate,
+        contractEndDate: contractData.contractEndDate,
+        description: contractData.description,
+        feedback: contractData.feedback,
+        link: downloadURL,
+        status: "Pending"
       };
 
       // Prepare contract data for API
@@ -297,8 +302,7 @@ const DesignAndSample: React.FC = () => {
           requestName: selectedRequest.requestName,
           description: selectedRequest.description,
         }],
-        ...updatedContractData,
-        status: "Pending",
+        ...updatedContractData
       };
 
       // Create contract via API
@@ -335,7 +339,7 @@ const DesignAndSample: React.FC = () => {
 
         console.log('Email sent successfully');
 
-        // Update local state
+        // Update local state with the new contract data including the link
         setContractData(updatedContractData);
 
         // Close the create contract modal
