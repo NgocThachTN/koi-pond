@@ -26,7 +26,9 @@ const DesignAndSample: React.FC = () => {
     contractName: '',
     contractStartDate: '',
     contractEndDate: '',
-    description: ''
+    description: '',
+    feedback: '',
+    link: ''
   });
 
   useEffect(() => {
@@ -71,7 +73,9 @@ const DesignAndSample: React.FC = () => {
       contractName: `Contract for ${request.requestName}`,
       contractStartDate: new Date().toISOString().split('T')[0],
       contractEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      description: request.description
+      description: request.description,
+      feedback: '',
+      link: ''
     });
     setIsCreateContractModalOpen(true);
   };
@@ -266,19 +270,38 @@ const DesignAndSample: React.FC = () => {
   const handleCreateContract = async () => {
     if (!selectedRequest) return;
 
-    const contractDataToSend = {
-      requests: [{
-        users: selectedRequest.users.$values,
-        designs: selectedRequest.designs.$values,
-        samples: selectedRequest.samples.$values,
-        requestName: selectedRequest.requestName,
-        description: selectedRequest.description,
-      }],
-      ...contractData,
-      status: "Pending",
-    };
-
     try {
+      // Generate PDF first
+      const pdfDoc = generatePDF(contractData, selectedRequest);
+      const pdfBlob = pdfDoc.output('blob');
+
+      // Upload PDF to Firebase Storage
+      const storageRef = ref(storage, `contracts/${contractData.contractName}.pdf`);
+      await uploadBytes(storageRef, pdfBlob);
+
+      // Get the download URL
+      const downloadURL = await getDownloadURL(storageRef);
+
+      // Update contractData with the PDF link
+      const updatedContractData = {
+        ...contractData,
+        link: downloadURL
+      };
+
+      // Prepare contract data for API
+      const contractDataToSend = {
+        requests: [{
+          users: selectedRequest.users.$values,
+          designs: selectedRequest.designs.$values,
+          samples: selectedRequest.samples.$values,
+          requestName: selectedRequest.requestName,
+          description: selectedRequest.description,
+        }],
+        ...updatedContractData,
+        status: "Pending",
+      };
+
+      // Create contract via API
       let response;
       if (selectedRequest.designs.$values.length > 0) {
         response = await createContractByRequestDesignApi(contractDataToSend);
@@ -290,19 +313,6 @@ const DesignAndSample: React.FC = () => {
 
       if (response.status === 201) {
         setContractId(response.data.$id);
-
-        // Generate PDF
-        const pdfDoc = generatePDF(contractData, selectedRequest);
-
-        // Create Blob from PDF
-        const pdfBlob = pdfDoc.output('blob');
-
-        // Upload PDF to Firebase Storage
-        const storageRef = ref(storage, `contracts/${contractData.contractName}.pdf`);
-        await uploadBytes(storageRef, pdfBlob);
-
-        // Get the download URL
-        const downloadURL = await getDownloadURL(storageRef);
 
         // Send email to customer
         const customerEmail = selectedRequest.users.$values[0].email;
@@ -324,6 +334,9 @@ const DesignAndSample: React.FC = () => {
         );
 
         console.log('Email sent successfully');
+
+        // Update local state
+        setContractData(updatedContractData);
 
         // Close the create contract modal
         setIsCreateContractModalOpen(false);
@@ -397,6 +410,7 @@ const DesignAndSample: React.FC = () => {
             </Button>
           </div>
         );
+
       default:
         return null;
     }

@@ -69,10 +69,14 @@ const OrdersPage: React.FC = () => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isEditContractOpen, setIsEditContractOpen] = useState(false);
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
+  const [editingRequest, setEditingRequest] = useState<MaintenanceRequest | null>(null);
   const [newProgressUpdate, setNewProgressUpdate] = useState('');
   const [localDescription, setLocalDescription] = useState('');
   const [chatMessages, setChatMessages] = useState<{ [key: number]: any[] }>({});
   const [pollingInterval, setPollingInterval] = useState(5000); // Start with 5 seconds
+  const [progressDescriptionModalOpen, setProgressDescriptionModalOpen] = useState(false);
+  const [maintenanceProgressModalOpen, setMaintenanceProgressModalOpen] = useState(false);
+  const [feedbackRating, setFeedbackRating] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -144,6 +148,9 @@ const OrdersPage: React.FC = () => {
         contractStartDate: contract.contractStartDate,
         contractEndDate: contract.contractEndDate,
         contractDescription: contract.description,
+        contructionProgress: contract.contructionProgress,
+        paymentStatus: contract.paymentStatus,
+        progressDescription: contract.progressDescription,
       }))
     );
 
@@ -251,7 +258,10 @@ const OrdersPage: React.FC = () => {
       maintenanceRequestId: 0, // This will be assigned by the server
       maintenanceRequestStartDate: new Date().toISOString(),
       maintenanceRequestEndDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
-      status: "Pending"
+      status: "Pending",
+      progressMaintenanceDescription: "",
+      paymentStatus: "Pending",
+      progressMaintenance: ""
     }
 
     if (isDesignRequest) {
@@ -352,7 +362,10 @@ const OrdersPage: React.FC = () => {
   }, [isEditContractOpen, editingContract, pollingInterval, fetchLatestUpdates]);
 
   const handleEditContractClick = (contract: Contract) => {
-    setEditingContract(contract);
+    setEditingContract({
+      ...contract,
+
+    });
     const formattedMessages = formatProgressUpdates(contract.description || '');
     setChatMessages(prev => ({
       ...prev,
@@ -384,8 +397,13 @@ const OrdersPage: React.FC = () => {
         contractName: editingContract.contractName,
         contractStartDate: editingContract.contractStartDate,
         contractEndDate: editingContract.contractEndDate,
-        status: editingContract.contractStatus,
+        status: editingContract.status,
         description: updatedDescription,
+        progressDescription: editingContract.progressDescription,
+        paymentStatus: editingContract.paymentStatus,
+        contructionProgress: editingContract.contructionProgress,
+        feedback: editingContract.feedback || '',
+        link: editingContract.link || '',
         requests: [{
           requestId: editingContract.requestId,
           requestName: editingContract.requestName,
@@ -416,7 +434,7 @@ const OrdersPage: React.FC = () => {
       setContracts(prevContracts =>
         prevContracts.map(contract =>
           contract.contractId === editingContract.contractId
-            ? { ...contract, description: updatedDescription }
+            ? { ...contract, description: updatedDescription, feedback: editingContract.feedback }
             : contract
         )
       );
@@ -488,6 +506,13 @@ const OrdersPage: React.FC = () => {
       console.error('Failed to fetch contracts:', error);
     }
   };
+
+  useEffect(() => {
+    if (editingContract) {
+      const ratingMatch = editingContract.feedback?.match(/Rating: (\d)\/5 stars/);
+      setFeedbackRating(ratingMatch ? parseInt(ratingMatch[1]) : 0);
+    }
+  }, [editingContract]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -622,6 +647,7 @@ const OrdersPage: React.FC = () => {
                                     Math.ceil((new Date(selectedItem.contractEndDate).getTime() - new Date(selectedItem.contractStartDate).getTime()) / (1000 * 3600 * 24))
                                   } days</p>
                                 </div>
+
                               </CardBody>
                             </Card>
 
@@ -694,6 +720,33 @@ const OrdersPage: React.FC = () => {
                                               <li key={idx}>{m.maintencaceName}</li>
                                             ))}
                                           </ul>
+
+                                          <div className="mb-4">
+                                            <Button
+                                              onPress={() => {
+                                                setEditingRequest(mr);
+                                                setMaintenanceProgressModalOpen(true);
+                                              }}
+                                              variant="flat"
+                                              className="w-full"
+                                            >
+                                              View Maintenance Progress
+                                            </Button>
+                                          </div>
+                                          <Input
+                                            label="Maintenance Progress"
+                                            value={mr.progressMaintenance || 'Not available'}
+                                            isReadOnly
+                                            className="mb-4"
+                                          />
+
+                                          <Input
+                                            label="Payment Status"
+                                            value={mr.paymentStatus || 'Not available'}
+                                            isReadOnly
+                                            className="mb-4"
+                                          />
+
                                         </CardBody>
                                       </Card>
                                     );
@@ -913,6 +966,82 @@ const OrdersPage: React.FC = () => {
                       isReadOnly
                       className="mb-4"
                     />
+                    <div className="mb-4">
+                      <Button
+                        onPress={() => setProgressDescriptionModalOpen(true)}
+                        variant="flat"
+                        className="w-full"
+                      >
+                        View Progress Description
+                      </Button>
+                    </div>
+                    <Input
+                      label="Construction Progress"
+                      value={editingContract.contructionProgress || 'Not available'}
+                      isReadOnly
+                      className="mb-4"
+                    />
+
+                    <Input
+                      label="Payment Status"
+                      value={editingContract.paymentStatus || 'Not available'}
+                      isReadOnly
+                      className="mb-4"
+                    />
+
+                    {editingContract.contractStatus === "Completed" && (
+                      <div className="space-y-4 mb-4">
+                        <div className="flex flex-col gap-4">
+                          <h3 className="text-lg font-semibold">Feedback</h3>
+
+                          {/* Rating */}
+                          <div>
+                            <label className="block text-sm font-medium mb-2">Rating</label>
+                            <div className="flex gap-2">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <button
+                                  key={star}
+                                  onClick={() => {
+                                    setFeedbackRating(star);
+                                    const currentFeedback = editingContract.feedback || '';
+                                    const commentsPart = currentFeedback.split('\n\nComments:\n')[1] || '';
+                                    const newFeedback = `Rating: ${star}/5 stars\n\nComments:\n${commentsPart}`;
+                                    setEditingContract(prev => ({
+                                      ...prev!,
+                                      feedback: newFeedback
+                                    }));
+                                  }}
+                                  className="text-2xl focus:outline-none"
+                                  type="button"
+                                >
+                                  {star <= (feedbackRating || 0) ? (
+                                    <span className="text-yellow-400">★</span>
+                                  ) : (
+                                    <span className="text-gray-300">☆</span>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Comments */}
+                          <Textarea
+                            label="Comments"
+                            placeholder="Please share your experience with our service..."
+                            value={editingContract.feedback?.split('\n\nComments:\n')[1] || ''}
+                            onChange={(e) => {
+                              const currentRating = editingContract.feedback?.match(/Rating: (\d)\/5 stars/)?.[1] || feedbackRating;
+                              const newFeedback = `Rating: ${currentRating}/5 stars\n\nComments:\n${e.target.value}`;
+                              setEditingContract(prev => ({
+                                ...prev!,
+                                feedback: newFeedback
+                              }));
+                            }}
+                            minRows={4}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                   {/* Right column: Progress updates */}
                   <div className="col-span-3 flex flex-col h-[600px] bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
@@ -971,6 +1100,76 @@ const OrdersPage: React.FC = () => {
           </ModalContent>
         </Modal>
         <Chatbot />
+        <Modal
+          isOpen={progressDescriptionModalOpen}
+          onClose={() => setProgressDescriptionModalOpen(false)}
+          size="2xl"
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  <h2 className="text-xl font-bold">Progress Description</h2>
+                </ModalHeader>
+                <ModalBody>
+                  <ScrollShadow className="h-[400px]">
+                    <div className="space-y-4">
+                      {editingContract?.progressDescription ? (
+                        <div className="prose dark:prose-invert max-w-none">
+                          <p className="whitespace-pre-wrap">
+                            {editingContract.progressDescription}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-gray-500 italic">No progress description available</p>
+                      )}
+                    </div>
+                  </ScrollShadow>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="danger" variant="light" onPress={onClose}>
+                    Close
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+        <Modal
+          isOpen={maintenanceProgressModalOpen}
+          onClose={() => setMaintenanceProgressModalOpen(false)}
+          size="2xl"
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  <h2 className="text-xl font-bold">Progress Description</h2>
+                </ModalHeader>
+                <ModalBody>
+                  <ScrollShadow className="h-[400px]">
+                    <div className="space-y-4">
+                      {editingRequest?.progressMaintenanceDescription ? (
+                        <div className="prose dark:prose-invert max-w-none">
+                          <p className="whitespace-pre-wrap">
+                            {editingRequest.progressMaintenanceDescription}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-gray-500 italic">No progress description available</p>
+                      )}
+                    </div>
+                  </ScrollShadow>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="danger" variant="light" onPress={onClose}>
+                    Close
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
       </div>
     </div>
   )

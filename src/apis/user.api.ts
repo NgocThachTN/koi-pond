@@ -300,6 +300,11 @@ export interface Contract {
   status: string;
   description: string;
   contractId: string;
+  progressDescription: string,
+  paymentStatus: string,
+  contructionProgress: string
+  feedback: string,
+  link: string
 }
 
 export const getContractsApi = () => {
@@ -327,6 +332,162 @@ export const updateContractStatusApi = (
   );
 };
 
+
+
+interface UpdateContractByRequestDesignType {
+  requests: Array<{
+    users: Array<{
+      userId: number;
+      accountId: number;
+      name: string;
+      phoneNumber: string;
+      address: string;
+      userName: string;
+      email: string;
+      password: string;
+      roleId: number;
+    }>;
+    designs: Array<{
+      designId: number;
+      designName: string;
+      designSize: string;
+      designPrice: number;
+      designImage: string;
+    }>;
+    requestId: number;
+    requestName: string;
+    description: string;
+  }>;
+  contractId: number;
+  contractName: string;
+  contractStartDate: string;
+  contractEndDate: string;
+  status: string;
+  description: string;
+  progressDescription: string,
+  paymentStatus: string,
+  contructionProgress: string,
+  feedback: string,
+  link: string
+}
+
+interface UpdateContractResponseType {
+  success: boolean;
+  message: string;
+  // Add any other fields that the API might return
+}
+
+export const updateContractByRequestDesignApi = (
+  contractData: UpdateContractByRequestDesignType
+) => {
+  return http.put<UpdateContractResponseType>(
+    `Contracts/ByRequestDesign/${contractData.contractId}`,
+    contractData
+  );
+};
+
+interface UpdateContractBySampleType {
+  requests: Array<{
+    users: Array<{
+      userId: number;
+      accountId: number;
+      name: string;
+      phoneNumber: string;
+      address: string;
+      userName: string;
+      email: string;
+      password: string;
+      roleId: number;
+    }>;
+    samples: Array<{
+      sampleId: number;
+      sampleName: string;
+      sampleSize: string;
+      samplePrice: number;
+      sampleImage: string;
+    }>;
+    requestName: string;
+    description: string;
+  }>;
+  contractId: number;
+  contractName: string;
+  contractStartDate: string;
+  contractEndDate: string;
+  status: string;
+  description: string;
+  progressDescription: string,
+  paymentStatus: string,
+  contructionProgress: string,
+  feedback: string,
+  link: string
+}
+
+interface UpdateContractResponseType {
+  success: boolean;
+  message: string;
+  // Add any other fields that the API might return
+}
+
+export const updateContractBySampleApi = (
+  contractData: UpdateContractBySampleType
+) => {
+  return http.put<UpdateContractResponseType>(
+    `Contracts/ByRequestSample/${contractData.contractId}`,
+    contractData
+  );
+};
+
+interface MaintenanceRequestByDesignType {
+  requests: Array<{
+    users: Array<{
+      userId: number;
+      accountId: number;
+      name: string;
+      phoneNumber: string;
+      address: string;
+      userName: string;
+      email: string;
+      password: string;
+      roleId: number;
+    }>;
+    designs: Array<{
+      designId: number;
+      designName: string;
+      designSize: string;
+      designPrice: number;
+      designImage: string;
+    }>;
+    requestId: number;
+    requestName: string;
+    description: string;
+  }>;
+  maintenance: Array<{
+    maintencaceName: string;
+  }>;
+  maintenanceRequestId: number;
+  maintenanceRequestStartDate: string;
+  maintenanceRequestEndDate: string;
+  status: string;
+  progressMaintenanceDescription: string;
+  paymentStatus: string;
+  progressMaintenance: string;
+}
+
+interface MaintenanceRequestResponseType {
+  success: boolean;
+  message: string;
+  maintenanceRequestId?: number;
+  // Add any other fields that the API might return
+}
+
+export const createMaintenanceRequestByDesignApi = (
+  requestData: MaintenanceRequestByDesignType
+) => {
+  return http.post<MaintenanceRequestResponseType>(
+    "MaintenanceRequests/ByMaintenanceRequestDesign",
+    requestData
+  );
+};
 export interface MaintenanceRequest {
   $id: string;
   requests: {
@@ -383,6 +544,10 @@ export interface MaintenanceRequest {
   maintenanceRequestStartDate: string;
   maintenanceRequestEndDate: string;
   status: string;
+  progressMaintenanceDescription: string;
+  paymentStatus: string;
+  progressMaintenance: string;
+
 }
 
 export const getMaintenanceRequestsApi = () => {
@@ -390,149 +555,6 @@ export const getMaintenanceRequestsApi = () => {
     "MaintenanceRequests"
   );
 };
-
-interface UpdateContractByRequestDesignType {
-  requests: Array<{
-    users: Array<{
-      userId: number;
-      accountId: number;
-      name: string;
-      phoneNumber: string;
-      address: string;
-      userName: string;
-      email: string;
-      password: string;
-      roleId: number;
-    }>;
-    designs: Array<{
-      designId: number;
-      designName: string;
-      designSize: string;
-      designPrice: number;
-      designImage: string;
-    }>;
-    requestId: number;
-    requestName: string;
-    description: string;
-  }>;
-  contractId: number;
-  contractName: string;
-  contractStartDate: string;
-  contractEndDate: string;
-  status: string;
-  description: string;
-}
-
-interface UpdateContractResponseType {
-  success: boolean;
-  message: string;
-  // Add any other fields that the API might return
-}
-
-export const updateContractByRequestDesignApi = (
-  contractData: UpdateContractByRequestDesignType
-) => {
-  return http.put<UpdateContractResponseType>(
-    `Contracts/ByRequestDesign/${contractData.contractId}`,
-    contractData
-  );
-};
-
-interface UpdateContractBySampleType {
-  requests: Array<{
-    users: Array<{
-      userId: number;
-      accountId: number;
-      name: string;
-      phoneNumber: string;
-      address: string;
-      userName: string;
-      email: string;
-      password: string;
-      roleId: number;
-    }>;
-    samples: Array<{
-      sampleId: number;
-      sampleName: string;
-      sampleSize: string;
-      samplePrice: number;
-      sampleImage: string;
-    }>;
-    requestName: string;
-    description: string;
-  }>;
-  contractId: number;
-  contractName: string;
-  contractStartDate: string;
-  contractEndDate: string;
-  status: string;
-  description: string;
-}
-
-interface UpdateContractResponseType {
-  success: boolean;
-  message: string;
-  // Add any other fields that the API might return
-}
-
-export const updateContractBySampleApi = (
-  contractData: UpdateContractBySampleType
-) => {
-  return http.put<UpdateContractResponseType>(
-    `Contracts/ByRequestSample/${contractData.contractId}`,
-    contractData
-  );
-};
-
-interface MaintenanceRequestByDesignType {
-  requests: Array<{
-    users: Array<{
-      userId: number;
-      accountId: number;
-      name: string;
-      phoneNumber: string;
-      address: string;
-      userName: string;
-      email: string;
-      password: string;
-      roleId: number;
-    }>;
-    designs: Array<{
-      designId: number;
-      designName: string;
-      designSize: string;
-      designPrice: number;
-      designImage: string;
-    }>;
-    requestId: number;
-    requestName: string;
-    description: string;
-  }>;
-  maintenance: Array<{
-    maintencaceName: string;
-  }>;
-  maintenanceRequestId: number;
-  maintenanceRequestStartDate: string;
-  maintenanceRequestEndDate: string;
-  status: string;
-}
-
-interface MaintenanceRequestResponseType {
-  success: boolean;
-  message: string;
-  maintenanceRequestId?: number;
-  // Add any other fields that the API might return
-}
-
-export const createMaintenanceRequestByDesignApi = (
-  requestData: MaintenanceRequestByDesignType
-) => {
-  return http.post<MaintenanceRequestResponseType>(
-    "MaintenanceRequests/ByMaintenanceRequestDesign",
-    requestData
-  );
-};
-
 interface MaintenanceRequestBySampleType {
   requests: Array<{
     users: Array<{
@@ -564,6 +586,9 @@ interface MaintenanceRequestBySampleType {
   maintenanceRequestStartDate: string;
   maintenanceRequestEndDate: string;
   status: string;
+  progressMaintenanceDescription: string;
+  paymentStatus: string;
+  progressMaintenance: string;
 }
 
 interface MaintenanceRequestResponseType {
@@ -613,6 +638,9 @@ interface UpdateMaintenanceRequestByDesignType {
   maintenanceRequestStartDate: string;
   maintenanceRequestEndDate: string;
   status: string;
+  progressMaintenanceDescription: string;
+  paymentStatus: string;
+  progressMaintenance: string;
 }
 
 interface UpdateMaintenanceRequestResponseType {
@@ -662,6 +690,9 @@ interface UpdateMaintenanceRequestBySampleType {
   maintenanceRequestStartDate: string;
   maintenanceRequestEndDate: string;
   status: string;
+  progressMaintenanceDescription: string;
+  paymentStatus: string;
+  progressMaintenance: string;
 }
 
 interface UpdateMaintenanceRequestResponseType {
@@ -678,7 +709,7 @@ export const updateMaintenanceRequestBySampleApi = (
     `MaintenanceRequests/ByMaintenanceRequestSample/${requestData.maintenanceRequestId}`,
     requestData
   );
-}; 
+};
 
 
 

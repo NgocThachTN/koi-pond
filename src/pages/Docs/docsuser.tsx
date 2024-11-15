@@ -38,6 +38,7 @@ import {
 import { toast } from "react-toastify";
 import { sendOrderConfirmationEmail } from "@/apis/email.api";
 import Chatbot from '@/components/Chatbot/Chatbot';
+import { useNavigate } from 'react-router-dom';
 
 export default function DocsPageUser() {
   return (
@@ -75,6 +76,7 @@ function QuotationForm() {
   const [size, setSize] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserInfo();
@@ -168,6 +170,10 @@ function QuotationForm() {
           name: userInfo.name,
           email: userInfo.email
         });
+        // Add timeout to redirect after 2 seconds
+        setTimeout(() => {
+          navigate('/orders');
+        }, 1000);
         // Reset form fields
         setSelectedRequestType("");
         setSelectedService("");

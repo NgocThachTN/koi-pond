@@ -44,12 +44,17 @@ const ContractManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('name'); // New state for search type
   const [newProgressUpdate, setNewProgressUpdate] = useState('');
+  const [newProgressMessage, setNewProgressMessage] = useState('');
   const [localDescription, setLocalDescription] = useState('');
   const [isPolling, setIsPolling] = useState(false);
   const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [chatMessagesProgressDescription, setChatMessagesProgressDescription] = useState<any[]>([]);
   const [pollingInterval, setPollingInterval] = useState(5000); // Start with 5 seconds
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
+  const [progressDescriptionModalOpen, setProgressDescriptionModalOpen] = useState(false);
+  const [isUpdatingProgress, setIsUpdatingProgress] = useState(false);
+
 
   useEffect(() => {
     fetchContracts();
@@ -115,6 +120,7 @@ const ContractManagement: React.FC = () => {
         ...editingContract,
         contractId: Number(editingContract.contractId),
         description: updatedDescription,
+
         requests: [{
           ...editingContract.requests.$values[0],
           users: editingContract.requests.$values[0].users.$values,
@@ -157,6 +163,9 @@ const ContractManagement: React.FC = () => {
         ...editingContract,
         contractId: Number(editingContract.contractId),
         description: localDescription,
+        progressDescription: editingContract.progressDescription,
+        paymentStatus: editingContract.paymentStatus,
+        constructionProgress: editingContract.contructionProgress,
         requests: [{
           ...editingContract.requests.$values[0],
           users: editingContract.requests.$values[0].users.$values,
@@ -341,6 +350,71 @@ const ContractManagement: React.FC = () => {
     return 'Unknown';
   };
 
+  const handleProgressDescriptionUpdate = async () => {
+    if (!editingContract || !newProgressMessage.trim()) return;
+
+    try {
+      setIsUpdatingProgress(true); // Add loading state
+
+      const currentDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
+      const newUpdate = `[${currentDate}] Staff: ${newProgressMessage}`;
+      const updatedProgressDescription = editingContract.progressDescription
+        ? `${editingContract.progressDescription}\n${newUpdate}`
+        : newUpdate;
+
+      const updateFunction = editingContract.requests.$values[0].designs
+        ? updateContractByRequestDesignApi
+        : updateContractBySampleApi;
+
+      const updatedContract = await updateFunction({
+        ...editingContract,
+        contractId: Number(editingContract.contractId),
+        progressDescription: updatedProgressDescription,
+        requests: [{
+          ...editingContract.requests.$values[0],
+          users: editingContract.requests.$values[0].users.$values,
+          designs: editingContract.requests.$values[0].designs?.$values || [],
+          samples: editingContract.requests.$values[0].samples?.$values || [],
+        }]
+      });
+
+      // Update local states
+      setEditingContract(prev => ({
+        ...prev!,
+        progressDescription: updatedProgressDescription
+      }));
+
+      setChatMessagesProgressDescription(formatProgressUpdates(updatedProgressDescription));
+      setNewProgressMessage(''); // Clear input
+
+      // Update contracts list
+      setContracts(prevContracts =>
+        prevContracts.map(contract =>
+          contract.contractId === editingContract.contractId
+            ? { ...contract, progressDescription: updatedProgressDescription }
+            : contract
+        )
+      );
+
+    } catch (error) {
+      console.error("Error updating progress description:", error);
+    } finally {
+      setIsUpdatingProgress(false);
+    }
+  };
+
+  // Thêm hàm helper để lấy feedback
+  const getContractFeedback = (contract: Contract) => {
+    if (!contract.feedback) return 'No feedback available.';
+
+    // Extract rating and comments
+    const ratingMatch = contract.feedback.match(/Rating: (\d)\/5 stars/);
+    const rating = ratingMatch ? parseInt(ratingMatch[1]) : 0;
+    const comments = contract.feedback.replace(/Rating: \d\/5 stars\n\nComments:\n/, '');
+
+    return { rating, comments };
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
@@ -383,6 +457,7 @@ const ContractManagement: React.FC = () => {
               <TableColumn>End Date</TableColumn>
               <TableColumn>Status</TableColumn>
               <TableColumn>Description</TableColumn>
+              <TableColumn>Contract Link</TableColumn>
               <TableColumn>Actions</TableColumn>
             </TableHeader>
             <TableBody>
@@ -406,6 +481,29 @@ const ContractManagement: React.FC = () => {
                     <Tooltip content={contract.requests.$values[0]?.description || 'No description'}>
                       <span>{truncateDescription(contract)}</span>
                     </Tooltip>
+                  </TableCell>
+                  <TableCell>
+                    {contract.link ? (
+                      <Button
+                        size="sm"
+                        color="primary"
+                        variant="flat"
+                        as={Link}
+                        href={contract.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        View Contract
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        isDisabled
+                        variant="flat"
+                      >
+                        No Link
+                      </Button>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
@@ -464,17 +562,42 @@ const ContractManagement: React.FC = () => {
                       onChange={(e) => setEditingContract({ ...editingContract, contractEndDate: e.target.value })}
                       className="mb-4"
                     />
+                    <div className="mb-4">
+                      <Button
+                        onPress={() => setProgressDescriptionModalOpen(true)}
+                        variant="flat"
+                        className="w-full"
+                      >
+                        View Progress Description
+                      </Button>
+                    </div>
+                    <Input
+                      label="Construction Progress" // New input for ConstructionProgress
+                      value={editingContract.contructionProgress}
+                      onChange={(e) => setEditingContract({ ...editingContract, contructionProgress: e.target.value })}
+                      className="mb-4"
+                    />
                     <Select
                       label="Status"
                       selectedKeys={[editingContract.status]}
                       onChange={(e) => setEditingContract({ ...editingContract, status: e.target.value })}
                       className="mb-4"
                     >
-                      <SelectItem key="Pending" value="Pending">Pending</SelectItem>
-                      <SelectItem key="Processing" value="Processing">Processing</SelectItem>
-                      <SelectItem key="Completed" value="Completed">Completed</SelectItem>
-                      <SelectItem key="Cancelled" value="Cancelled">Cancelled</SelectItem>
+                      <SelectItem key="Pending" value="Pending" className="text-warning">Pending</SelectItem>
+                      <SelectItem key="Processing" value="Processing" className="text-primary">Processing</SelectItem>
+                      <SelectItem key="Completed" value="Completed" className="text-success">Completed</SelectItem>
+                      <SelectItem key="Cancelled" value="Cancelled" className="text-danger">Cancelled</SelectItem>
                     </Select>
+                    <Select
+                      label="Payment Status" // Updated to Select for restricted values
+                      selectedKeys={[editingContract.paymentStatus]}
+                      onChange={(e) => setEditingContract({ ...editingContract, paymentStatus: e.target.value })}
+                      className="mb-4"
+                    >
+                      <SelectItem key="paid" value="Paid" className="text-success">Paid</SelectItem>
+                      <SelectItem key="not-paid" value="Not Paid" className="text-danger">Not Paid</SelectItem>
+                    </Select>
+
                   </div>
 
                   {/* Right column: Progress updates, calling chat bubble */}
@@ -579,13 +702,44 @@ const ContractManagement: React.FC = () => {
                         </CardBody>
                       </Card>
 
-                      <Card className="col-span-3">
+                      {/* Description Card */}
+                      <Card className="col-span-3 mb-4">
                         <CardBody>
                           <h3 className="text-lg font-semibold mb-2">Description</h3>
-                          <ScrollShadow className="h-[200px] max-w-[800px] mx-auto">
+                          <ScrollShadow className="h-[200px]">
                             <p className="whitespace-pre-wrap text-sm">
                               {selectedContract.requests.$values[0]?.description || 'No description available.'}
                             </p>
+                          </ScrollShadow>
+                        </CardBody>
+                      </Card>
+
+                      {/* Feedback Card */}
+                      <Card className="col-span-3">
+                        <CardBody>
+                          <h3 className="text-lg font-semibold mb-2">Feedback</h3>
+                          <ScrollShadow className="h-[200px]">
+                            {selectedContract && (
+                              <div>
+                                <div className="flex items-center gap-1 mb-2">
+                                  <span className="font-medium">Rating: </span>
+                                  {[...Array(5)].map((_, index) => (
+                                    <span
+                                      key={index}
+                                      className={`text-xl ${index < getContractFeedback(selectedContract).rating
+                                          ? 'text-yellow-400'
+                                          : 'text-gray-300'
+                                        }`}
+                                    >
+                                      ★
+                                    </span>
+                                  ))}
+                                </div>
+                                <p className="whitespace-pre-wrap text-sm">
+                                  {getContractFeedback(selectedContract).comments}
+                                </p>
+                              </div>
+                            )}
                           </ScrollShadow>
                         </CardBody>
                       </Card>
@@ -599,6 +753,58 @@ const ContractManagement: React.FC = () => {
                 </ModalFooter>
               </>
             )}
+          </ModalContent>
+        </Modal>
+
+        <Modal
+          isOpen={progressDescriptionModalOpen}
+          onClose={() => setProgressDescriptionModalOpen(false)}
+          size="2xl"
+        >
+          <ModalContent>
+            <ModalHeader>Current Progress</ModalHeader>
+            <ModalBody>
+              <div className="flex flex-col h-[500px]">
+                {/* Chat history area */}
+                <ScrollShadow className="flex-grow mb-4 bg-gray-100 rounded-lg p-4">
+                  <div className="space-y-2">
+                    {chatMessagesProgressDescription.map((message, index) => (
+                      <div key={message.id} className="text-sm">
+                        [{message.timestamp}] {message.sender}: {message.content}
+                      </div>
+                    ))}
+                  </div>
+                </ScrollShadow>
+
+                {/* New message input area */}
+                <div className="flex items-end gap-2">
+                  <Textarea
+                    placeholder="Type your message..."
+                    value={newProgressMessage}
+                    onChange={(e) => setNewProgressMessage(e.target.value)}
+                    className="flex-grow"
+                    minRows={2}
+                  />
+                  <Button
+                    color="primary"
+                    isLoading={isUpdatingProgress}
+                    onPress={handleProgressDescriptionUpdate}
+                  >
+                    Send
+                  </Button>
+                </div>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                color="danger"
+                variant="light"
+                onPress={() => setProgressDescriptionModalOpen(false)}
+              >
+                Cancel
+              </Button>
+
+            </ModalFooter>
           </ModalContent>
         </Modal>
       </div>
