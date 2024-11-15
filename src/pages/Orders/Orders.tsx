@@ -494,16 +494,20 @@ const OrdersPage: React.FC = () => {
 
     try {
       const isDesignRequest = editingContract.designs && editingContract.designs.$values && editingContract.designs.$values.length > 0;
-
       const updateFunction = isDesignRequest ? updateContractByRequestDesignApi : updateContractBySampleApi;
 
+      // Get current contract from the contracts list to ensure we have the latest data
+      const currentContract = contracts.find(c => c.contractId === editingContract.contractId);
+
       const updatePayload = {
+        ...currentContract, // Spread all current contract data first
         contractId: Number(editingContract.contractId),
         contractName: editingContract.contractName,
         contractStartDate: editingContract.contractStartDate,
         contractEndDate: editingContract.contractEndDate,
         status: newStatus,
         description: editingContract.contractDescription || '',
+        link: currentContract?.link || '', // Preserve the existing link
         requests: [{
           requestId: editingContract.requestId,
           requestName: editingContract.requestName,
@@ -517,15 +521,20 @@ const OrdersPage: React.FC = () => {
       console.log("Update payload:", updatePayload);
 
       const updatedContract = await updateFunction(updatePayload);
-
       console.log("Contract updated successfully:", updatedContract);
-      setIsEditContractOpen(false);
+      
+      // Update the local state
+      setEditingContract(prev => ({
+        ...prev!,
+        ...currentContract,
+        status: newStatus,
+        link: currentContract?.link || '', // Preserve the link in local state
+      }));
 
+      setIsEditContractOpen(false);
       await fetchContracts();
     } catch (err) {
       console.error("Error in handleStatusChange:", err);
-      // Hiển thị thông báo lỗi cho người dùng
-      // Ví dụ: setError("Failed to update contract status. Please try again.");
     }
   };
 
