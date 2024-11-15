@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { NavbarUser } from '@/components/Navbar/navbaruser'
-import { Card, CardBody, CardHeader, Button, Pagination, Avatar, Input, Select, SelectItem, Textarea, Tabs, Tab } from "@nextui-org/react"
+import { Card, CardBody, CardHeader, Button, Pagination, Avatar, Input, Select, SelectItem, Textarea, Tabs, Tab, Image } from "@nextui-org/react"
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react"
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/react"
 import {
@@ -34,19 +34,61 @@ const statusColorMap: Record<string, "warning" | "primary" | "success" | "danger
 };
 
 const formatMessageContent = (content: string) => {
-  const firebaseStorageRegex = /https:\/\/firebasestorage\.googleapis\.com\/.*?\.pdf(\?[^\s]+)?/g;
+  try {
+    // Kiểm tra xem content có phải JSON string không
+    if (content.trim().startsWith('{') && content.trim().endsWith('}')) {
+      const parsedContent = JSON.parse(content);
+      return {
+        text: parsedContent.text || '',
+        images: parsedContent.imageUrl ? [parsedContent.imageUrl] : []
+      };
+    }
 
-  return content.replace(firebaseStorageRegex, (match) => {
-    const fileName = decodeURIComponent(match.split('/').pop()?.split('?')[0] || 'contract.pdf');
-    return `<a href="${match}" target="_blank" rel="noopener noreferrer" class="text-gray underline hover:text-blue-200">${fileName}</a>`;
-  });
+    // Nếu không phải JSON, xử lý như cũ
+    const firebaseStorageRegex = /https:\/\/firebasestorage\.googleapis\.com\/.*?\.(?:jpg|jpeg|png|gif)(\?[^\s]+)?/g;
+    const pdfRegex = /https:\/\/firebasestorage\.googleapis\.com\/.*?\.pdf(\?[^\s]+)?/g;
+    
+    const images = content.match(firebaseStorageRegex) || [];
+    
+    let textContent = content
+      .replace(firebaseStorageRegex, '')
+      .replace(/\[img\]/g, '')
+      .replace(/🖼️/g, '')
+      .replace(/📷/g, '')
+      .replace(/\s*\[object Object\]\s*/g, '')
+      .replace(/\s*\[object HTMLImageElement\]\s*/g, '')
+      .replace(/data:image\/[^"')\s]+/g, '')
+      .replace(/📎/g, '')
+      .replace(/\s*\[.*?\]\s*/g, '')
+      .replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/\s+/g, ' ')
+      .replace(/\uFFFD/g, '')
+      .replace(/\u{1F4CE}/gu, '')
+      .replace(/\u{1F4F7}/gu, '')
+      .replace(/\u{1F5BC}/gu, '')
+      .trim();
+
+    return {
+      text: textContent.trim(),
+      images: images
+    };
+  } catch (error) {
+    console.error('Error parsing message content:', error);
+    return {
+      text: content,
+      images: []
+    };
+  }
 };
 
 const MessageContent: React.FC<{ content: string }> = ({ content }) => {
   return (
-    <p
+    <div
       className="text-sm break-words"
-      dangerouslySetInnerHTML={{ __html: formatMessageContent(content) }}
+      dangerouslySetInnerHTML={{ 
+        __html: formatMessageContent(content.replace(/\[.*?\] .*?: /g, '')) 
+      }}
     />
   );
 };
@@ -1110,19 +1152,42 @@ const OrdersPage: React.FC = () => {
                           <div key={message.id} className={`flex ${message.sender === 'Customer' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`flex items-start gap-2 max-w-[80%] ${message.sender === 'Customer' ? 'flex-row-reverse' : ''}`}>
                               <Avatar
-                                name={message.sender}
-                                size="sm"
-                                className={`${message.sender === 'Customer' ? 'bg-blue-500' :
-                                  message.sender === 'Manager' ? 'bg-green-500' :
-                                    'bg-gray-500'
-                                  } text-white`}
+                                icon={message.sender === 'Customer' ? <FaUser /> : <FaHardHat />}
+                                classNames={{
+                                  base: message.sender === 'Customer' ? "bg-blue-500" : "bg-green-500",
+                                }}
                               />
                               <div className={`p-3 rounded-lg ${message.sender === 'Customer'
                                 ? 'bg-blue-500 text-white'
                                 : 'bg-white text-black dark:bg-gray-700 dark:text-white'
                                 }`}>
                                 <p className="font-semibold text-sm">{message.sender}</p>
-                                <MessageContent content={message.content} />
+                                <div className="text-sm mt-1">
+                                  {/* Hiển thị text */}
+                                  {formatMessageContent(message.content).text && (
+                                    <div className="whitespace-pre-wrap">
+                                      {formatMessageContent(message.content).text}
+                                    </div>
+                                  )}
+                                  
+                                  {/* Hiển thị ảnh */}
+                                  {formatMessageContent(message.content).images.length > 0 && (
+                                    <div className="grid grid-cols-1 gap-2 mt-2">
+                                      {formatMessageContent(message.content).images.map((imageUrl, imgIndex) => (
+                                        <Image
+                                          key={imgIndex}
+                                          src={imageUrl}
+                                          alt={`Progress Image ${imgIndex + 1}`}
+                                          classNames={{
+                                            img: "object-cover rounded-lg",
+                                            wrapper: "w-full max-w-md",
+                                          }}
+                                          radius="lg"
+                                        />
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
                                 <p className="text-xs opacity-70 mt-1">{message.timestamp}</p>
                               </div>
                             </div>
@@ -1161,28 +1226,131 @@ const OrdersPage: React.FC = () => {
         <Modal
           isOpen={progressDescriptionModalOpen}
           onClose={() => setProgressDescriptionModalOpen(false)}
-          size="2xl"
+          size="5xl"
+          scrollBehavior="inside"
         >
           <ModalContent>
             {(onClose) => (
               <>
                 <ModalHeader className="flex flex-col gap-1">
-                  <h2 className="text-xl font-bold">Progress Description</h2>
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-bold">Construction Progress</h2>
+                    <Chip
+                      color={statusColorMap[editingContract?.contractStatus?.toLowerCase() || 'pending']}
+                      variant="flat"
+                    >
+                      {editingContract?.contractStatus || 'Pending'}
+                    </Chip>
+                  </div>
                 </ModalHeader>
                 <ModalBody>
-                  <ScrollShadow className="h-[400px]">
-                    <div className="space-y-4">
-                      {editingContract?.progressDescription ? (
-                        <div className="prose dark:prose-invert max-w-none">
-                          <p className="whitespace-pre-wrap">
-                            {editingContract.progressDescription}
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="text-gray-500 italic">No progress description available</p>
-                      )}
+                  <div className="grid grid-cols-12 gap-4">
+                    {/* Left Column - Progress Overview */}
+                    <div className="col-span-3 space-y-4">
+                      <Card>
+                        <CardBody className="space-y-4">
+                          <div>
+                            <h3 className="text-lg font-semibold mb-2">Overall Progress</h3>
+                            <Progress
+                              label="Construction Progress"
+                              value={parseInt(editingContract?.contructionProgress || '0')}
+                              color="primary"
+                              showValueLabel={true}
+                              className="mb-2"
+                              size="lg"
+                            />
+                          </div>
+                          
+                          <Divider/>
+                          
+                          <div>
+                            <h4 className="text-sm font-medium mb-2">Project Details</h4>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-default-500">Start Date:</span>
+                                <span>{format(new Date(editingContract?.contractStartDate || ''), 'dd/MM/yyyy')}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-default-500">End Date:</span>
+                                <span>{format(new Date(editingContract?.contractEndDate || ''), 'dd/MM/yyyy')}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-default-500">Payment Status:</span>
+                                <Chip size="sm" variant="flat" color={editingContract?.paymentStatus === 'Completed' ? 'success' : 'warning'}>
+                                  {editingContract?.paymentStatus || 'Pending'}
+                                </Chip>
+                              </div>
+                            </div>
+                          </div>
+                        </CardBody>
+                      </Card>
                     </div>
-                  </ScrollShadow>
+                    {/* Right Column - Timeline of Updates */}
+                    <div className="col-span-9">
+                      <h3 className="text-lg font-semibold mb-4 dark:text-white">Timeline of Updates</h3>
+                      <ScrollShadow className="h-[400px]">
+                        <div className="space-y-4">
+                          {editingContract?.progressDescription?.split('\n').map((line, index) => {
+                            const match = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.*?):(.*)/);
+                            if (match) {
+                              const [, timestamp, sender, content] = match;
+                              const date = new Date(timestamp);
+                              const formattedContent = formatMessageContent(content.trim());
+
+                              return (
+                                <Card key={index} className="w-full">
+                                  <CardBody className="p-3">
+                                    <div className="flex items-start gap-3">
+                                      <Avatar
+                                        icon={sender.trim() === 'Staff' ? <FaHardHat /> : <FaUser />}
+                                        classNames={{
+                                          base: sender.trim() === 'Staff' ? "bg-primary/10 text-primary" : "bg-default/10",
+                                        }}
+                                      />
+                                      <div className="flex-grow space-y-2">
+                                        <div className="flex justify-between items-center">
+                                          <span className="font-medium">{sender.trim()}</span>
+                                          <span className="text-xs text-default-400">
+                                            {format(date, 'dd/MM/yyyy HH:mm')}
+                                          </span>
+                                        </div>
+                                        
+                                        {/* Text Content */}
+                                        {formattedContent.text && (
+                                          <div className="text-sm text-default-600">
+                                            {formattedContent.text}
+                                          </div>
+                                        )}
+                                        
+                                        {/* Images */}
+                                        {formattedContent.images.length > 0 && (
+                                          <div className="grid grid-cols-1 gap-2 mt-2">
+                                            {formattedContent.images.map((imageUrl, imgIndex) => (
+                                              <Image
+                                                key={imgIndex}
+                                                src={imageUrl}
+                                                alt={`Progress Image ${imgIndex + 1}`}
+                                                classNames={{
+                                                  img: "object-cover rounded-lg",
+                                                  wrapper: "w-full max-w-md",
+                                                }}
+                                                radius="lg"
+                                              />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </CardBody>
+                                </Card>
+                              );
+                            }
+                            return null;
+                          })}
+                        </div>
+                      </ScrollShadow>
+                    </div>
+                  </div>
                 </ModalBody>
                 <ModalFooter>
                   <Button color="danger" variant="light" onPress={onClose}>

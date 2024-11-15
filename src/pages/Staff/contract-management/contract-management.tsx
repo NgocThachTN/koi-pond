@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import DefaultStaffLayout from '@/layouts/defaultstaff';
 import {
   Table,
@@ -25,13 +25,236 @@ import {
   ScrollShadow,
   Link,
   Card,
-  CardBody
+  CardBody,
+  Image
 } from "@nextui-org/react";
 import { SearchIcon, EyeIcon } from '@nextui-org/shared-icons';
 import { getContractsApi, Contract, updateContractByRequestDesignApi, updateContractBySampleApi } from '@/apis/user.api';
 import { sendOrderCompletionEmail } from '@/apis/email.api';
 import { format, parseISO } from 'date-fns';
 import { Divider } from "@nextui-org/react";
+import { storage } from '@/firebaseConfig';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+// Thêm interface để quản lý message content
+interface MessageContent {
+  text?: string;
+  imageUrl?: string;
+}
+
+// Thêm interface để quản lý tin nhắn
+interface ChatMessage {
+  id: number;
+  timestamp: string;
+  sender: string;
+  content: MessageContent;
+}
+
+// 1. Tách MessageContent thành component riêng
+const MessageContent: React.FC<{ content: MessageContent }> = React.memo(({ content }) => {
+  return (
+    <div className="space-y-2">
+      {content.text && (
+        <div className="whitespace-pre-wrap text-sm">{content.text}</div>
+      )}
+      {content.imageUrl && (
+        <div className="mt-2">
+          <Image
+            src={content.imageUrl}
+            alt="Progress Image"
+            className="max-w-md rounded-lg shadow-lg"
+            style={{ maxHeight: '300px', objectFit: 'contain' }}
+          />
+        </div>
+      )}
+    </div>
+  );
+});
+
+// 2. Tách ChatMessage thành component riêng
+const ChatMessage: React.FC<{ message: ChatMessage }> = React.memo(({ message }) => {
+  return (
+    <div className="text-sm">
+      <div className="font-medium mb-1 text-gray-700">
+        [{message.timestamp}] {message.sender}:
+      </div>
+      <div className="pl-4">
+        <MessageContent content={message.content} />
+      </div>
+    </div>
+  );
+});
+
+// 3. Tách TempImagePreview thành component riêng
+const TempImagePreview: React.FC<{
+  imageUrl: string;
+  onRemove: () => void;
+}> = React.memo(({ imageUrl, onRemove }) => {
+  return (
+    <div className="relative">
+      <Image
+        src={imageUrl}
+        alt="Selected Image"
+        className="max-h-32 object-contain rounded-lg"
+      />
+      <Button
+        isIconOnly
+        size="sm"
+        className="absolute top-1 right-1"
+        color="danger"
+        variant="flat"
+        onPress={onRemove}
+      >
+        ✕
+      </Button>
+    </div>
+  );
+});
+
+// 4. Tách MessageInput thành component riêng
+const MessageInput: React.FC<{
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  isLoading: boolean;
+  onSend: () => void;
+  disabled: boolean;
+}> = React.memo(({ value, onChange, isLoading, onSend, disabled }) => {
+  return (
+    <div className="flex items-end gap-2">
+      <Textarea
+        placeholder="Type your message..."
+        value={value}
+        onChange={onChange}
+        className="flex-grow"
+        minRows={2}
+      />
+      <Button
+        color="primary"
+        isLoading={isLoading}
+        onPress={onSend}
+        disabled={disabled}
+      >
+        Send
+      </Button>
+    </div>
+  );
+});
+
+// 5. Sau đó là ProgressDescriptionModal
+const ProgressDescriptionModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  messages: ChatMessage[];
+  onSendMessage: (message: string, imageUrl: string | null) => Promise<void>;
+}> = React.memo(({ isOpen, onClose, messages, onSendMessage }) => {
+  const [newMessage, setNewMessage] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [tempImageUrl, setTempImageUrl] = useState<string | null>(null);
+  const [isUpdatingProgress, setIsUpdatingProgress] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      const timestamp = new Date().getTime();
+      const fileName = `contract-progress/${timestamp}_${file.name}`;
+      const storageRef = ref(storage, fileName);
+
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      setTempImageUrl(downloadURL);
+      e.target.value = '';
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleSend = async () => {
+    if (!newMessage.trim() && !tempImageUrl) return;
+    
+    try {
+      setIsUpdatingProgress(true);
+      await onSendMessage(newMessage, tempImageUrl);
+      setNewMessage('');
+      setTempImageUrl(null);
+    } finally {
+      setIsUpdatingProgress(false);
+    }
+  };
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} size="2xl" isDismissable={false}>
+      <ModalContent>
+        <ModalHeader>Current Progress</ModalHeader>
+        <ModalBody>
+          <div className="flex flex-col h-[500px]">
+            <ScrollShadow className="flex-grow mb-4 bg-gray-100 rounded-lg p-4">
+              <div className="space-y-4">
+                {messages.map((message) => (
+                  <ChatMessage key={message.id} message={message} />
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+            </ScrollShadow>
+
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageSelect}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label
+                  htmlFor="image-upload"
+                  className={`cursor-pointer px-4 py-2 rounded-md ${
+                    isUploading 
+                      ? 'bg-gray-300 dark:bg-gray-600' 
+                      : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  {isUploading ? 'Uploading...' : 'Select Image'}
+                </label>
+              </div>
+              
+              {tempImageUrl && (
+                <TempImagePreview
+                  imageUrl={tempImageUrl}
+                  onRemove={() => setTempImageUrl(null)}
+                />
+              )}
+              
+              <MessageInput
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                isLoading={isUpdatingProgress}
+                onSend={handleSend}
+                disabled={!newMessage.trim() && !tempImageUrl}
+              />
+            </div>
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="danger" variant="light" onPress={onClose}>
+            Close
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+});
 
 const ContractManagement: React.FC = () => {
   const [contracts, setContracts] = useState<Contract[]>([]);
@@ -54,7 +277,10 @@ const ContractManagement: React.FC = () => {
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
   const [progressDescriptionModalOpen, setProgressDescriptionModalOpen] = useState(false);
   const [isUpdatingProgress, setIsUpdatingProgress] = useState(false);
-
+  const [isUploading, setIsUploading] = useState(false);
+  const [tempImageUrl, setTempImageUrl] = useState<string | null>(null);
+  const [scrollToBottom, setScrollToBottom] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchContracts();
@@ -99,6 +325,7 @@ const ContractManagement: React.FC = () => {
     setEditingContract(contract);
     setLocalDescription(contract.description || '');
     setChatMessages(formatProgressUpdates(contract.description || ''));
+    setChatMessagesProgressDescription(formatProgressUpdates(contract.progressDescription || ''));
     setEditModalOpen(true);
     fetchLatestUpdates(contract);
   };
@@ -233,26 +460,45 @@ const ContractManagement: React.FC = () => {
   };
 
 
-  const formatProgressUpdates = (description: string) => {
+  const formatProgressUpdates = (description: string): ChatMessage[] => {
     if (!description) return [];
 
-    const lines = description.split('\n');
+    return description.split('\n').map((line, index) => {
+      const match = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.*?): (.*)/);
+      if (!match) return null;
 
-    return lines.map((line, index) => {
-      const dateMatch = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.*?): (.*)/);
-      if (dateMatch) {
-        const [, timestamp, role, content] = dateMatch;
-        const date = new Date(timestamp);
-        const formattedDate = format(date, 'dd/MM/yyyy HH:mm:ss');
-        return {
-          id: index,
-          sender: role,
-          content: content.replace(/\[.*?\] .*?: /g, ''),
-          timestamp: formattedDate
-        };
+      const [, timestamp, sender, contentStr] = match;
+      let content: MessageContent;
+
+      try {
+        // Kiểm tra nếu là JSON
+        if (contentStr.startsWith('{') && contentStr.endsWith('}')) {
+          const parsedContent = JSON.parse(contentStr);
+          content = {
+            text: parsedContent.text,
+            imageUrl: parsedContent.imageUrl
+          };
+        }
+        // Kiểm tra nếu là URL ảnh Firebase
+        else if (contentStr.includes('firebasestorage.googleapis.com')) {
+          content = { imageUrl: contentStr };
+        }
+        // Trường hợp còn lại là text thông thường
+        else {
+          content = { text: contentStr };
+        }
+      } catch (error) {
+        console.error('Error parsing message content:', error);
+        content = { text: contentStr };
       }
-      return null;
-    }).filter(Boolean);
+
+      return {
+        id: index,
+        timestamp: format(parseISO(timestamp), 'dd/MM/yyyy HH:mm:ss'),
+        sender,
+        content
+      };
+    }).filter(Boolean) as ChatMessage[];
   };
 
   const truncateDescription = (contract: Contract, maxLength: number = 30): string => {
@@ -279,25 +525,15 @@ const ContractManagement: React.FC = () => {
   console.log('Paginated Contracts:', paginatedContracts);
 
   const formatMessageContent = (content: string) => {
-    // Giữ nguyên các ký tự xuống dòng
+    // Handle PDF links
     const firebaseStorageRegex = /https:\/\/firebasestorage\.googleapis\.com\/.*?\.pdf(\?[^\s]+)?/g;
-
-    return content.replace(firebaseStorageRegex, (match) => {
+    let formattedContent = content.replace(firebaseStorageRegex, (match) => {
       const fileName = decodeURIComponent(match.split('/').pop()?.split('?')[0] || 'contract.pdf');
       return `<a href="${match}" target="_blank" rel="noopener noreferrer">${fileName}</a>`;
     });
-  };
 
-  // Trong phần render của tin nhắn
-  const MessageContent: React.FC<{ content: string }> = ({ content }) => {
-    return (
-      <p
-        className="text-sm dark:text-white"
-        dangerouslySetInnerHTML={{ 
-          __html: formatMessageContent(content.replace(/\[.*?\] .*?: /g, '')) 
-        }}
-      />
-    );
+    // Return the content with HTML preserved (including img tags)
+    return formattedContent;
   };
 
   const fetchLatestUpdates = useCallback(async (contract: Contract) => {
@@ -353,14 +589,23 @@ const ContractManagement: React.FC = () => {
     return 'Unknown';
   };
 
-  const handleProgressDescriptionUpdate = async () => {
-    if (!editingContract || !newProgressMessage.trim()) return;
+  const handleProgressDescriptionUpdate = async (message: string, imageUrl: string | null) => {
+    if (!editingContract || (!message.trim() && !imageUrl)) return;
 
     try {
-      setIsUpdatingProgress(true); // Add loading state
-
       const currentDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
-      const newUpdate = `[${currentDate}] Staff: ${newProgressMessage}`;
+      
+      const messageData: MessageContent = {};
+      if (message.trim()) {
+        messageData.text = message.trim();
+      }
+      if (imageUrl) {
+        messageData.imageUrl = imageUrl;
+      }
+
+      const messageContent = JSON.stringify(messageData);
+      const newUpdate = `[${currentDate}] Staff: ${messageContent}`;
+      
       const updatedProgressDescription = editingContract.progressDescription
         ? `${editingContract.progressDescription}\n${newUpdate}`
         : newUpdate;
@@ -381,28 +626,14 @@ const ContractManagement: React.FC = () => {
         }]
       });
 
-      // Update local states
       setEditingContract(prev => ({
         ...prev!,
         progressDescription: updatedProgressDescription
       }));
-
+      
       setChatMessagesProgressDescription(formatProgressUpdates(updatedProgressDescription));
-      setNewProgressMessage(''); // Clear input
-
-      // Update contracts list
-      setContracts(prevContracts =>
-        prevContracts.map(contract =>
-          contract.contractId === editingContract.contractId
-            ? { ...contract, progressDescription: updatedProgressDescription }
-            : contract
-        )
-      );
-
     } catch (error) {
-      console.error("Error updating progress description:", error);
-    } finally {
-      setIsUpdatingProgress(false);
+      console.error("Error updating progress:", error);
     }
   };
 
@@ -417,6 +648,48 @@ const ContractManagement: React.FC = () => {
 
     return { rating, comments };
   };
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingContract) return;
+
+    try {
+      setIsUploading(true);
+      
+      // Create a unique filename
+      const timestamp = new Date().getTime();
+      const fileName = `contract-progress/${editingContract.contractId}/${timestamp}_${file.name}`;
+      const storageRef = ref(storage, fileName);
+
+      // Upload the file
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      // Lưu URL ảnh vào state tạm thời
+      setTempImageUrl(downloadURL);
+      
+      // Reset input file
+      e.target.value = '';
+
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (progressDescriptionModalOpen && editingContract) {
+      setChatMessagesProgressDescription(formatProgressUpdates(editingContract.progressDescription || ''));
+    }
+  }, [progressDescriptionModalOpen, editingContract]);
+
+  useEffect(() => {
+    if (scrollToBottom && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      setScrollToBottom(false);
+    }
+  }, [scrollToBottom]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -765,57 +1038,12 @@ const ContractManagement: React.FC = () => {
           </ModalContent>
         </Modal>
 
-        <Modal
+        <ProgressDescriptionModal
           isOpen={progressDescriptionModalOpen}
           onClose={() => setProgressDescriptionModalOpen(false)}
-          size="2xl"
-        >
-          <ModalContent>
-            <ModalHeader>Current Progress</ModalHeader>
-            <ModalBody>
-              <div className="flex flex-col h-[500px]">
-                {/* Chat history area */}
-                <ScrollShadow className="flex-grow mb-4 bg-gray-100 rounded-lg p-4">
-                  <div className="space-y-2">
-                    {chatMessagesProgressDescription.map((message, index) => (
-                      <div key={message.id} className="text-sm">
-                        [{message.timestamp}] {message.sender}: {message.content}
-                      </div>
-                    ))}
-                  </div>
-                </ScrollShadow>
-
-                {/* New message input area */}
-                <div className="flex items-end gap-2">
-                  <Textarea
-                    placeholder="Type your message..."
-                    value={newProgressMessage}
-                    onChange={(e) => setNewProgressMessage(e.target.value)}
-                    className="flex-grow"
-                    minRows={2}
-                  />
-                  <Button
-                    color="primary"
-                    isLoading={isUpdatingProgress}
-                    onPress={handleProgressDescriptionUpdate}
-                  >
-                    Send
-                  </Button>
-                </div>
-              </div>
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                color="danger"
-                variant="light"
-                onPress={() => setProgressDescriptionModalOpen(false)}
-              >
-                Cancel
-              </Button>
-
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
+          messages={chatMessagesProgressDescription}
+          onSendMessage={handleProgressDescriptionUpdate}
+        />
       </div>
     </DefaultStaffLayout>
   );
