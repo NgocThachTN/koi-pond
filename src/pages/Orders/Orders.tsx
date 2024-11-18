@@ -47,9 +47,9 @@ const formatMessageContent = (content: string) => {
     // Nếu không phải JSON, xử lý như cũ
     const firebaseStorageRegex = /https:\/\/firebasestorage\.googleapis\.com\/.*?\.(?:jpg|jpeg|png|gif)(\?[^\s]+)?/g;
     const pdfRegex = /https:\/\/firebasestorage\.googleapis\.com\/.*?\.pdf(\?[^\s]+)?/g;
-    
+
     const images = content.match(firebaseStorageRegex) || [];
-    
+
     let textContent = content
       .replace(firebaseStorageRegex, '')
       .replace(/\[img\]/g, '')
@@ -86,8 +86,8 @@ const MessageContent: React.FC<{ content: string }> = ({ content }) => {
   return (
     <div
       className="text-sm break-words"
-      dangerouslySetInnerHTML={{ 
-        __html: formatMessageContent(content.replace(/\[.*?\] .*?: /g, '')) 
+      dangerouslySetInnerHTML={{
+        __html: formatMessageContent(content.replace(/\[.*?\] .*?: /g, ''))
       }}
     />
   );
@@ -119,6 +119,8 @@ const OrdersPage: React.FC = () => {
   const [progressDescriptionModalOpen, setProgressDescriptionModalOpen] = useState(false);
   const [maintenanceProgressModalOpen, setMaintenanceProgressModalOpen] = useState(false);
   const [feedbackRating, setFeedbackRating] = useState(0);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [selectedContractForFeedback, setSelectedContractForFeedback] = useState<Contract | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -257,7 +259,7 @@ const OrdersPage: React.FC = () => {
           </Button>
         )
       case "maintenance":
-        return (item.contractStatus || '').toLowerCase() === 'completed' ? (
+        return item.contractStatus === 'Completed' ? (
           <Button size="sm" color="secondary" onClick={() => {
             setSelectedItem(item)
             onMaintenanceOpen()
@@ -265,10 +267,32 @@ const OrdersPage: React.FC = () => {
             Maintenance
           </Button>
         ) : null
+      case "feedback":
+        return item.contractStatus === 'Completed' ? (
+          <Button
+            color="primary"
+            variant="flat"
+            className="w-full"
+            onPress={() => {
+              // Tìm contract tương ứng từ danh sách contracts
+              const contract = contracts.find(c => c.contractId === item.contractId);
+              setSelectedContractForFeedback(contract || item);
+
+              // Lấy rating từ feedback hiện có
+              const existingRating = contract?.feedback?.match(/Rating: (\d)\/5 stars/)?.[1];
+              setFeedbackRating(existingRating ? parseInt(existingRating) : 0);
+
+              setIsFeedbackModalOpen(true);
+            }}
+            startContent={<FaEdit />}
+          >
+            {item.feedback ? 'Edit Feedback' : 'Add Feedback'}
+          </Button>
+        ) : null
       default:
         return 'N/A'
     }
-  }, [onDetailsOpen, onMaintenanceOpen])
+  }, [onDetailsOpen, onMaintenanceOpen, contracts])
 
   const handleMaintenanceSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -405,33 +429,34 @@ const OrdersPage: React.FC = () => {
   }, [isEditContractOpen, editingContract, pollingInterval, fetchLatestUpdates]);
 
   const handleEditContractClick = (contract: Contract) => {
-    // Get fresh contract data from the contracts list
     const currentContract = contracts.find(c => c.contractId === contract.contractId);
-    
+
     setEditingContract({
       ...contract,
-      ...currentContract, // Ensure we have all current contract data
+      ...currentContract,
       status: currentContract?.status || contract.status,
       feedback: currentContract?.feedback || contract.feedback,
       link: currentContract?.link || contract.link,
     });
 
-    const formattedMessages = formatProgressUpdates(contract.description || '');
+    // Parse và set tin nhắn từ progressDescription
+    const messages = formatProgressUpdates(currentContract?.progressDescription || '');
     setChatMessages(prev => ({
       ...prev,
-      [contract.contractId]: formattedMessages
+      [contract.contractId]: messages
     }));
+
     setIsEditContractOpen(true);
     fetchLatestUpdates(contract);
   };
 
   const handleFeedbackUpdate = (newFeedback: string) => {
-    if (!editingContract) return;
+    if (!selectedContractForFeedback) return;
 
     // Get current contract from the contracts list to ensure we have the latest data
-    const currentContract = contracts.find(c => c.contractId === editingContract.contractId);
+    const currentContract = contracts.find(c => c.contractId === selectedContractForFeedback.contractId);
 
-    setEditingContract(prev => ({
+    setSelectedContractForFeedback(prev => ({
       ...prev!,
       ...currentContract, // Spread current contract data to preserve all fields
       feedback: newFeedback,
@@ -439,6 +464,7 @@ const OrdersPage: React.FC = () => {
       link: currentContract?.link || prev?.link || '', // Use current contract link first
     }));
   };
+
 
   const handleEditContractSubmit = async () => {
     if (!editingContract) return;
@@ -495,7 +521,7 @@ const OrdersPage: React.FC = () => {
 
       const updatedContract = await updateFunction(updatePayload);
       setNewProgressUpdate('');
-      
+
       // Update the editing contract
       setEditingContract(prev => ({
         ...prev!,
@@ -511,14 +537,14 @@ const OrdersPage: React.FC = () => {
         prevContracts.map(contract =>
           contract.contractId === editingContract.contractId
             ? {
-                ...contract,
-                ...currentContract,
-                ...editingContract,
-                description: updatedDescription,
-                status: currentContract?.status || contract.status || 'Completed',
-                feedback: editingContract.feedback || contract.feedback || '',
-                link: currentContract?.link || contract.link || '',
-              }
+              ...contract,
+              ...currentContract,
+              ...editingContract,
+              description: updatedDescription,
+              status: currentContract?.status || contract.status || 'Completed',
+              feedback: editingContract.feedback || contract.feedback || '',
+              link: currentContract?.link || contract.link || '',
+            }
             : contract
         )
       );
@@ -527,6 +553,7 @@ const OrdersPage: React.FC = () => {
       console.error("Error updating contract:", err);
     }
   };
+
 
   const handleStatusChange = async (newStatus: string) => {
     if (!editingContract) {
@@ -564,7 +591,7 @@ const OrdersPage: React.FC = () => {
 
       const updatedContract = await updateFunction(updatePayload);
       console.log("Contract updated successfully:", updatedContract);
-      
+
       // Update the local state
       setEditingContract(prev => ({
         ...prev!,
@@ -619,6 +646,69 @@ const OrdersPage: React.FC = () => {
     }));
   };
 
+  useEffect(() => {
+    if (selectedContractForFeedback) {
+      const existingRating = selectedContractForFeedback.feedback?.match(/Rating: (\d)\/5 stars/)?.[1];
+      setFeedbackRating(existingRating ? parseInt(existingRating) : 0);
+    }
+  }, [selectedContractForFeedback]);
+
+  // Thêm hàm xử lý gửi tin nhắn mới
+  const handleSendMessage = async () => {
+    if (!editingContract || !newProgressUpdate.trim()) return;
+
+    try {
+      const timestamp = new Date().toISOString();
+      const newMessage = `[${timestamp}] Customer: ${newProgressUpdate}`;
+
+      // Lấy contract hiện tại
+      const currentContract = contracts.find(c => c.contractId === editingContract.contractId);
+      if (!currentContract) {
+        console.error('Contract not found');
+        return;
+      }
+
+      // Tạo progressDescription mới bằng cách thêm tin nhắn mới
+      const updatedProgressDescription = currentContract.progressDescription
+        ? `${currentContract.progressDescription}\n${newMessage}`
+        : newMessage;
+
+      const isDesignRequest = currentContract.requests.$values[0].designs?.$values?.length > 0;
+      const updateFunction = isDesignRequest ? updateContractByRequestDesignApi : updateContractBySampleApi;
+
+      // Chuẩn bị payload với đầy đủ thông tin
+      const updatePayload = {
+        ...currentContract,
+        progressDescription: updatedProgressDescription,
+        requests: [{
+          ...currentContract.requests.$values[0],
+          users: currentContract.requests.$values[0].users.$values,
+          designs: isDesignRequest ? currentContract.requests.$values[0].designs.$values : [],
+          samples: !isDesignRequest ? currentContract.requests.$values[0].samples.$values : []
+        }]
+      };
+
+      // Gọi API cập nhật
+      await updateFunction(updatePayload);
+
+      // Cập nhật state local
+      const formattedMessages = formatProgressUpdates(updatedProgressDescription);
+      setChatMessages(prev => ({
+        ...prev,
+        [editingContract.contractId]: formattedMessages
+      }));
+
+      // Reset input
+      setNewProgressUpdate('');
+
+      // Cập nhật contracts list
+      await fetchContracts();
+
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <TitleManager title="Koi Pond Construction | Orders" />
@@ -645,6 +735,7 @@ const OrdersPage: React.FC = () => {
                     <TableColumn key="description">Description</TableColumn>
                     <TableColumn key="details">Details</TableColumn>
                     <TableColumn key="maintenance">Maintenance</TableColumn>
+                    <TableColumn key="feedback">Feedback</TableColumn>
                   </TableHeader>
                   <TableBody>
                     {items.map((item, index) => (
@@ -1094,54 +1185,7 @@ const OrdersPage: React.FC = () => {
                       className="mb-4"
                     />
 
-                    {editingContract.contractStatus === "Completed" && (
-                      <div className="space-y-4 mb-4">
-                        <div className="flex flex-col gap-4">
-                          <h3 className="text-lg font-semibold">Feedback</h3>
 
-                          {/* Rating */}
-                          <div>
-                            <label className="block text-sm font-medium mb-2">Rating</label>
-                            <div className="flex gap-2">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <button
-                                  key={star}
-                                  onClick={() => {
-                                    setFeedbackRating(star);
-                                    const currentFeedback = editingContract.feedback || '';
-                                    const existingComments = currentFeedback.split('\n\nComments:\n')[1] || '';
-                                    const newFeedback = `Rating: ${star}/5 stars\n\nComments:\n${existingComments}`;
-                                    handleFeedbackUpdate(newFeedback);
-                                  }}
-                                  className="text-2xl focus:outline-none"
-                                  type="button"
-                                >
-                                  {star <= (feedbackRating || 0) ? (
-                                    <span className="text-yellow-400">★</span>
-                                  ) : (
-                                    <span className="text-gray-300">☆</span>
-                                  )}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Comments */}
-                          <Textarea
-                            label="Comments"
-                            placeholder="Please share your experience with our service..."
-                            value={editingContract.feedback?.split('\n\nComments:\n')[1] || ''}
-                            onChange={(e) => {
-                              const currentFeedback = editingContract.feedback || '';
-                              const currentRating = currentFeedback.match(/Rating: (\d)\/5 stars/)?.[1] || feedbackRating;
-                              const newFeedback = `Rating: ${currentRating}/5 stars\n\nComments:\n${e.target.value}`;
-                              handleFeedbackUpdate(newFeedback);
-                            }}
-                            minRows={4}
-                          />
-                        </div>
-                      </div>
-                    )}
                   </div>
                   {/* Right column: Progress updates */}
                   <div className="col-span-3 flex flex-col h-[600px] bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
@@ -1169,7 +1213,7 @@ const OrdersPage: React.FC = () => {
                                       {formatMessageContent(message.content).text}
                                     </div>
                                   )}
-                                  
+
                                   {/* Hiển thị ảnh */}
                                   {formatMessageContent(message.content).images.length > 0 && (
                                     <div className="grid grid-cols-1 gap-2 mt-2">
@@ -1260,9 +1304,9 @@ const OrdersPage: React.FC = () => {
                               size="lg"
                             />
                           </div>
-                          
-                          <Divider/>
-                          
+
+                          <Divider />
+
                           <div>
                             <h4 className="text-sm font-medium mb-2">Project Details</h4>
                             <div className="space-y-2 text-sm">
@@ -1314,14 +1358,14 @@ const OrdersPage: React.FC = () => {
                                             {format(date, 'dd/MM/yyyy HH:mm')}
                                           </span>
                                         </div>
-                                        
+
                                         {/* Text Content */}
                                         {formattedContent.text && (
                                           <div className="text-sm text-default-600">
                                             {formattedContent.text}
                                           </div>
                                         )}
-                                        
+
                                         {/* Images */}
                                         {formattedContent.images.length > 0 && (
                                           <div className="grid grid-cols-1 gap-2 mt-2">
@@ -1390,6 +1434,155 @@ const OrdersPage: React.FC = () => {
                 <ModalFooter>
                   <Button color="danger" variant="light" onPress={onClose}>
                     Close
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+        <Modal
+          isOpen={isFeedbackModalOpen}
+          onClose={() => {
+            setIsFeedbackModalOpen(false);
+            setSelectedContractForFeedback(null);
+          }}
+          size="lg"
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  <h2 className="text-xl font-bold">
+                    Feedback for {selectedContractForFeedback?.contractName}
+                  </h2>
+                </ModalHeader>
+                <ModalBody>
+                  {selectedContractForFeedback && (
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Rating</label>
+                        <div className="flex gap-2">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              onClick={() => {
+                                setFeedbackRating(star);
+                                const existingComments = selectedContractForFeedback.feedback?.split('\n\nComments:\n')[1] || '';
+                                const newFeedback = `Rating: ${star}/5 stars\n\nComments:\n${existingComments}`;
+                                setSelectedContractForFeedback(prev => ({
+                                  ...prev!,
+                                  feedback: newFeedback
+                                }));
+                              }}
+                              className="text-2xl focus:outline-none"
+                              type="button"
+                            >
+                              {star <= (feedbackRating || 0) ? (
+                                <span className="text-yellow-400">★</span>
+                              ) : (
+                                <span className="text-gray-300">☆</span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <Textarea
+                        label="Comments"
+                        placeholder="Please share your experience with our service..."
+                        value={selectedContractForFeedback.feedback?.split('\n\nComments:\n')[1] || ''}
+                        onChange={(e) => {
+                          const newFeedback = `Rating: ${feedbackRating}/5 stars\n\nComments:\n${e.target.value}`;
+                          setSelectedContractForFeedback(prev => ({
+                            ...prev!,
+                            feedback: newFeedback
+                          }));
+                        }}
+                        minRows={4}
+                      />
+                    </div>
+                  )}
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    color="danger"
+                    variant="light"
+                    onPress={() => {
+                      onClose();
+                      setSelectedContractForFeedback(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    color="primary"
+                    onPress={async () => {
+                      if (selectedContractForFeedback) {
+                        try {
+                          // Lấy contract hiện tại từ danh sách
+                          const currentContract = contracts.find(
+                            c => c.contractId === selectedContractForFeedback.contractId
+                          );
+
+                          if (!currentContract) {
+                            console.error('Contract not found');
+                            return;
+                          }
+
+                          // Tạo payload với đầy đủ thông tin contract
+                          const updatePayload = {
+                            ...currentContract,
+                            contractId: currentContract.contractId,
+                            contractName: currentContract.contractName,
+                            contractStartDate: currentContract.contractStartDate,
+                            contractEndDate: currentContract.contractEndDate,
+                            status: currentContract.status,
+                            description: currentContract.description,
+                            contructionProgress: currentContract.contructionProgress,
+                            progressDescription: currentContract.progressDescription,
+                            paymentStatus: currentContract.paymentStatus,
+                            link: currentContract.link,
+                            feedback: selectedContractForFeedback.feedback, // Cập nhật feedback mới
+                            requests: currentContract.requests.$values.map(request => ({
+                              ...request,
+                              users: request.users.$values,
+                              designs: request.designs?.$values || [],
+                              samples: request.samples?.$values || []
+                            }))
+                          };
+
+                          // Xác định loại request và gọi API tương ứng
+                          const isDesignRequest = updatePayload.requests[0].designs.length > 0;
+                          const updateFunction = isDesignRequest
+                            ? updateContractByRequestDesignApi
+                            : updateContractBySampleApi;
+
+                          // Gọi API cập nhật
+                          await updateFunction(updatePayload);
+
+                          // Cập nhật state local
+                          setContracts(prevContracts =>
+                            prevContracts.map(contract =>
+                              contract.contractId === currentContract.contractId
+                                ? { ...contract, feedback: selectedContractForFeedback.feedback }
+                                : contract
+                            )
+                          );
+
+                          // Đóng modal và reset state
+                          onClose();
+                          setSelectedContractForFeedback(null);
+                          setFeedbackRating(0);
+
+                          // Tải lại danh sách contracts
+                          await fetchContracts();
+                        } catch (error) {
+                          console.error('Error updating feedback:', error);
+                        }
+                      }
+                    }}
+                  >
+                    Save Feedback
                   </Button>
                 </ModalFooter>
               </>

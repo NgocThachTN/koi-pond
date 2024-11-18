@@ -176,7 +176,7 @@ const ProgressDescriptionModal: React.FC<{
 
   const handleSend = async () => {
     if (!newMessage.trim() && !tempImageUrl) return;
-    
+
     try {
       setIsUpdatingProgress(true);
       await onSendMessage(newMessage, tempImageUrl);
@@ -219,23 +219,22 @@ const ProgressDescriptionModal: React.FC<{
                 />
                 <label
                   htmlFor="image-upload"
-                  className={`cursor-pointer px-4 py-2 rounded-md ${
-                    isUploading 
-                      ? 'bg-gray-300 dark:bg-gray-600' 
-                      : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600'
-                  }`}
+                  className={`cursor-pointer px-4 py-2 rounded-md ${isUploading
+                    ? 'bg-gray-300 dark:bg-gray-600'
+                    : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600'
+                    }`}
                 >
                   {isUploading ? 'Uploading...' : 'Select Image'}
                 </label>
               </div>
-              
+
               {tempImageUrl && (
                 <TempImagePreview
                   imageUrl={tempImageUrl}
                   onRemove={() => setTempImageUrl(null)}
                 />
               )}
-              
+
               <MessageInput
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
@@ -459,6 +458,17 @@ const ContractManagement: React.FC = () => {
     }
   };
 
+  const getPaymentStatusColor = (status: string | undefined): ChipProps["color"] => {
+    if (!status) return "danger";
+    switch (status.toLowerCase()) {
+      case 'paid':
+        return "success";
+      case 'not paid':
+        return "danger";
+      default:
+        return "danger";
+    }
+  };
 
   const formatProgressUpdates = (description: string): ChatMessage[] => {
     if (!description) return [];
@@ -594,7 +604,7 @@ const ContractManagement: React.FC = () => {
 
     try {
       const currentDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
-      
+
       const messageData: MessageContent = {};
       if (message.trim()) {
         messageData.text = message.trim();
@@ -605,7 +615,7 @@ const ContractManagement: React.FC = () => {
 
       const messageContent = JSON.stringify(messageData);
       const newUpdate = `[${currentDate}] Staff: ${messageContent}`;
-      
+
       const updatedProgressDescription = editingContract.progressDescription
         ? `${editingContract.progressDescription}\n${newUpdate}`
         : newUpdate;
@@ -630,7 +640,7 @@ const ContractManagement: React.FC = () => {
         ...prev!,
         progressDescription: updatedProgressDescription
       }));
-      
+
       setChatMessagesProgressDescription(formatProgressUpdates(updatedProgressDescription));
     } catch (error) {
       console.error("Error updating progress:", error);
@@ -655,7 +665,7 @@ const ContractManagement: React.FC = () => {
 
     try {
       setIsUploading(true);
-      
+
       // Create a unique filename
       const timestamp = new Date().getTime();
       const fileName = `contract-progress/${editingContract.contractId}/${timestamp}_${file.name}`;
@@ -667,7 +677,7 @@ const ContractManagement: React.FC = () => {
 
       // Lưu URL ảnh vào state tạm thời
       setTempImageUrl(downloadURL);
-      
+
       // Reset input file
       e.target.value = '';
 
@@ -732,6 +742,7 @@ const ContractManagement: React.FC = () => {
               <TableColumn>Start Date</TableColumn>
               <TableColumn>End Date</TableColumn>
               <TableColumn>Status</TableColumn>
+              <TableColumn>Payment Status</TableColumn>
               <TableColumn>Description</TableColumn>
               <TableColumn>Contract Link</TableColumn>
               <TableColumn>Actions</TableColumn>
@@ -751,6 +762,20 @@ const ContractManagement: React.FC = () => {
                   <TableCell>
                     <Chip color={getStatusColor(contract.status)} variant="flat">
                       {contract.status || 'N/A'}
+                    </Chip>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      color={getPaymentStatusColor(contract.paymentStatus)}
+                      variant="flat"
+                      classNames={{
+                        base: contract.paymentStatus?.toLowerCase() === 'Paid'
+                          ? "bg-success-50 text-success border-success-200"
+                          : "bg-danger-50 text-danger border-danger-200",
+                        content: "font-semibold"
+                      }}
+                    >
+                      {contract.paymentStatus || 'Not Paid'}
                     </Chip>
                   </TableCell>
                   <TableCell>
@@ -1009,8 +1034,8 @@ const ContractManagement: React.FC = () => {
                                     <span
                                       key={index}
                                       className={`text-xl ${index < getContractFeedback(selectedContract).rating
-                                          ? 'text-yellow-400'
-                                          : 'text-gray-300'
+                                        ? 'text-yellow-400'
+                                        : 'text-gray-300'
                                         }`}
                                     >
                                       ★
