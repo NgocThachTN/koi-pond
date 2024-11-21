@@ -512,7 +512,7 @@ const OrdersPage: React.FC = () => {
         requests: [{
           requestId: editingContract.requestId,
           requestName: editingContract.requestName,
-          description: editingContract.description.split(/\[\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\]\sCustomer:\s/)[0], // Use original description only
+          description: editingContract.description.split('\n')[0] || '', // Use original description only
           users: editingContract.users.$values,
           designs: isDesignRequest ? editingContract.designs.$values : [],
           samples: !isDesignRequest ? editingContract.samples.$values : [],
@@ -774,7 +774,7 @@ const OrdersPage: React.FC = () => {
             {(onClose) => (
               <>
                 <ModalHeader className="flex flex-col gap-1">
-                  <h2 className="text-2xl font-bold">Request Details</h2>
+                  <h2 className="text-2xl font-bold">Details</h2>
                 </ModalHeader>
                 <ModalBody>
                   {selectedItem && (
@@ -1158,7 +1158,7 @@ const OrdersPage: React.FC = () => {
                     />
                     <Textarea
                       label="Request Description"
-                      value={editingContract.description.split(/\[\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\]\sCustomer:\s/)[0] || ''}
+                      value={editingContract.description.split('\n')[0] || ''}
                       isReadOnly
                       className="mb-4"
                     />
@@ -1408,28 +1408,131 @@ const OrdersPage: React.FC = () => {
         <Modal
           isOpen={maintenanceProgressModalOpen}
           onClose={() => setMaintenanceProgressModalOpen(false)}
-          size="2xl"
+          size="5xl"
+          scrollBehavior="inside"
         >
           <ModalContent>
             {(onClose) => (
               <>
                 <ModalHeader className="flex flex-col gap-1">
-                  <h2 className="text-xl font-bold">Progress Description</h2>
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-bold">Maintenance Progress</h2>
+                    <Chip
+                      color={statusColorMap[editingRequest?.status?.toLowerCase() || 'pending']}
+                      variant="flat"
+                    >
+                      {editingRequest?.status || 'Pending'}
+                    </Chip>
+                  </div>
                 </ModalHeader>
                 <ModalBody>
-                  <ScrollShadow className="h-[400px]">
-                    <div className="space-y-4">
-                      {editingRequest?.progressMaintenanceDescription ? (
-                        <div className="prose dark:prose-invert max-w-none">
-                          <p className="whitespace-pre-wrap">
-                            {editingRequest.progressMaintenanceDescription}
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="text-gray-500 italic">No progress description available</p>
-                      )}
+                  <div className="grid grid-cols-12 gap-4">
+                    {/* Left Column - Progress Overview */}
+                    <div className="col-span-3 space-y-4">
+                      <Card>
+                        <CardBody className="space-y-4">
+                          <div>
+                            <h3 className="text-lg font-semibold mb-2">Overall Progress</h3>
+                            <Progress
+                              label="Maintenance Progress"
+                              value={parseInt(editingRequest?.progressMaintenance || '0')}
+                              color="primary"
+                              showValueLabel={true}
+                              className="mb-2"
+                              size="lg"
+                            />
+                          </div>
+
+                          <Divider />
+
+                          <div>
+                            <h4 className="text-sm font-medium mb-2">Maintenance Details</h4>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-default-500">Start Date:</span>
+                                <span>{format(new Date(editingRequest?.maintenanceRequestStartDate || ''), 'dd/MM/yyyy')}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-default-500">End Date:</span>
+                                <span>{format(new Date(editingRequest?.maintenanceRequestEndDate || ''), 'dd/MM/yyyy')}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-default-500">Payment Status:</span>
+                                <Chip size="sm" variant="flat" color={editingRequest?.paymentStatus === 'Completed' ? 'success' : 'warning'}>
+                                  {editingRequest?.paymentStatus || 'Pending'}
+                                </Chip>
+                              </div>
+                            </div>
+                          </div>
+                        </CardBody>
+                      </Card>
                     </div>
-                  </ScrollShadow>
+                    {/* Right Column - Timeline of Updates */}
+                    <div className="col-span-9">
+                      <h3 className="text-lg font-semibold mb-4 dark:text-white">Timeline of Updates</h3>
+                      <ScrollShadow className="h-[400px]">
+                        <div className="space-y-4">
+                          {editingRequest?.progressMaintenanceDescription?.split('\n').map((line, index) => {
+                            const match = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.*?):(.*)/);
+                            if (match) {
+                              const [, timestamp, sender, content] = match;
+                              const date = new Date(timestamp);
+                              const formattedContent = formatMessageContent(content.trim());
+
+                              return (
+                                <Card key={index} className="w-full">
+                                  <CardBody className="p-3">
+                                    <div className="flex items-start gap-3">
+                                      <Avatar
+                                        icon={sender.trim() === 'Staff' ? <FaHardHat /> : <FaUser />}
+                                        classNames={{
+                                          base: sender.trim() === 'Staff' ? "bg-primary/10 text-primary" : "bg-default/10",
+                                        }}
+                                      />
+                                      <div className="flex-grow space-y-2">
+                                        <div className="flex justify-between items-center">
+                                          <span className="font-medium">{sender.trim()}</span>
+                                          <span className="text-xs text-default-400">
+                                            {format(date, 'dd/MM/yyyy HH:mm')}
+                                          </span>
+                                        </div>
+
+                                        {/* Text Content */}
+                                        {formattedContent.text && (
+                                          <div className="text-sm text-default-600">
+                                            {formattedContent.text}
+                                          </div>
+                                        )}
+
+                                        {/* Images */}
+                                        {formattedContent.images.length > 0 && (
+                                          <div className="grid grid-cols-1 gap-2 mt-2">
+                                            {formattedContent.images.map((imageUrl, imgIndex) => (
+                                              <Image
+                                                key={imgIndex}
+                                                src={imageUrl}
+                                                alt={`Progress Image ${imgIndex + 1}`}
+                                                classNames={{
+                                                  img: "object-cover rounded-lg",
+                                                  wrapper: "w-full max-w-md",
+                                                }}
+                                                radius="lg"
+                                              />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </CardBody>
+                                </Card>
+                              );
+                            }
+                            return null;
+                          })}
+                        </div>
+                      </ScrollShadow>
+                    </div>
+                  </div>
                 </ModalBody>
                 <ModalFooter>
                   <Button color="danger" variant="light" onPress={onClose}>
