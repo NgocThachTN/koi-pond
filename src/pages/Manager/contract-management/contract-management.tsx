@@ -514,7 +514,11 @@ const ContractManagement: React.FC = () => {
   const truncateDescription = (contract: Contract, maxLength: number = 30): string => {
     const requestDescription = contract.requests.$values[0]?.description;
     if (!requestDescription) return 'No description';
-    return requestDescription.length > maxLength ? `${requestDescription.slice(0, maxLength)}...` : requestDescription;
+
+    // Get first line by splitting on newline and taking first element
+    const firstLine = requestDescription.split('\n')[0];
+    // Then truncate if needed
+    return firstLine.length > maxLength ? `${firstLine.slice(0, maxLength)}...` : firstLine;
   };
 
   const filteredContracts = contracts.filter(contract => {
