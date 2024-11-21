@@ -84,6 +84,11 @@ const StaffDashboard = () => {
     return contract.requests.$values[0]?.requestName || 'N/A';
   };
 
+  const getFirstLine = (text: string | undefined) => {
+    if (!text) return 'No description';
+    return text.split('\n')[0] || 'No description';
+  };
+
   const renderCell = (request: UserRequest, columnKey: React.Key) => {
     const user = request?.users?.$values?.[0] || {};
     const design = request?.designs?.$values?.[0];
@@ -100,9 +105,11 @@ const StaffDashboard = () => {
       case "requestName":
         return request?.requestName || 'N/A';
       case "description":
+        const fullDescription = request?.description || 'No description';
+        const firstLine = getFirstLine(request?.description);
         return (
-          <Tooltip content={request?.description || 'No description'}>
-            <span className="truncate max-w-xs">{request?.description || 'No description'}</span>
+          <Tooltip content={fullDescription}>
+            <span className="truncate max-w-xs">{firstLine}</span>
           </Tooltip>
         );
       case "type":
