@@ -116,9 +116,10 @@ const Dashboard = () => {
       case "requestName":
         return request?.requestName || 'N/A';
       case "description":
+        const firstLine = request?.description?.split('\n')[0] || 'No description';
         return (
           <Tooltip content={request?.description || 'No description'}>
-            <span className="truncate max-w-xs">{request?.description || 'No description'}</span>
+            <span className="truncate max-w-xs">{firstLine}</span>
           </Tooltip>
         );
       case "type":

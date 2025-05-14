@@ -3,6 +3,42 @@ import DefaultStaffLayout from '@/layouts/defaultstaff';
 import { getMaintenanceRequestsApi, MaintenanceRequest, updateMaintenanceRequestByDesignApi, updateMaintenanceRequestBySampleApi } from '@/apis/user.api';
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Spinner, User, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, Textarea, Select, SelectItem, ScrollShadow } from "@nextui-org/react";
 import { format, parseISO } from 'date-fns';
+import { storage } from '@/firebaseConfig';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { Image } from "@nextui-org/react";
+
+interface MessageContent {
+  text?: string;
+  imageUrl?: string;
+}
+
+interface ChatMessage {
+  id: number;
+  timestamp: string;
+  sender: string;
+  content: MessageContent;
+}
+
+const MessageContent: React.FC<{ content: MessageContent }> = React.memo(({ content }) => {
+  return (
+    <div className="space-y-2">
+      {content.text && (
+        <div className="whitespace-pre-wrap text-sm">{content.text}</div>
+      )}
+      {content.imageUrl && (
+        <div className="mt-2">
+          <Image
+            src={content.imageUrl}
+            alt="Progress Image"
+            className="max-w-md rounded-lg shadow-lg"
+            style={{ maxHeight: '300px', objectFit: 'contain' }}
+          />
+        </div>
+      )}
+    </div>
+  );
+});
+
 const MaintenanceManagement: React.FC = () => {
   const [maintenanceRequests, setMaintenanceRequests] = useState<MaintenanceRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -13,6 +49,8 @@ const MaintenanceManagement: React.FC = () => {
   const [chatMessagesMaintenanceProgressDescription, setChatMessagesMaintenanceProgressDescription] = useState<any[]>([]);
   const [newProgressMessage, setNewProgressMessage] = useState('');
   const [isUpdatingProgress, setIsUpdatingProgress] = useState(false);
+  const [tempImageUrl, setTempImageUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     fetchMaintenanceRequests();
@@ -34,6 +72,80 @@ const MaintenanceManagement: React.FC = () => {
       setError('Failed to fetch maintenance requests');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      const timestamp = new Date().getTime();
+      const fileName = `maintenance-progress/${timestamp}_${file.name}`;
+      const storageRef = ref(storage, fileName);
+
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      setTempImageUrl(downloadURL);
+      e.target.value = '';
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleMaintenanceProgressDescriptionUpdate = async () => {
+    if (!editingRequest || (!newProgressMessage.trim() && !tempImageUrl)) return;
+
+    try {
+      setIsUpdatingProgress(true);
+
+      const currentDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
+      const messageData: MessageContent = {};
+
+      if (newProgressMessage.trim()) {
+        messageData.text = newProgressMessage.trim();
+      }
+      if (tempImageUrl) {
+        messageData.imageUrl = tempImageUrl;
+      }
+
+      const messageContent = JSON.stringify(messageData);
+      const newUpdate = `[${currentDate}] Staff: ${messageContent}`;
+      const updatedProgressDescription = editingRequest.progressMaintenanceDescription
+        ? `${editingRequest.progressMaintenanceDescription}\n${newUpdate}`
+        : newUpdate;
+
+      const updateFunction = editingRequest.requests.$values[0].designs
+        ? updateMaintenanceRequestByDesignApi
+        : updateMaintenanceRequestBySampleApi;
+
+      const updatedRequest = {
+        ...editingRequest,
+        progressMaintenanceDescription: updatedProgressDescription
+      };
+
+      await updateFunction(updatedRequest);
+
+      setEditingRequest(updatedRequest);
+      setChatMessagesMaintenanceProgressDescription(formatProgressUpdates(updatedProgressDescription));
+      setNewProgressMessage('');
+      setTempImageUrl(null);
+
+      setMaintenanceRequests(prev =>
+        prev.map(request =>
+          request.maintenanceRequestId === editingRequest.maintenanceRequestId
+            ? updatedRequest
+            : request
+        )
+      );
+
+    } catch (error) {
+      console.error("Error updating progress description:", error);
+    } finally {
+      setIsUpdatingProgress(false);
     }
   };
 
@@ -89,69 +201,33 @@ const MaintenanceManagement: React.FC = () => {
     }
   };
 
-  const formatProgressUpdates = (description: string) => {
+  const formatProgressUpdates = (description: string): ChatMessage[] => {
     if (!description) return [];
 
-    const lines = description.split('\n');
+    console.log('Raw description:', description);
 
-    return lines.map((line, index) => {
-      const dateMatch = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.*?): (.*)/);
-      if (dateMatch) {
-        const [, timestamp, role, content] = dateMatch;
-        const date = new Date(timestamp);
-        const formattedDate = format(date, 'dd/MM/yyyy HH:mm:ss');
-        return {
-          id: index,
-          sender: role,
-          content: content,
-          timestamp: formattedDate
-        };
+    return description.split('\n').filter(Boolean).map((line, index) => {
+      const match = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.*?): (.*)/);
+      if (!match) return null;
+
+      const [, timestamp, sender, contentStr] = match;
+      let content: MessageContent;
+
+      try {
+        content = JSON.parse(contentStr);
+        console.log('Successfully parsed content:', content);
+      } catch (error) {
+        console.log('Parsing failed, using as text:', contentStr);
+        content = { text: contentStr };
       }
-      return null;
-    }).filter(Boolean);
-  };
 
-  const handleMaintenanceProgressDescriptionUpdate = async () => {
-    if (!editingRequest || !newProgressMessage.trim()) return;
-
-    try {
-      setIsUpdatingProgress(true);
-
-      const currentDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
-      const newUpdate = `[${currentDate}] Staff: ${newProgressMessage}`;
-      const updatedProgressDescription = editingRequest.progressMaintenanceDescription
-        ? `${editingRequest.progressMaintenanceDescription}\n${newUpdate}`
-        : newUpdate;
-
-      const updateFunction = editingRequest.requests.$values[0].designs
-        ? updateMaintenanceRequestByDesignApi
-        : updateMaintenanceRequestBySampleApi;
-
-
-
-      // Update local states
-      setEditingRequest(prev => ({
-        ...prev!,
-        progressMaintenanceDescription: updatedProgressDescription
-      }));
-
-      setChatMessagesMaintenanceProgressDescription(formatProgressUpdates(updatedProgressDescription));
-      setNewProgressMessage(''); // Clear input
-
-      // Update contracts list
-      setMaintenanceRequests(prevMaintenanceRequests =>
-        prevMaintenanceRequests.map(maintenanceRequest =>
-          maintenanceRequest.maintenanceRequestId === editingRequest.maintenanceRequestId
-            ? { ...maintenanceRequest, progressMaintenanceDescription: updatedProgressDescription }
-            : maintenanceRequest
-        )
-      );
-
-    } catch (error) {
-      console.error("Error updating progress description:", error);
-    } finally {
-      setIsUpdatingProgress(false);
-    }
+      return {
+        id: index,
+        timestamp: format(new Date(timestamp), 'dd/MM/yyyy HH:mm:ss'),
+        sender,
+        content
+      };
+    }).filter((item): item is ChatMessage => item !== null);
   };
 
   const openEditModal = (request: MaintenanceRequest) => {
@@ -180,11 +256,9 @@ const MaintenanceManagement: React.FC = () => {
 
       console.log('Update response:', response);
 
-      // Check if the response is successful based on status code
       if (response.status === 200) {
         await fetchMaintenanceRequests();
         closeEditModal();
-        // You can add a success message here if you want
         console.log('MaintenanceRequest updated successfully');
       } else {
         console.error('Update failed:', response.data);
@@ -262,6 +336,24 @@ const MaintenanceManagement: React.FC = () => {
     }
   };
 
+  const handleViewProgressDescription = () => {
+    if (editingRequest) {
+      console.log('Current editing request:', editingRequest);
+      const messages = formatProgressUpdates(editingRequest.progressMaintenanceDescription || '');
+      console.log('Formatted messages:', messages);
+      setChatMessagesMaintenanceProgressDescription(messages);
+      setProgressDescriptionModalOpen(true);
+    }
+  };
+
+  useEffect(() => {
+    if (editingRequest && progressDescriptionModalOpen) {
+      console.log('Loading messages for request:', editingRequest.maintenanceRequestId);
+      const messages = formatProgressUpdates(editingRequest.progressMaintenanceDescription || '');
+      setChatMessagesMaintenanceProgressDescription(messages);
+    }
+  }, [editingRequest?.maintenanceRequestId, progressDescriptionModalOpen]);
+
   if (loading) {
     return (
       <DefaultStaffLayout>
@@ -332,8 +424,6 @@ const MaintenanceManagement: React.FC = () => {
                     label="Status"
                     selectedKeys={[editingRequest.status]}
                     onChange={(e) => {
-                      // Kiểm tra nếu e.target.value là undefined hoặc null, 
-                      // thì giữ nguyên giá trị status hiện tại
                       const newStatus = e.target.value || editingRequest.status;
                       handleInputChange('status', newStatus);
                     }}
@@ -346,7 +436,7 @@ const MaintenanceManagement: React.FC = () => {
                   </Select>
                   <div className="mb-4">
                     <Button
-                      onPress={() => setProgressDescriptionModalOpen(true)}
+                      onPress={handleViewProgressDescription}
                       variant="flat"
                       className="w-full"
                     >
@@ -354,13 +444,13 @@ const MaintenanceManagement: React.FC = () => {
                     </Button>
                   </div>
                   <Input
-                    label="Construction Progress" // New input for ConstructionProgress
+                    label="Construction Progress"
                     value={editingRequest.progressMaintenance}
                     onChange={(e) => setEditingRequest({ ...editingRequest, progressMaintenance: e.target.value })}
                     className="mb-4"
                   />
                   <Select
-                    label="Payment Status" // Updated to Select for restricted values
+                    label="Payment Status"
                     selectedKeys={[editingRequest.paymentStatus]}
                     onChange={(e) => setEditingRequest({ ...editingRequest, paymentStatus: e.target.value })}
                     className="mb-4"
@@ -385,38 +475,90 @@ const MaintenanceManagement: React.FC = () => {
           isOpen={progressDescriptionModalOpen}
           onClose={() => setProgressDescriptionModalOpen(false)}
           size="2xl"
+          onOpenChange={(open) => {
+            if (open && editingRequest) {
+              const messages = formatProgressUpdates(editingRequest.progressMaintenanceDescription || '');
+              setChatMessagesMaintenanceProgressDescription(messages);
+            }
+            setProgressDescriptionModalOpen(open);
+          }}
         >
           <ModalContent>
             <ModalHeader>Current Progress</ModalHeader>
             <ModalBody>
               <div className="flex flex-col h-[500px]">
-                {/* Chat history area */}
                 <ScrollShadow className="flex-grow mb-4 bg-gray-100 rounded-lg p-4">
-                  <div className="space-y-2">
-                    {chatMessagesMaintenanceProgressDescription.map((message, index) => (
+                  <div className="space-y-4">
+                    {chatMessagesMaintenanceProgressDescription.map((message) => (
                       <div key={message.id} className="text-sm">
-                        [{message.timestamp}] {message.sender}: {message.content}
+                        <div className="font-medium mb-1 text-gray-700">
+                          [{message.timestamp}] {message.sender}:
+                        </div>
+                        <div className="pl-4">
+                          <MessageContent content={message.content} />
+                        </div>
                       </div>
                     ))}
                   </div>
                 </ScrollShadow>
 
-                {/* New message input area */}
-                <div className="flex items-end gap-2">
-                  <Textarea
-                    placeholder="Type your message..."
-                    value={newProgressMessage}
-                    onChange={(e) => setNewProgressMessage(e.target.value)}
-                    className="flex-grow"
-                    minRows={2}
-                  />
-                  <Button
-                    color="primary"
-                    isLoading={isUpdatingProgress}
-                    onPress={handleMaintenanceProgressDescriptionUpdate}
-                  >
-                    Send
-                  </Button>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      id="image-upload"
+                    />
+                    <label
+                      htmlFor="image-upload"
+                      className={`cursor-pointer px-4 py-2 rounded-md ${isUploading
+                          ? 'bg-gray-300 dark:bg-gray-600'
+                          : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600'
+                        }`}
+                    >
+                      {isUploading ? 'Uploading...' : 'Select Image'}
+                    </label>
+                  </div>
+
+                  {tempImageUrl && (
+                    <div className="relative">
+                      <Image
+                        src={tempImageUrl}
+                        alt="Selected Image"
+                        className="max-h-32 object-contain rounded-lg"
+                      />
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        className="absolute top-1 right-1"
+                        color="danger"
+                        variant="flat"
+                        onPress={() => setTempImageUrl(null)}
+                      >
+                        ✕
+                      </Button>
+                    </div>
+                  )}
+
+                  <div className="flex items-end gap-2">
+                    <Textarea
+                      placeholder="Type your message..."
+                      value={newProgressMessage}
+                      onChange={(e) => setNewProgressMessage(e.target.value)}
+                      className="flex-grow"
+                      minRows={2}
+                    />
+                    <Button
+                      color="primary"
+                      isLoading={isUpdatingProgress}
+                      onPress={handleMaintenanceProgressDescriptionUpdate}
+                      disabled={!newProgressMessage.trim() && !tempImageUrl}
+                    >
+                      Send
+                    </Button>
+                  </div>
                 </div>
               </div>
             </ModalBody>
@@ -426,9 +568,8 @@ const MaintenanceManagement: React.FC = () => {
                 variant="light"
                 onPress={() => setProgressDescriptionModalOpen(false)}
               >
-                Cancel
+                Close
               </Button>
-
             </ModalFooter>
           </ModalContent>
         </Modal>

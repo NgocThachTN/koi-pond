@@ -382,7 +382,9 @@ const DesignAndSample: React.FC = () => {
       case "description":
         return (
           <Tooltip content={request.description || 'No description'}>
-            <span className="truncate max-w-xs">{request.description || 'N/A'}</span>
+            <span className="truncate max-w-xs">
+              {(request.description || 'N/A').split('\n')[0]}
+            </span>
           </Tooltip>
         );
       case "type":
